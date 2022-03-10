@@ -1,6 +1,6 @@
 #!/bin/bash
 
-command < $1 1>$2
+command < $2 1>$3
 sed -n '8p' $2
 sed -n '32p' $2
 sed -n '128p' $2
