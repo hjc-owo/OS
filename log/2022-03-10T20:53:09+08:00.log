@@ -1,0 +1,6 @@
+[33m[01m[05m[ You are changing the branch: lab0 ][0m
+Autotest: Begin at Thu Mar 10 20:53:09 CST 2022
+[33m[01m[ (1)Start to test exercise0.1(4) ][0m
+[31m[01m[ Can not find your Makefile.You have not passed exercise0.1(4) ][0m
+[33m[01m[ You got 0 (of 100) this time. Thu Mar 10 20:53:09 CST 2022 ][0m
+Autotest: End at Thu Mar 10 20:53:09 CST 2022
