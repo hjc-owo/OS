@@ -1,15 +1,15 @@
-gcc -Wall $1 -o test > warning.txt
+gcc -Wall $1 -o test 2> warning.txt
 grep "warning" warning.txt | sed "s/warning: //g" > result.txt
 
-
-if [$? -eq 0] then 
-i=1
-while [$i -le n]
-do
-test $i >> result.txt
-i=$[$i+1]
-done
+if [ $? -eq 0 ]
+then 
+	i=1
+	while [ $i -le $2 ]
+	do
+		test $i >> result.txt
+		i=$[$i+1]
+	done
 fi
 
-pwd -name find_warnings.sh >> result.txt
+pwd find_warnings.sh >> result.txt
 
