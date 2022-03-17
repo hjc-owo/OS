@@ -6,7 +6,7 @@ then
 	i=1
 	while [ $i -le $2 ]
 	do
-		echo $i | ./test >> result.txt
+		./test >> result.txt
 		i=$[$i+1]
 	done
 fi
