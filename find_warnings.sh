@@ -1,4 +1,4 @@
-gcc $1 -o - Wall test > warning.txt
+gcc -Wall $1 -o test > warning.txt
 grep "warning" warning.txt | sed "s/warning: //g" > result.txt
 
 
@@ -11,5 +11,5 @@ i=$[$i+1]
 done
 fi
 
-find -name find_warnings.sh
+pwd -name find_warnings.sh >> result.txt
 
