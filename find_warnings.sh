@@ -11,5 +11,5 @@ then
 	done
 fi
 
-pwd find_warnings.sh >> result.txt
+pwd >> result.txt
 
