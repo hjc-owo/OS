@@ -1,0 +1,126 @@
+[33m[01m[05m[ You are changing the branch: lab0-Extra ][0m
+Autotest: Begin at Thu Mar 17 14:40:21 CST 2022
+/usr/src/workdir/input_testcase1.c: In function 'main':
+/usr/src/workdir/input_testcase1.c:4:12: error: expected expression before ')' token
+    4 |         if()
+      |            ^
+find_warnings.sh: line 12: syntax error near unexpected token `fi'
+find_warnings.sh: line 12: `fi'
+Files /home/git/ostest/target/19241027/lab0-Extra-2022-03-17T14:40:21+08:00-wddfa/result.txt and /home/git/ostest/target/19241027/lab0-Extra-2022-03-17T14:40:21+08:00-wddfa/result_ans.txt differ
+[31m[01m[ You have not passed testcase 1/10. ][0m
+/usr/src/workdir/input_testcase2.c: In function 'main':
+/usr/src/workdir/input_testcase2.c:4:16: warning: comparisons like 'X<=Y<=Z' do not have their mathematical meaning [-Wparentheses]
+    4 |         if (1<2<3)
+      |                ^
+/usr/src/workdir/input_testcase2.c:9:25: error: expected expression before '{' token
+    9 |                         {}
+      |                         ^
+/usr/src/workdir/input_testcase2.c:10:1: error: expected expression before '}' token
+   10 | }
+      | ^
+find_warnings.sh: line 12: syntax error near unexpected token `fi'
+find_warnings.sh: line 12: `fi'
+Files /home/git/ostest/target/19241027/lab0-Extra-2022-03-17T14:40:21+08:00-wddfa/result.txt and /home/git/ostest/target/19241027/lab0-Extra-2022-03-17T14:40:21+08:00-wddfa/result_ans.txt differ
+[31m[01m[ You have not passed testcase 2/10. ][0m
+/usr/src/workdir/input_testcase3.c: In function 'main':
+/usr/src/workdir/input_testcase3.c:9:17: warning: format '%d' expects argument of type 'int *', but argument 2 has type 'int' [-Wformat=]
+    9 |         scanf("%d",z);
+      |                ~^  ~
+      |                 |  |
+      |                 |  int
+      |                 int *
+/usr/src/workdir/input_testcase3.c:10:23: error: expected ')' before ';' token
+   10 |         printf("%d",&x;
+      |                       ^
+      |                       )
+/usr/src/workdir/input_testcase3.c:10:18: warning: format '%d' expects argument of type 'int', but argument 2 has type 'int *' [-Wformat=]
+   10 |         printf("%d",&x;
+      |                 ~^  ~~
+      |                  |  |
+      |                  |  int *
+      |                  int
+      |                 %ls
+/usr/src/workdir/input_testcase3.c:10:24: error: expected ';' before '}' token
+   10 |         printf("%d",&x;
+      |                        ^
+      |                        ;
+   11 | }
+      | ~                       
+find_warnings.sh: line 12: syntax error near unexpected token `fi'
+find_warnings.sh: line 12: `fi'
+Files /home/git/ostest/target/19241027/lab0-Extra-2022-03-17T14:40:21+08:00-wddfa/result.txt and /home/git/ostest/target/19241027/lab0-Extra-2022-03-17T14:40:21+08:00-wddfa/result_ans.txt differ
+[31m[01m[ You have not passed testcase 3/10. ][0m
+/usr/src/workdir/input_testcase4.c: In function 'main':
+/usr/src/workdir/input_testcase4.c:5:21: error: 'b' undeclared (first use in this function)
+    5 |         printf("%d",b);
+      |                     ^
+/usr/src/workdir/input_testcase4.c:5:21: note: each undeclared identifier is reported only once for each function it appears in
+/usr/src/workdir/input_testcase4.c:7:21: warning: format '%d' expects a matching 'int' argument [-Wformat=]
+    7 |         printf("%d %d %d",a);
+      |                    ~^
+      |                     |
+      |                     int
+/usr/src/workdir/input_testcase4.c:7:24: warning: format '%d' expects a matching 'int' argument [-Wformat=]
+    7 |         printf("%d %d %d",a);
+      |                       ~^
+      |                        |
+      |                        int
+find_warnings.sh: line 12: syntax error near unexpected token `fi'
+find_warnings.sh: line 12: `fi'
+Files /home/git/ostest/target/19241027/lab0-Extra-2022-03-17T14:40:21+08:00-wddfa/result.txt and /home/git/ostest/target/19241027/lab0-Extra-2022-03-17T14:40:21+08:00-wddfa/result_ans.txt differ
+[31m[01m[ You have not passed testcase 4/10. ][0m
+find_warnings.sh: line 12: syntax error near unexpected token `fi'
+find_warnings.sh: line 12: `fi'
+Files /home/git/ostest/target/19241027/lab0-Extra-2022-03-17T14:40:21+08:00-wddfa/result.txt and /home/git/ostest/target/19241027/lab0-Extra-2022-03-17T14:40:21+08:00-wddfa/result_ans.txt differ
+[31m[01m[ You have not passed testcase 5/10. ][0m
+find_warnings.sh: line 12: syntax error near unexpected token `fi'
+find_warnings.sh: line 12: `fi'
+Files /home/git/ostest/target/19241027/lab0-Extra-2022-03-17T14:40:21+08:00-wddfa/result.txt and /home/git/ostest/target/19241027/lab0-Extra-2022-03-17T14:40:21+08:00-wddfa/result_ans.txt differ
+[31m[01m[ You have not passed testcase 6/10. ][0m
+find_warnings.sh: line 12: syntax error near unexpected token `fi'
+find_warnings.sh: line 12: `fi'
+Files /home/git/ostest/target/19241027/lab0-Extra-2022-03-17T14:40:21+08:00-wddfa/result.txt and /home/git/ostest/target/19241027/lab0-Extra-2022-03-17T14:40:21+08:00-wddfa/result_ans.txt differ
+[31m[01m[ You have not passed testcase 7/10. ][0m
+/usr/src/workdir/input_testcase8.c: In function 'main':
+/usr/src/workdir/input_testcase8.c:6:15: warning: comparisons like 'X<=Y<=Z' do not have their mathematical meaning [-Wparentheses]
+    6 |         if(1<2<3)
+      |               ^
+find_warnings.sh: line 12: syntax error near unexpected token `fi'
+find_warnings.sh: line 12: `fi'
+Files /home/git/ostest/target/19241027/lab0-Extra-2022-03-17T14:40:21+08:00-wddfa/result.txt and /home/git/ostest/target/19241027/lab0-Extra-2022-03-17T14:40:21+08:00-wddfa/result_ans.txt differ
+[31m[01m[ You have not passed testcase 8/10. ][0m
+/usr/src/workdir/input_testcase9.c: In function 'main':
+/usr/src/workdir/input_testcase9.c:4:22: warning: suggest parentheses around arithmetic in operand of '|' [-Wparentheses]
+    4 |         int x = 2&3&4|3^3;
+      |                      ^
+/usr/src/workdir/input_testcase9.c:5:15: warning: comparisons like 'X<=Y<=Z' do not have their mathematical meaning [-Wparentheses]
+    5 |         if(1>2>3){
+      |               ^
+/usr/src/workdir/input_testcase9.c:6:25: warning: format '%d' expects a matching 'int *' argument [-Wformat=]
+    6 |                 scanf("%d");
+      |                        ~^
+      |                         |
+      |                         int *
+find_warnings.sh: line 12: syntax error near unexpected token `fi'
+find_warnings.sh: line 12: `fi'
+Files /home/git/ostest/target/19241027/lab0-Extra-2022-03-17T14:40:21+08:00-wddfa/result.txt and /home/git/ostest/target/19241027/lab0-Extra-2022-03-17T14:40:21+08:00-wddfa/result_ans.txt differ
+[31m[01m[ You have not passed testcase 9/10. ][0m
+/usr/src/workdir/input_testcase10.c: In function 'main':
+/usr/src/workdir/input_testcase10.c:5:9: warning: value computed is not used [-Wunused-value]
+    5 |         *p++;
+      |         ^~~~
+/usr/src/workdir/input_testcase10.c:6:20: warning: suggest parentheses around arithmetic in operand of '|' [-Wparentheses]
+    6 |         int x = 2&3|4&7|8&9|0;
+      |                    ^
+/usr/src/workdir/input_testcase10.c:6:24: warning: suggest parentheses around arithmetic in operand of '|' [-Wparentheses]
+    6 |         int x = 2&3|4&7|8&9|0;
+      |                        ^
+/usr/src/workdir/input_testcase10.c:5:11: warning: 'p' is used uninitialized in this function [-Wuninitialized]
+    5 |         *p++;
+      |          ~^~
+find_warnings.sh: line 12: syntax error near unexpected token `fi'
+find_warnings.sh: line 12: `fi'
+Files /home/git/ostest/target/19241027/lab0-Extra-2022-03-17T14:40:21+08:00-wddfa/result.txt and /home/git/ostest/target/19241027/lab0-Extra-2022-03-17T14:40:21+08:00-wddfa/result_ans.txt differ
+[31m[01m[ You have not passed testcase 10/10. ][0m
+[33m[01m[ You got 0 (of 100) this time. Thu Mar 17 14:43:45 CST 2022 ][0m
+Autotest: End at Thu Mar 17 14:43:45 CST 2022
