@@ -1,0 +1,7 @@
+/home/git/19241027/test.c:5:8: comparisons like 'X<=Y<=Z' do not have their mathematical meaning [-Wparentheses]
+/home/git/19241027/test.c:4:8: unused variable 'b' [-Wunused-variable]
+2
+4
+6
+8
+/home/git/19241027
