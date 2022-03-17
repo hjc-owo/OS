@@ -1,5 +1,6 @@
 gcc -Wall $1 -o test 2> warning.txt
 a=$?
+
 grep "warning" warning.txt | sed "s/warning: //g" > result.txt
 
 if [ $a -eq 0 ]
