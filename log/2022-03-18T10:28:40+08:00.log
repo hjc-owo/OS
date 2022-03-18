@@ -1,0 +1,57 @@
+[33m[01m[05m[ You are changing the branch: lab1 ][0m
+Autotest: Begin at Fri Mar 18 10:28:40 CST 2022
+[32m[ readelf.c found ][0m
+rm -rf *.o
+rm -rf readelf
+gcc -I./ -c main.c
+gcc -I./ -c readelf.c
+gcc main.o readelf.o -o readelf
+[32m[ Compile success! readelf found. ][0m
+[35m[ PASSED:0 ][0m
+[35m[ TOTAL:25 ][0m
+[31m[01m[ You have not passed readelf testcase 1/2 ][0m
+[35m[ PASSED:0 ][0m
+[35m[ TOTAL:24 ][0m
+[31m[01m[ You have not passed readelf testcase 2/2 ][0m
+Begin build at Fri Mar 18 10:28:43 CST 2022
+Cleanning the project.................
+
+for d in boot drivers init lib ;	\
+	do					\
+		make --directory=$d clean; \
+	done; \
+rm -rf *.o *~ gxemul/vmlinux
+make[1]: Entering directory '/usr/src/workdir/boot'
+rm -rf *~ *.o
+make[1]: Leaving directory '/usr/src/workdir/boot'
+make[1]: Entering directory '/usr/src/workdir/drivers'
+for d in gxconsole; \
+	do				\
+		make --directory=$d clean; \
+	done
+make[2]: Entering directory '/usr/src/workdir/drivers/gxconsole'
+rm -rf *.o *~
+make[2]: Leaving directory '/usr/src/workdir/drivers/gxconsole'
+make[1]: Leaving directory '/usr/src/workdir/drivers'
+make[1]: Entering directory '/usr/src/workdir/init'
+rm -rf *~ *.o
+make[1]: Leaving directory '/usr/src/workdir/init'
+make[1]: Entering directory '/usr/src/workdir/lib'
+rm -rf *~ *.o
+make[1]: Leaving directory '/usr/src/workdir/lib'
+
+Building the project..................
+
+make --directory=boot
+make[1]: Entering directory '/usr/src/workdir/boot'
+/OSLAB/compiler/usr/bin/mips_4KC-ldgcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -c start.S 
+make[1]: Leaving directory '/usr/src/workdir/boot'
+make[1]: /OSLAB/compiler/usr/bin/mips_4KC-ldgcc: Command not found
+make[1]: *** [Makefile:14: start.o] Error 127
+make: *** [Makefile:38: boot] Error 2
+Compile Error!
+
+End build at Fri Mar 18 10:28:45 CST 2022
+[31m[01m[ There is something wrong with your vmlinux. ][0m
+[33m[01m[ You got 20 (of 100) this time. Fri Mar 18 10:28:45 CST 2022 ][0m
+Autotest: End at Fri Mar 18 10:28:45 CST 2022
