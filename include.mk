@@ -7,7 +7,7 @@
 
 # Exercise 1.1. Please modify the CROSS_COMPILE path.
 
-CROSS_COMPILE :=  bin/mips_4KC-
+CROSS_COMPILE := /OSLAB/compiler/usr/bin/mips_4KC-ld
 CC            := $(CROSS_COMPILE)gcc
 CFLAGS        := -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000
 LD            := $(CROSS_COMPILE)ld
