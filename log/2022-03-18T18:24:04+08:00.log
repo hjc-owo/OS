@@ -1,0 +1,10 @@
+Manual Autotest: Begin at 2022年 03月 18日 星期五 18:24:04 CST
+gcc hello_os.c -o os_hello
+[32m[ You have passed make test ][0m
+rm os_hello
+[32m[ You have passed make clean test ][0m
+gcc hello_os.c -o os_hello
+[32m[ You have passed file test ][0m
+[32m[ You have passed grep test ][0m
+[33m[01m[ You got 100 (of 100) this time. 2022年 03月 18日 星期五 18:24:08 CST ][0m
+Autotest: End at 2022年 03月 18日 星期五 18:24:08 CST
