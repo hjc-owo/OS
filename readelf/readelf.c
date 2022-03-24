@@ -82,10 +82,9 @@ int readelf(u_char *binary, int size)
     	long unsigned int r1 = phdr1->p_vaddr + phdr1->p_memsz, l2 = phdr2->p_vaddr;
     	if (ROUNDDOWN(r1, align) == ROUNDDOWN(l2, align))
 		{
+			printf ("Overlay at page va : 0x%x\n", ROUNDDOWN(l2, align));
 			if(l2 < r1)
 				printf ("Conflict at page va : 0x%x\n", ROUNDDOWN(l2, align));
-			else
-				printf ("Overlay at page va : 0x%x\n", ROUNDDOWN(l2, align));
 			return 0;
 		}
 	}
