@@ -45,6 +45,8 @@ int is_elf_format(u_char *binary)
 /*
     Exercise 1.2. Please complete func "readelf".
 */
+
+#define align (1LL << 12)
 int readelf(u_char *binary, int size)
 {
         Elf32_Ehdr *ehdr = (Elf32_Ehdr *)binary;
@@ -79,14 +81,14 @@ int readelf(u_char *binary, int size)
         	phdr2 = ((Elf32_Phdr *)(ptr_ph_table + Nr * ph_entry_size));
         	long unsigned int r1 = phdr1->p_vaddr + phdr1->p_memsz, l2 = phdr2->p_vaddr;
         	printf("%x %x\n", phdr1->p_align, phdr2->p_align);
-        	if (ROUNDDOWN(r1, 4) == ROUNDDOWN(l2, 4) && l2 >= r1)
+        	if (ROUNDDOWN(r1, align) == ROUNDDOWN(l2, align) && l2 >= r1)
         	{
-        		printf ("Overlay at page va : 0x%x\n", ROUNDDOWN(l2, 4));
+        		printf ("Overlay at page va : 0x%x\n", ROUNDDOWN(l2, align));
         		return 0;
 			}
-			if (ROUNDDOWN(r1, 4) == ROUNDDOWN(l2, 4) && l2 < r1)
+			if (ROUNDDOWN(r1, align) == ROUNDDOWN(l2, align) && l2 < r1)
 			{
-				printf ("Conflict at page va : 0x%x\n", ROUNDDOWN(l2, 4));
+				printf ("Conflict at page va : 0x%x\n", ROUNDDOWN(l2, align));
 				return 0;
 			}
 		}
