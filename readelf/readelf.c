@@ -49,54 +49,50 @@ int is_elf_format(u_char *binary)
 #define align (1LL << 12)
 int readelf(u_char *binary, int size)
 {
-        Elf32_Ehdr *ehdr = (Elf32_Ehdr *)binary;
+    Elf32_Ehdr *ehdr = (Elf32_Ehdr *)binary;
 
-        int Nr;
+    int Nr;
 
-        Elf32_Phdr *phdr1 = NULL, *phdr2 = NULL, *phdr = NULL;
+    Elf32_Phdr *phdr1 = NULL, *phdr2 = NULL, *phdr = NULL;
 
-        u_char *ptr_ph_table = NULL;
-        Elf32_Half ph_entry_count;
-        Elf32_Half ph_entry_size;
+    u_char *ptr_ph_table = NULL;
+    Elf32_Half ph_entry_count;
+    Elf32_Half ph_entry_size;
 
-        // check whether `binary` is a ELF file.
-        if (size < 4 || !is_elf_format(binary))
-        {
-                printf("not a standard elf format\n");
-                return 0;
-        }
+    // check whether `binary` is a ELF file.
+    if (size < 4 || !is_elf_format(binary))
+    {
+            printf("not a standard elf format\n");
+            return 0;
+    }
 
-        // get section table addr, section header number and section header size.
-        ptr_ph_table = binary + ehdr->e_phoff;
-        ph_entry_count = ehdr->e_phnum;
-        ph_entry_size = ehdr->e_phentsize;
+    // get section table addr, section header number and section header size.
+    ptr_ph_table = binary + ehdr->e_phoff;
+    ph_entry_count = ehdr->e_phnum;
+    ph_entry_size = ehdr->e_phentsize;
 
-        // for each section header, output section number and section addr.
-        // hint: section number starts at 0.
-        
-        int flag = 0;
-        for (Nr = 1; Nr < ph_entry_count; Nr++)
-        {
-        	phdr1 = ((Elf32_Phdr *)(ptr_ph_table + (Nr - 1) * ph_entry_size));
-        	phdr2 = ((Elf32_Phdr *)(ptr_ph_table + Nr * ph_entry_size));
-        	long unsigned int r1 = phdr1->p_vaddr + phdr1->p_memsz, l2 = phdr2->p_vaddr;
-        	if (ROUNDDOWN(r1, align) == ROUNDDOWN(l2, align) && l2 < r1)
-			{
-				printf ("Conflict at page va : 0x%x\n", ROUNDDOWN(l2, align));
-				return 0;
-			}
-			
-        	if (ROUNDDOWN(r1, align) == ROUNDDOWN(l2, align))
-        	{
-        		printf ("Overlay at page va : 0x%x\n", ROUNDDOWN(l2, align));
-        		return 0;
-			}
-		}
-        
-        for (Nr = 0; Nr < ph_entry_count; Nr++)
+    // for each section header, output section number and section addr.
+    // hint: section number starts at 0.
+    
+    int flag = 0;
+    for (Nr = 1; Nr < ph_entry_count; Nr++)
+    {
+    	phdr1 = ((Elf32_Phdr *)(ptr_ph_table + (Nr - 1) * ph_entry_size));
+    	phdr2 = ((Elf32_Phdr *)(ptr_ph_table + Nr * ph_entry_size));
+    	long unsigned int r1 = phdr1->p_vaddr + phdr1->p_memsz, l2 = phdr2->p_vaddr;
+    	if (ROUNDDOWN(r1, align) == ROUNDDOWN(l2, align))
 		{
-    		phdr = ((Elf32_Phdr *)(ptr_ph_table + Nr * ph_entry_size));
-        	printf("%d:0x%x,0x%x\n", Nr, phdr->p_filesz, phdr->p_memsz);
+			if(l2 < r1)
+				printf ("Conflict at page va : 0x%x\n", ROUNDDOWN(l2, align));
+			else
+				printf ("Overlay at page va : 0x%x\n", ROUNDDOWN(l2, align));
+			return 0;
 		}
-        return 0;
+	}
+    for (Nr = 0; Nr < ph_entry_count; Nr++)
+	{
+		phdr = ((Elf32_Phdr *)(ptr_ph_table + Nr * ph_entry_size));
+    	printf("%d:0x%x,0x%x\n", Nr, phdr->p_filesz, phdr->p_memsz);
+	}
+    return 0;
 }
