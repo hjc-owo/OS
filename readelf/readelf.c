@@ -50,7 +50,7 @@ int readelf(u_char *binary, int size)
 
         int Nr;
 
-        Elf32_Phdr *phdr = NULL;
+        Elf32_Phdr *phdr1 = NULL, *phdr2 = NULL, phdr = NULL;
 
         u_char *ptr_ph_table = NULL;
         Elf32_Half ph_entry_count;
@@ -72,20 +72,32 @@ int readelf(u_char *binary, int size)
         // hint: section number starts at 0.
         
         int flag = 0;
-//        for (Nr = 1; Nr < ph_entry_count; Nr++)
-//        {
-//        	if ()
-//		}
+        for (Nr = 1; Nr < ph_entry_count; Nr++)
+        {
+        	phdr1 = ((Elf32_Phdr *)(ptr_ph_table + (Nr - 1) * ph_entry_size));
+        	phdr2 = ((Elf32_Phdr *)(ptr_ph_table + Nr * ph_entry_size));
+        	if (phdr1->p_vaddr + phdr1->p_filesz > ->p_vaddr)
+        	{
+        		flag = 2;
+        		break;
+			}
+		}
         
         if (flag == 0)
 	        for (Nr = 0; Nr < ph_entry_count; Nr++)
-	                printf("%d:0x%x,0x%x\n", Nr, ((Elf32_Phdr *)(ptr_ph_table + Nr * ph_entry_size))->p_filesz, ((Elf32_Phdr *)(ptr_ph_table + Nr * ph_entry_size))->p_memsz);
+			{
+        		phdr = ((Elf32_Phdr *)(ptr_ph_table + Nr * ph_entry_size));
+	        	printf("%d:0x%x,0x%x\n", Nr, phdr->p_filesz, phdr->p_memsz);
+			}    
 	    else if (flag == 1)
-	    	printf ("Overlay at page va : 0x%x\n", ((Elf32_Phdr *)(ptr_ph_table + (Nr - 1) * ph_entry_size))->p_vaddr);
+    	{
+    		phdr1 = ((Elf32_Phdr *)(ptr_ph_table + (Nr - 1) * ph_entry_size));
+    		printf ("Overlay at page va : 0x%x\n", phdr1->p_vaddr);
+		}
 	    else 
-	    	printf ("Conflict at page va : 0x%x\n", ((Elf32_Phdr *)(ptr_ph_table + (Nr - 1) * ph_entry_size))->p_vaddr);
-
+	    {
+	    	phdr1 = ((Elf32_Phdr *)(ptr_ph_table + (Nr - 1) * ph_entry_size));
+    		printf ("Conflict at page va : 0x%x\n", phdr1->p_vaddr);
+		}
         return 0;
 }
-
-
