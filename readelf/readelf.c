@@ -79,11 +79,11 @@ int readelf(u_char *binary, int size)
         
         if (flag == 0)
 	        for (Nr = 0; Nr < ph_entry_count; Nr++)
-	                printf("%d:0x%x,0x%x\n", Nr, ((Elf32_Phdr *)(ptr_ph_table + Nr * ph_entry_size))->ph_filesz, ((Elf32_Phdr *)(ptr_ph_table + Nr * ph_entry_size))->ph_memsz);
+	                printf("%d:0x%x,0x%x\n", Nr, ((Elf32_Phdr *)(ptr_ph_table + Nr * ph_entry_size))->p_filesz, ((Elf32_Phdr *)(ptr_ph_table + Nr * ph_entry_size))->p_memsz);
 	    else if (flag == 1)
-	    	printf ("Overlay at page va : 0x%x\n", Nr - 1, ((Elf32_Phdr *)(ptr_ph_table + (Nr - 1) * ph_entry_size))->ph_vaddr);
+	    	printf ("Overlay at page va : 0x%x\n", Nr - 1, ((Elf32_Phdr *)(ptr_ph_table + (Nr - 1) * ph_entry_size))->p_vaddr);
 	    else 
-	    	printf ("Conflict at page va : 0x%x\n", Nr - 1, ((Elf32_Phdr *)(ptr_ph_table + (Nr - 1) * ph_entry_size))->ph_vaddr);
+	    	printf ("Conflict at page va : 0x%x\n", Nr - 1, ((Elf32_Phdr *)(ptr_ph_table + (Nr - 1) * ph_entry_size))->p_vaddr);
 
         return 0;
 }
