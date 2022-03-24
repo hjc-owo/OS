@@ -5,6 +5,7 @@
  */
 
 #include "kerelf.h"
+#include "types.h"
 #include <stdio.h>
 /* Overview:
  *   Check whether it is a ELF file.
