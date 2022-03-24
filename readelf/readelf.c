@@ -98,13 +98,13 @@ int readelf(u_char *binary, int size)
 			}
 	    else if (flag == 1)
     	{
-    		phdr1 = ((Elf32_Phdr *)(ptr_ph_table + (Nr - 1) * ph_entry_size));
-    		printf ("Overlay at page va : 0x%x\n", ROUNDDOWN(phdr1->p_vaddr + phdr1->p_memsz, phdr1->p_align));
+    		phdr2 = ((Elf32_Phdr *)(ptr_ph_table + Nr * ph_entry_size));
+    		printf ("Overlay at page va : 0x%x\n", ROUNDDOWN(phdr2->p_vaddr, phdr2->p_align));
 		}
 	    else 
 	    {
-	    	phdr1 = ((Elf32_Phdr *)(ptr_ph_table + (Nr - 1) * ph_entry_size));
-    		printf ("Conflict at page va : 0x%x\n", ROUNDDOWN(phdr1->p_vaddr + phdr1->p_memsz, phdr1->p_align));
+	    	phdr2 = ((Elf32_Phdr *)(ptr_ph_table + Nr * ph_entry_size));
+    		printf ("Conflict at page va : 0x%x\n", ROUNDDOWN(phdr2->p_vaddr, phdr2->p_align));
 		}
         return 0;
 }
