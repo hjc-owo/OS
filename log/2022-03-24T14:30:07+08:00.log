@@ -1,0 +1,33 @@
+[33m[01m[05m[ You are changing the branch: lab1-1-Extra ][0m
+Autotest: Begin at Thu Mar 24 14:30:07 CST 2022
+[32m[ readelf.c found ][0m
+rm -rf *.o
+rm readelf
+rm: cannot remove 'readelf': No such file or directory
+make: *** [Makefile:16: clean] Error 1
+gcc -I./ -c main.c
+gcc -I./ -c readelf.c
+readelf.c: In function 'readelf':
+readelf.c:77:14: error: expected expression before ')' token
+   77 |          if ()
+      |              ^
+readelf.c:82:100: error: 'Elf32_Phdr' {aka 'struct <anonymous>'} has no member named 'ph_filesz'; did you mean 'p_filesz'?
+   82 |                  printf("%d:0x%x,0x%x\n", Nr, ((Elf32_Phdr *)(ptr_ph_table + Nr * ph_entry_size))->ph_filesz, ((Elf32_Phdr *)(ptr_ph_table + Nr * ph_entry_size))->ph_memsz);
+      |                                                                                                    ^~~~~~~~~
+      |                                                                                                    p_filesz
+readelf.c:82:164: error: 'Elf32_Phdr' {aka 'struct <anonymous>'} has no member named 'ph_memsz'; did you mean 'p_memsz'?
+   82 |                  printf("%d:0x%x,0x%x\n", Nr, ((Elf32_Phdr *)(ptr_ph_table + Nr * ph_entry_size))->ph_filesz, ((Elf32_Phdr *)(ptr_ph_table + Nr * ph_entry_size))->ph_memsz);
+      |                                                                                                                                                                    ^~~~~~~~
+      |                                                                                                                                                                    p_memsz
+readelf.c:84:113: error: 'Elf32_Phdr' {aka 'struct <anonymous>'} has no member named 'ph_vaddr'; did you mean 'p_vaddr'?
+   84 |       printf ("Overlay at page va : 0x%x\n", Nr - 1, ((Elf32_Phdr *)(ptr_ph_table + (Nr - 1) * ph_entry_size))->ph_vaddr);
+      |                                                                                                                 ^~~~~~~~
+      |                                                                                                                 p_vaddr
+readelf.c:86:114: error: 'Elf32_Phdr' {aka 'struct <anonymous>'} has no member named 'ph_vaddr'; did you mean 'p_vaddr'?
+   86 |       printf ("Conflict at page va : 0x%x\n", Nr - 1, ((Elf32_Phdr *)(ptr_ph_table + (Nr - 1) * ph_entry_size))->ph_vaddr);
+      |                                                                                                                  ^~~~~~~~
+      |                                                                                                                  p_vaddr
+make: *** [Makefile:6: readelf.o] Error 1
+[31m[01m[ Cannot find your readelf. Please check your readelf.c. ][0m
+[33m[01m[ You got 0 (of 100) this time. Thu Mar 24 14:30:08 CST 2022 ][0m
+Autotest: End at Thu Mar 24 14:30:08 CST 2022
