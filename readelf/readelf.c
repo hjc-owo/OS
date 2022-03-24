@@ -80,31 +80,20 @@ int readelf(u_char *binary, int size)
         	long unsigned int r1 = phdr1->p_vaddr + phdr1->p_memsz, l2 = phdr2->p_vaddr;
         	if (ROUNDDOWN(r1, phdr1->p_align) == ROUNDDOWN(l2, phdr2->p_align) && l2 >= r1)
         	{
-        		flag = 1;
-        		break;
+        		printf ("Overlay at page va : 0x%x\n", ROUNDDOWN(l2, phdr2->p_align));
+        		return 0;
 			}
 			if (ROUNDDOWN(r1, phdr1->p_align) == ROUNDDOWN(l2, phdr2->p_align) && l2 < r1)
 			{
-				flag = 2;
-				break;
+				printf ("Conflict at page va : 0x%x\n", ROUNDDOWN(l2, phdr2->p_align));
+				return 0;
 			}
 		}
         
-        if (flag == 0)
-	        for (Nr = 0; Nr < ph_entry_count; Nr++)
-			{
-        		phdr = ((Elf32_Phdr *)(ptr_ph_table + Nr * ph_entry_size));
-	        	printf("%d:0x%x,0x%x\n", Nr, phdr->p_filesz, phdr->p_memsz);
-			}
-	    else if (flag == 1)
-    	{
-    		phdr2 = ((Elf32_Phdr *)(ptr_ph_table + Nr * ph_entry_size));
-    		printf ("Overlay at page va : 0x%x\n", ROUNDDOWN(phdr2->p_vaddr, phdr2->p_align));
-		}
-	    else 
-	    {
-	    	phdr2 = ((Elf32_Phdr *)(ptr_ph_table + Nr * ph_entry_size));
-    		printf ("Conflict at page va : 0x%x\n", ROUNDDOWN(phdr2->p_vaddr, phdr2->p_align));
+        for (Nr = 0; Nr < ph_entry_count; Nr++)
+		{
+    		phdr = ((Elf32_Phdr *)(ptr_ph_table + Nr * ph_entry_size));
+        	printf("%d:0x%x,0x%x\n", Nr, phdr->p_filesz, phdr->p_memsz);
 		}
         return 0;
 }
