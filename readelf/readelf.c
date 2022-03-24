@@ -78,14 +78,15 @@ int readelf(u_char *binary, int size)
         	phdr1 = ((Elf32_Phdr *)(ptr_ph_table + (Nr - 1) * ph_entry_size));
         	phdr2 = ((Elf32_Phdr *)(ptr_ph_table + Nr * ph_entry_size));
         	long unsigned int r1 = phdr1->p_vaddr + phdr1->p_memsz, l2 = phdr2->p_vaddr;
-        	if (ROUNDDOWN(r1, phdr1->p_align) == ROUNDDOWN(l2, phdr2->p_align) && l2 >= r1)
+        	printf("%x %x\n", phdr1->p_align, phdr2->p_align);
+        	if (ROUNDDOWN(r1, 4) == ROUNDDOWN(l2, 4) && l2 >= r1)
         	{
-        		printf ("Overlay at page va : 0x%x\n", ROUNDDOWN(l2, phdr2->p_align));
+        		printf ("Overlay at page va : 0x%x\n", ROUNDDOWN(l2, 4));
         		return 0;
 			}
-			if (ROUNDDOWN(r1, phdr1->p_align) == ROUNDDOWN(l2, phdr2->p_align) && l2 < r1)
+			if (ROUNDDOWN(r1, 4) == ROUNDDOWN(l2, 4) && l2 < r1)
 			{
-				printf ("Conflict at page va : 0x%x\n", ROUNDDOWN(l2, phdr2->p_align));
+				printf ("Conflict at page va : 0x%x\n", ROUNDDOWN(l2, 4));
 				return 0;
 			}
 		}
