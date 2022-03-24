@@ -1,0 +1,31 @@
+[33m[01m[05m[ You are changing the branch: lab1-1-Extra ][0m
+Autotest: Begin at Thu Mar 24 14:41:31 CST 2022
+[32m[ readelf.c found ][0m
+rm -rf *.o
+rm readelf
+rm: cannot remove 'readelf': No such file or directory
+make: *** [Makefile:16: clean] Error 1
+gcc -I./ -c main.c
+gcc -I./ -c readelf.c
+In file included from /usr/include/stdio.h:33,
+                 from readelf.c:8:
+readelf.c: In function 'readelf':
+readelf.c:53:57: error: invalid initializer
+   53 |         Elf32_Phdr *phdr1 = NULL, *phdr2 = NULL, phdr = NULL;
+      |                                                         ^~~~
+readelf.c:79:49: error: expected expression before '->' token
+   79 |          if (phdr1->p_vaddr + phdr1->p_filesz > ->p_vaddr)
+      |                                                 ^~
+readelf.c:89:18: error: incompatible types when assigning to type 'Elf32_Phdr' {aka 'struct <anonymous>'} from type 'Elf32_Phdr *' {aka 'struct <anonymous> *'}
+   89 |           phdr = ((Elf32_Phdr *)(ptr_ph_table + Nr * ph_entry_size));
+      |                  ^
+readelf.c:90:44: error: invalid type argument of '->' (have 'Elf32_Phdr' {aka 'struct <anonymous>'})
+   90 |           printf("%d:0x%x,0x%x\n", Nr, phdr->p_filesz, phdr->p_memsz);
+      |                                            ^~
+readelf.c:90:60: error: invalid type argument of '->' (have 'Elf32_Phdr' {aka 'struct <anonymous>'})
+   90 |           printf("%d:0x%x,0x%x\n", Nr, phdr->p_filesz, phdr->p_memsz);
+      |                                                            ^~
+make: *** [Makefile:6: readelf.o] Error 1
+[31m[01m[ Cannot find your readelf. Please check your readelf.c. ][0m
+[33m[01m[ You got 0 (of 100) this time. Thu Mar 24 14:41:32 CST 2022 ][0m
+Autotest: End at Thu Mar 24 14:41:32 CST 2022
