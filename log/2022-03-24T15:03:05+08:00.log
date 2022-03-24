@@ -1,0 +1,36 @@
+[33m[01m[05m[ You are changing the branch: lab1-1-Extra ][0m
+Autotest: Begin at Thu Mar 24 15:03:05 CST 2022
+[32m[ readelf.c found ][0m
+rm -rf *.o
+rm readelf
+rm: cannot remove 'readelf': No such file or directory
+make: *** [Makefile:16: clean] Error 1
+gcc -I./ -c main.c
+gcc -I./ -c readelf.c
+readelf.c: In function 'readelf':
+readelf.c:96:66: error: macro "ROUND" requires 2 arguments, but only 1 given
+   96 |       printf ("Overlay at page va : 0x%x\n", ROUND(phdr1->p_vaddr);
+      |                                                                  ^
+In file included from kerelf.h:29,
+                 from readelf.c:7:
+types.h:46: note: macro "ROUND" defined here
+   46 | #define ROUND(a, n) (((((u_long)(a))+(n)-1)) & ~((n)-1))
+      | 
+readelf.c:96:46: error: 'ROUND' undeclared (first use in this function)
+   96 |       printf ("Overlay at page va : 0x%x\n", ROUND(phdr1->p_vaddr);
+      |                                              ^~~~~
+readelf.c:96:46: note: each undeclared identifier is reported only once for each function it appears in
+readelf.c:96:51: error: expected ')' before ';' token
+   96 |       printf ("Overlay at page va : 0x%x\n", ROUND(phdr1->p_vaddr);
+      |                                                   ^               ~
+      |                                                   )
+readelf.c:96:68: error: expected ';' before '}' token
+   96 |       printf ("Overlay at page va : 0x%x\n", ROUND(phdr1->p_vaddr);
+      |                                                                    ^
+      |                                                                    ;
+   97 |   }
+      |   ~                                                                 
+make: *** [Makefile:6: readelf.o] Error 1
+[31m[01m[ Cannot find your readelf. Please check your readelf.c. ][0m
+[33m[01m[ You got 0 (of 100) this time. Thu Mar 24 15:03:06 CST 2022 ][0m
+Autotest: End at Thu Mar 24 15:03:06 CST 2022
