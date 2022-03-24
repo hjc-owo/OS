@@ -77,7 +77,7 @@ int readelf(u_char *binary, int size)
         {
         	phdr1 = ((Elf32_Phdr *)(ptr_ph_table + (Nr - 1) * ph_entry_size));
         	phdr2 = ((Elf32_Phdr *)(ptr_ph_table + Nr * ph_entry_size));
-        	if (ROUNDDOWN(phdr1->p_offset + phdr1->p_filesz, 1LL << 15) == ROUNDDOWN(phdr2->p_offset, 1LL << 15))
+        	if (ROUNDDOWN(phdr1->p_offset + phdr1->p_filesz, BY2PG) == ROUNDDOWN(phdr2->p_offset, BY2PG))
         	{
         		flag = 1;
         		break;
