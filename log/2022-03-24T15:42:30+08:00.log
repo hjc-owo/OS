@@ -1,0 +1,35 @@
+[33m[01m[05m[ You are changing the branch: lab1-1-Extra ][0m
+Autotest: Begin at Thu Mar 24 15:42:30 CST 2022
+[32m[ readelf.c found ][0m
+rm -rf *.o
+rm readelf
+rm: cannot remove 'readelf': No such file or directory
+make: *** [Makefile:16: clean] Error 1
+gcc -I./ -c main.c
+gcc -I./ -c readelf.c
+readelf.c: In function 'readelf':
+readelf.c:86:44: warning: format '%x' expects argument of type 'unsigned int', but argument 2 has type 'long long unsigned int' [-Wformat=]
+   86 |           printf ("Overlay at page va : 0x%x\n", ROUNDDOWN(l2, align));
+      |                                           ~^
+      |                                            |
+      |                                            unsigned int
+      |                                           %llx
+readelf.c:91:39: warning: format '%x' expects argument of type 'unsigned int', but argument 2 has type 'long long unsigned int' [-Wformat=]
+   91 |     printf ("Conflict at page va : 0x%x\n", ROUNDDOWN(l2, align));
+      |                                      ~^
+      |                                       |
+      |                                       unsigned int
+      |                                      %llx
+gcc main.o readelf.o -o readelf
+[32m[ We have successfully compiled your files! ][0m
+[35m[ PASSED:1 ][0m
+[35m[ TOTAL:1 ][0m
+[32m[ You have passed Conflict and Overlay testElf testcase 1/3 ][0m
+[35m[ PASSED:0 ][0m
+[35m[ TOTAL:1 ][0m
+[31m[01m[ You have not passed Conflict and Overlay testElf testcase 2/3. Please check your readelf.c. Pay attention to the output format. ][0m
+[35m[ PASSED:2 ][0m
+[35m[ TOTAL:2 ][0m
+[32m[ You have passed Conflict and Overlay testElf testcase 3/3 ][0m
+[33m[01m[ You got 70 (of 100) this time. Thu Mar 24 15:42:37 CST 2022 ][0m
+Autotest: End at Thu Mar 24 15:42:37 CST 2022
