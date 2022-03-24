@@ -93,7 +93,7 @@ int readelf(u_char *binary, int size)
 	    else if (flag == 1)
     	{
     		phdr1 = ((Elf32_Phdr *)(ptr_ph_table + (Nr - 1) * ph_entry_size));
-    		printf ("Overlay at page va : 0x%x\n", ROUND(phdr1->p_vaddr);
+    		printf ("Overlay at page va : 0x%x\n", ROUND(phdr1->p_vaddr, phdr1->p_align);
 		}
 	    else 
 	    {
