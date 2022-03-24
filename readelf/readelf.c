@@ -83,7 +83,7 @@ int readelf(u_char *binary, int size)
         		flag = 1;
         		break;
 			}
-			if (ROUNDDOWN(l2, phdr1->p_align) == ROUNDDOWN(r1, phdr2->p_align) && l2 < r1)
+			if (ROUNDDOWN(r1, phdr1->p_align) == ROUNDDOWN(l2, phdr2->p_align) && l2 < r1)
 			{
 				flag = 2;
 				break;
@@ -95,7 +95,7 @@ int readelf(u_char *binary, int size)
 			{
         		phdr = ((Elf32_Phdr *)(ptr_ph_table + Nr * ph_entry_size));
 	        	printf("%d:0x%x,0x%x\n", Nr, phdr->p_filesz, phdr->p_memsz);
-			}    
+			}
 	    else if (flag == 1)
     	{
     		phdr1 = ((Elf32_Phdr *)(ptr_ph_table + (Nr - 1) * ph_entry_size));
