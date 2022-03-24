@@ -50,7 +50,7 @@ int readelf(u_char *binary, int size)
 
         int Nr;
 
-        Elf32_Phdr *phdr1 = NULL, *phdr2 = NULL, phdr = NULL;
+        Elf32_Phdr *phdr1 = NULL, *phdr2 = NULL, *phdr = NULL;
 
         u_char *ptr_ph_table = NULL;
         Elf32_Half ph_entry_count;
@@ -76,7 +76,7 @@ int readelf(u_char *binary, int size)
         {
         	phdr1 = ((Elf32_Phdr *)(ptr_ph_table + (Nr - 1) * ph_entry_size));
         	phdr2 = ((Elf32_Phdr *)(ptr_ph_table + Nr * ph_entry_size));
-        	if (phdr1->p_vaddr + phdr1->p_filesz > ->p_vaddr)
+        	if (phdr1->p_vaddr + phdr1->p_filesz > phdr2->p_vaddr)
         	{
         		flag = 2;
         		break;
