@@ -24,9 +24,9 @@ extern int PrintNum(char *, unsigned long, int, int, int, int, char, int);
 static const char theFatalMsg[] = "fatal error in lp_Print!";
 
 struct my_struct {
-int size;
-char c;
-int array[SIZE_C];
+	int size;
+	char c;
+	int array[];
 };
 
 /* -*-
