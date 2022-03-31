@@ -1,6 +1,6 @@
-#include <asm/regdef.h>
-#include <asm/cp0regdef.h>
-#include <asm/asm.h>
+#include <../asm/regdef.h>
+#include <../asm/cp0regdef.h>
+#include <../asm/asm.h>
 
 LEAF(_my_getchar) /*LEAF is defined in asm.h and LEAF functions don't call other functions*/
 	
