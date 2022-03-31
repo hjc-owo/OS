@@ -1,3 +1,6 @@
+CC := /OSLAB/compiler/usr/bin/mips_4KC-gcc
+INCLUDES := -I../include
+
 all:
-	gcc -c my_driver.S -I../include/
-	gcc -c my_cal.c -I../include
+	$(CC) -c my_driver.S $(INCLUDES)
+	$(CC) -c my_cal.c $(INCLUDES)
