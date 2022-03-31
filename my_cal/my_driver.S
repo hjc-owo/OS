@@ -2,6 +2,8 @@
 #include <asm/cp0regdef.h>
 #include <asm/asm.h>
 
+.text
+
 LEAF(_my_getchar) /*LEAF is defined in asm.h and LEAF functions don't call other functions*/
 	
 	next_line:
