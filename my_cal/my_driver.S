@@ -71,7 +71,7 @@ LEAF(_my_getchar) /*LEAF is defined in asm.h and LEAF functions don't call other
 		while_1_end:
 			li t3, 10
 			sb t3, 0x00(s1)
-			j next_line
+			j calc_close
 			nop
 			
 		j if_end_4
