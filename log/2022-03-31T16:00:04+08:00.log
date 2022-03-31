@@ -1,0 +1,73 @@
+[33m[01m[05m[ You are changing the branch: lab1-2-Extra ][0m
+Autotest: Begin at Thu Mar 31 16:00:04 CST 2022
+[32m[ All files exists. ][0m
+make: *** No rule to make target 'clean'.  Stop.
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -c my_driver.S -I../include
+my_driver.S: Assembler messages:
+my_driver.S:109: Warning: Pretending global symbol used as branch target is local.
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -c my_cal.c -I../include
+[32m[ Compile success! my_cal.o my_driver.o found. ][0m
+for d in boot drivers init lib my_cal ;	\
+	do					\
+		make --directory=$d clean; \
+	done; \
+rm -rf *.o *~ gxemul/vmlinux
+make[1]: Entering directory '/usr/src/workdir/boot'
+rm -rf *~ *.o
+make[1]: Leaving directory '/usr/src/workdir/boot'
+make[1]: Entering directory '/usr/src/workdir/drivers'
+for d in gxconsole; \
+	do				\
+		make --directory=$d clean; \
+	done
+make[2]: Entering directory '/usr/src/workdir/drivers/gxconsole'
+rm -rf *.o *~
+make[2]: Leaving directory '/usr/src/workdir/drivers/gxconsole'
+make[1]: Leaving directory '/usr/src/workdir/drivers'
+make[1]: Entering directory '/usr/src/workdir/init'
+rm -rf *~ *.o
+make[1]: Leaving directory '/usr/src/workdir/init'
+make[1]: Entering directory '/usr/src/workdir/lib'
+rm -rf *~ *.o
+make[1]: Leaving directory '/usr/src/workdir/lib'
+make[1]: Entering directory '/usr/src/workdir/my_cal'
+rm -rf *~ *.o
+make[1]: Leaving directory '/usr/src/workdir/my_cal'
+make --directory=boot
+make[1]: Entering directory '/usr/src/workdir/boot'
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -c start.S 
+make[1]: Leaving directory '/usr/src/workdir/boot'
+make --directory=drivers
+make[1]: Entering directory '/usr/src/workdir/drivers'
+make --directory=gxconsole
+make[2]: Entering directory '/usr/src/workdir/drivers/gxconsole'
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000   -c -o console.o console.c
+console.c: In function 'printcharc':
+console.c:26: warning: 'return' with a value, in function returning void
+console.c: In function 'halt':
+console.c:37: warning: 'return' with a value, in function returning void
+console.c: In function 'printstr':
+console.c:48: warning: 'return' with a value, in function returning void
+make[2]: Leaving directory '/usr/src/workdir/drivers/gxconsole'
+make[1]: Leaving directory '/usr/src/workdir/drivers'
+make --directory=init
+make[1]: Entering directory '/usr/src/workdir/init'
+/OSLAB/compiler/usr/bin/mips_4KC-gcc  -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include -c init.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc  -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include -c main.c
+make[1]: Leaving directory '/usr/src/workdir/init'
+make --directory=lib
+make[1]: Entering directory '/usr/src/workdir/lib'
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I./ -I../ -I../include/ -c print.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I./ -I../ -I../include/ -c printf.c
+printf.c: In function 'myoutput':
+printf.c:26: warning: 'return' with a value, in function returning void
+make[1]: Leaving directory '/usr/src/workdir/lib'
+make --directory=my_cal
+make[1]: Entering directory '/usr/src/workdir/my_cal'
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -c my_driver.S 
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -c my_cal.c 
+make[1]: Leaving directory '/usr/src/workdir/my_cal'
+/OSLAB/compiler/usr/bin/mips_4KC-ld -o gxemul/vmlinux -N -T tools/scse0_3.lds boot/start.o init/main.o init/init.o drivers/gxconsole/console.o lib/*.o my_cal/*.o
+[31m[01m[ GXemul exit test timeout. Something's wrong with your my_driver.S, maybe. ][0m
+[33m[01m[ You got 10 (of 100) this time. Thu Mar 31 16:00:07 CST 2022 ][0m
+Autotest: End at Thu Mar 31 16:00:07 CST 2022
