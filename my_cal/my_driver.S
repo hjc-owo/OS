@@ -119,6 +119,7 @@ LEAF(_my_putchar)
 		nop
 		
 	sb t1, 0x00(s1)
+	sb zero, 0x10(s1)
 END(_my_putchar)
 
 LEAF(_my_exit)
