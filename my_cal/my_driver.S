@@ -106,7 +106,7 @@ LEAF(_my_getchar) /*LEAF is defined in asm.h and LEAF functions don't call other
 			nop
 			
 		calc_close:
-			j _my_exit
+			sb zero, 0x10(s1)
 			
 	
 END(_my_getchar)            /*the function defined in asm.h*/
