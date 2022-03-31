@@ -1,7 +1,7 @@
 #include <my_cal.S>
 
 char a[1086], b[1086];
-int ans, i, n = 1;
+int ans, i, n = 1, j;
 char x;
 
 int main()
@@ -10,7 +10,7 @@ int main()
 	{
 		a[i++] = x;
 	}
-	for (int j = i - 1; j >= 0; j--)
+	for (j = i - 1; j >= 0; j--)
 	{
 		ans += n * a[j];
 		n *= 10;
@@ -20,6 +20,6 @@ int main()
 		b[i] = ans % 2 - '0';
 		ans /= 2;
 	}
-	for (int j = i - 1; j >= 0; j--)
+	for (j = i - 1; j >= 0; j--)
 	_my_putchar(b[j]);
 }
