@@ -14,6 +14,7 @@ LEAF(_my_getchar) /*LEAF is defined in asm.h and LEAF functions don't call other
 		
 	sb t1, 0x00(s1)
 	sb zero, 0x10(s1)
+	move v0, t1
 	jr ra
 	
 END(_my_getchar)            /*the function defined in asm.h*/
