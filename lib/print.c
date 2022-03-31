@@ -1,4 +1,4 @@
-/*
+./*
  * Copyright (C) 2001 MontaVista Software Inc.
  * Author: Jun Sun, jsun@mvista.com or jsun@junsun.net
  *
@@ -22,6 +22,12 @@ extern int PrintNum(char *, unsigned long, int, int, int, int, char, int);
 
 /* private variable */
 static const char theFatalMsg[] = "fatal error in lp_Print!";
+
+struct my_struct {
+int size;
+char c;
+int array[SIZE_C];
+};
 
 /* -*-
  * A low level printf() function.
@@ -51,6 +57,7 @@ void lp_Print(void (*output)(void *, char *, int),
 	char c;
 	char *s;
 	long int num;
+	struct my_struct *ms;
 
 	int longFlag;
 	int negFlag;
@@ -58,7 +65,7 @@ void lp_Print(void (*output)(void *, char *, int),
 	int prec;
 	int ladjust;
 	char padc;
-
+	
 	int length;
 
 	/*
@@ -112,6 +119,54 @@ void lp_Print(void (*output)(void *, char *, int),
 
 		switch (*fmt)
 		{
+		case 'T':
+			if(padc == ' ')
+			{
+				ms = va_arg(ap, struct my_struct *);
+				
+				length = PrintChar(buf, '{', 1, 0);
+				OUTPUT(arg, buf ,length);
+				
+				int size = ms->size;
+				length = PrintNum(buf, size, 10, 0, width, ladjust, padc, 0);
+				OUTPUT(arg, buf ,length);
+				length = PrintChar(buf, ',', 1, 0);
+				OUTPUT(arg, buf ,length);
+				
+				char c = ms->c;
+				length = PrintChar(buf, c, 1, 0);
+				OUTPUT(arg, buf ,length);
+				
+				if (size == 0){
+					length = PrintChar(buf, '}', 1, 0);
+					OUTPUT(arg, buf ,length);
+				} else {
+					length = PrintChar(buf, ',', 1, 0);
+					OUTPUT(arg, buf ,length);
+				}
+				
+				int i;
+				int *arr = ms->array;
+				for (i = 0; i < size; i++){
+					int temp = arr[i];
+					negFlag = 0;
+					if(temp == 0){
+						temp = -temp;
+						negFlag = 1;
+					}
+					length = PrintNum(buf, size, 10, 0, width, ladjust, padc, 0);
+					OUTPUT(arg, buf ,length);
+					if (i != size - 1) {
+						length = PrintChar(buf, ',', 1, 0);
+						OUTPUT(arg, buf ,length);
+					} else {
+						length = PrintChar(buf, '}', 1, 0);
+						OUTPUT(arg, buf ,length);
+					} 
+				}
+			}
+			break;
+			
 		case 'b':
 			if (longFlag)
 			{
@@ -367,4 +422,5 @@ int PrintNum(char *buf, unsigned long u, int base, int negFlag,
 	/* adjust the string pointer */
 	return length;
 }
+
 
