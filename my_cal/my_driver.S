@@ -15,7 +15,7 @@ LEAF(_my_getchar) /*LEAF is defined in asm.h and LEAF functions don't call other
 	loop_begin:
 		lui s1, 0xb000
 		lb t1, 0x00(s1)
-		beq ti, zero, loop_begin
+		beq t1, zero, loop_begin
 		nop
 		
 	sb t1, 0x00(s1)
@@ -115,7 +115,7 @@ LEAF(_my_putchar)
 	loop_begin_2:
 		lui s1, 0xb000
 		lb t1, 0x00(s1)
-		beq ti, zero, loop_begin_2
+		beq t1, zero, loop_begin_2
 		nop
 		
 	sb t1, 0x00(s1)
