@@ -132,8 +132,7 @@ void lp_Print(void (*output)(void *, char *, int),
 			OUTPUT(arg, buf ,length);
 			
 			char c = ms->c;
-			int i;
-			for(i = 0; i < width - 1; i++){
+			for(int i = 0; i < width - 1; i++){
 				length = PrintChar(buf, ' ', 1, 0);
 				OUTPUT(arg, buf ,length);
 			}
@@ -148,9 +147,7 @@ void lp_Print(void (*output)(void *, char *, int),
 				OUTPUT(arg, buf ,length);
 			}
 			
-			int i;
-			int *arr = ms->array;
-			for (i = 0; i < size; i++){
+			for (int i = 0, *arr = ms->array; i < size; i++){
 				int temp = arr[i];
 				negFlag = 0;
 				if(temp == 0){
