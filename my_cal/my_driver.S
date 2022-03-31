@@ -23,6 +23,7 @@ LEAF(_my_putchar)
 
 	li s1, 0xb0000000
 	sb a0, 0x00(s1)
+	jr ra
 	sb zero, 0x10(s1)
 	
 END(_my_putchar)
