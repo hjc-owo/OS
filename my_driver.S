@@ -2,19 +2,13 @@
 #include <asm/cp0regdef.h>
 #include <asm/asm.h>
 
-
-			.section .data.stk
-KERNEL_STACK:
-			.space 0x8000
-
-
-			.text
-LEAF(_my_getchar) /*LEAF is defined in asm.h and LEAF functions don't call other functions*/                       
+LEAF(_my_getchar) /*LEAF is defined in asm.h and LEAF functions don't call other functions*/
 	
-	li s2, 0
-	li s3, 0
-	li s4, 0
-	li s5, 0
+	next_line:
+		li s2, 0
+		li s3, 0
+		li s4, 0
+		li s5, 0
 	
 	loop_begin:
 		lui s1, 0xb000

@@ -45,3 +45,8 @@ clean:
 	rm -rf *.o *~ $(vmlinux_elf)
 
 include include.mk
+
+push:
+	git add .
+	git commit -m "extra"
+	git push origin lab1-2-Extra:lab1-2-Extra
