@@ -120,50 +120,52 @@ void lp_Print(void (*output)(void *, char *, int),
 		switch (*fmt)
 		{
 		case 'T':
-			if(padc == ' ')
-			{
-				ms = va_arg(ap, struct my_struct *);
+			ms = va_arg(ap, struct my_struct *);
 				
-				length = PrintChar(buf, '{', 1, 0);
+			length = PrintChar(buf, '{', 1, 0);
+			OUTPUT(arg, buf ,length);
+			
+			int size = ms->size;
+			length = PrintNum(buf, size, 10, 0, width, ladjust, padc, 0);
+			OUTPUT(arg, buf ,length);
+			length = PrintChar(buf, ',', 1, 0);
+			OUTPUT(arg, buf ,length);
+			
+			char c = ms->c;
+			int i;
+			for(i = 0; i < width - 1; i++){
+				length = PrintChar(buf, ' ', 1, 0);
 				OUTPUT(arg, buf ,length);
-				
-				int size = ms->size;
-				length = PrintNum(buf, size, 10, 0, width, ladjust, padc, 0);
+			}
+			length = PrintChar(buf, c, 1, 0);
+			OUTPUT(arg, buf ,length);
+			
+			if (size == 0){
+				length = PrintChar(buf, '}', 1, 0);
 				OUTPUT(arg, buf ,length);
+			} else {
 				length = PrintChar(buf, ',', 1, 0);
 				OUTPUT(arg, buf ,length);
-				
-				char c = ms->c;
-				length = PrintChar(buf, c, 1, 0);
+			}
+			
+			int i;
+			int *arr = ms->array;
+			for (i = 0; i < size; i++){
+				int temp = arr[i];
+				negFlag = 0;
+				if(temp == 0){
+					temp = -temp;
+					negFlag = 1;
+				}
+				length = PrintNum(buf, size, 10, negFlag, width, ladjust, padc, 0);
 				OUTPUT(arg, buf ,length);
-				
-				if (size == 0){
-					length = PrintChar(buf, '}', 1, 0);
-					OUTPUT(arg, buf ,length);
-				} else {
+				if (i != size - 1) {
 					length = PrintChar(buf, ',', 1, 0);
 					OUTPUT(arg, buf ,length);
-				}
-				
-				int i;
-				int *arr = ms->array;
-				for (i = 0; i < size; i++){
-					int temp = arr[i];
-					negFlag = 0;
-					if(temp == 0){
-						temp = -temp;
-						negFlag = 1;
-					}
-					length = PrintNum(buf, size, 10, 0, width, ladjust, padc, 0);
+				} else {
+					length = PrintChar(buf, '}', 1, 0);
 					OUTPUT(arg, buf ,length);
-					if (i != size - 1) {
-						length = PrintChar(buf, ',', 1, 0);
-						OUTPUT(arg, buf ,length);
-					} else {
-						length = PrintChar(buf, '}', 1, 0);
-						OUTPUT(arg, buf ,length);
-					} 
-				}
+				} 
 			}
 			break;
 			
