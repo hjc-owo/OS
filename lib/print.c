@@ -134,12 +134,20 @@ void lp_Print(void (*output)(void *, char *, int),
 			OUTPUT(arg, buf ,length);
 			
 			char c = ms->c;
-			for(i = 0; i < width - 1; i++){
-				length = PrintChar(buf, ' ', 1, 0);
-				OUTPUT(arg, buf ,length);
+			if (ladjust == 0){
+				for(i = 0; i < width - 1; i++){
+					length = PrintChar(buf, ' ', 1, 0);
+					OUTPUT(arg, buf ,length);
+				}
 			}
 			length = PrintChar(buf, c, 1, 0);
 			OUTPUT(arg, buf ,length);
+			if (ladjust == 1){
+				for(i = 0; i < width - 1; i++){
+					length = PrintChar(buf, ' ', 1, 0);
+					OUTPUT(arg, buf ,length);
+				}
+			}
 			
 			if (size == 0){
 				length = PrintChar(buf, '}', 1, 0);

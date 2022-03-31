@@ -15,19 +15,21 @@
 struct my_struct {
 	int size;
 	char c;
-	int array[3];
+	int array[5];
 };
 
 int main()
 {
 	struct my_struct t1;
-	t1.size=3; 
-	t1.c='b';
-   	t1.array[0]=0;
-   	t1.array[1]=-1;
-   	t1.array[2]=2; 
+	t1.size = 5; 
+	t1.c = 'b';
+   	t1.array[0] = 0;
+   	t1.array[1] = -11111111;
+   	t1.array[2] = 22222222;
+    t1.array[3] = -5;
+	t1.array[4] = 2;	
 	printf("main.c:\tmain is start ...\n");
-	printf("%T", &t1);
+	printf("%-5T", &t1);
 
 	mips_init();
 	panic("main is over is error!");
