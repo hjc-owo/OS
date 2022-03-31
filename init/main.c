@@ -15,7 +15,7 @@
 struct my_struct {
 	int size;
 	char c;
-	int array[5];
+	int array[3];
 };
 
 int main()

@@ -152,11 +152,11 @@ void lp_Print(void (*output)(void *, char *, int),
 			for (i = 0; i < size; i++){
 				int temp = arr[i];
 				negFlag = 0;
-				if(temp == 0){
+				if(temp < 0){
 					temp = -temp;
 					negFlag = 1;
 				}
-				length = PrintNum(buf, size, 10, negFlag, width, ladjust, padc, 0);
+				length = PrintNum(buf, temp, 10, negFlag, width, ladjust, padc, 0);
 				OUTPUT(arg, buf ,length);
 				if (i != size - 1) {
 					length = PrintChar(buf, ',', 1, 0);
