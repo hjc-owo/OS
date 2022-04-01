@@ -6,12 +6,12 @@
 # ========== Configuration =============
 
 CROSS_COMPILE := /opt/eldk/usr/bin/mips_4KC-
-CC            := $(CROSS_COMPILE)gcc
-CFLAGS	      := -O -G 0 -mno-abicalls -fno-builtin -Wall
+CC			  := $(CROSS_COMPILE)gcc
+CFLAGS		  := -O -G 0 -mno-abicalls -fno-builtin -Wall
 
 # ========= End of configuration =======
 
-drivers	      := gxconsole
+drivers		  := gxconsole
 
 .PHONY:	all $(drivers) 
 
