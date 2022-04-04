@@ -126,7 +126,7 @@ static Pte *boot_pgdir_walk(Pde *pgdir, u_long va, int create)
   Size is a multiple of BY2PG.*/
 void boot_map_segment(Pde *pgdir, u_long va, u_long size, u_long pa, int perm)
 {
-	int i, va_temp;
+	int i;
 	Pte *pgtable_entry;
 
 	/* Step 1: Check if `size` is a multiple of BY2PG. */
@@ -303,10 +303,10 @@ int pgdir_walk(Pde *pgdir, u_long va, int create, Pte **ppte)
 	{
 		if (create)
 		{
-			if ((ret = page_alloc(&page)) < 0)
+			if ((ret = page_alloc(&ppage)) < 0)
 				return ret;
 			*pgdir_entry = page2pa(ppage) | PTE_V | PTE_R;
-			// ppage->pp_ref++;
+			ppage->pp_ref++;
 		}
 		else
 		{
@@ -316,7 +316,7 @@ int pgdir_walk(Pde *pgdir, u_long va, int create, Pte **ppte)
 	}
 
 	/* Step 3: Set the page table entry to `*ppte` as return value. */
-	*ppte = (Pte *)KADDR(PTE_ADDR(*pgdir_entryp)) + PTX(va);
+	*ppte = (Pte *)KADDR(PTE_ADDR(*pgdir_entry)) + PTX(va);
 
 	return 0;
 }
@@ -335,9 +335,9 @@ If there is already a page mapped at `va`, call page_remove() to release this ma
 The `pp_ref` should be incremented if the insertion succeeds.*/
 int page_insert(Pde *pgdir, struct Page *pp, u_long va, u_int perm)
 {
-	u_int PERM;
 	Pte *pgtable_entry;
-	PERM = perm | PTE_V;
+	perm = perm | PTE_V;
+	int ret;
 
 	/* Step 1: Get corresponding page table entry. */
 	// Step 0. check whether `va` is already mapping to `pa`
@@ -370,7 +370,7 @@ int page_insert(Pde *pgdir, struct Page *pp, u_long va, u_int perm)
 
 	/* Step 3.2 Insert page and increment the pp_ref */
 	/* Step 2. fill in the page table */
-	*pgtable_entry = page2pa(pp) | PERM;
+	*pgtable_entry = page2pa(pp) | perm;
 	pp->pp_ref++;
 
 	return 0;

@@ -40,15 +40,18 @@ clean:
 	rm -rf *.o *~ $(vmlinux_elf)
 
 commit:
+	make clean
 	git add .
 	git commit -m "a commit"
 
 push:
+	make clean
 	git add .
 	git commit -m "a commit"
 	git push
 
 run:
+	make
 	/OSLAB/gxemul -E testmips -C R3000 -M 64 ./$(vmlinux_elf)
 
 include include.mk
