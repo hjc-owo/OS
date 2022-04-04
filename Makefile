@@ -39,6 +39,10 @@ clean:
 		done; \
 	rm -rf *.o *~ $(vmlinux_elf)
 
+commit:
+	git add .
+	git commit -m "a commit"
+
 push:
 	git add .
 	git commit -m "a commit"
