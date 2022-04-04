@@ -39,4 +39,10 @@ clean:
 		done; \
 	rm -rf *.o *~ $(vmlinux_elf)
 
+push:
+	git add .
+	git commit -m "a commit"
+	git push
+
 include include.mk
+
