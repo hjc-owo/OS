@@ -90,8 +90,7 @@ static void *alloc(u_int n, u_int align, int clear)
 static Pte *boot_pgdir_walk(Pde *pgdir, u_long va, int create)
 {
 
-	Pde *pgdir_entryp;
-	Pte *pgtable, *pgtable_entry;
+	Pde *pgdir_entry = pgdir + PDX(va); // higher 10 bits
 
 	/* Step 1: Get the corresponding page directory entry and page table. */
 	/* Hint: Use KADDR and PTE_ADDR to get the page table from page directory
@@ -100,8 +99,21 @@ static Pte *boot_pgdir_walk(Pde *pgdir, u_long va, int create)
 	/* Step 2: If the corresponding page table is not exist and parameter `create`
 	 * is set, create one. And set the correct permission bits for this new page
 	 * table. */
+	if (!(*pgdir_entry & PTE_V))
+	{ // not valid => not exists.
+		if (create)
+		{
+			// page_init is not called yet, we should use alloc instead of page_alloc
+			*pgdir_entry = PADDR(alloc(BY2PG, BY2PG, 1));
+			*pgdir_entry = *pgdir_entry | PTE_V | PTE_R;
+			// PTE_V : valid
+		}
+		else
+			return 0;
+	}
 
 	/* Step 3: Get the page table entry for `va`, and return it. */
+	return (Pte *)KADDR(PTE_ADDR(*pgdir_entry)) + PTX(va);
 }
 
 /* Exercise 2.7 */
@@ -118,9 +130,15 @@ void boot_map_segment(Pde *pgdir, u_long va, u_long size, u_long pa, int perm)
 	Pte *pgtable_entry;
 
 	/* Step 1: Check if `size` is a multiple of BY2PG. */
-
 	/* Step 2: Map virtual address space to physical address. */
 	/* Hint: Use `boot_pgdir_walk` to get the page table entry of virtual address `va`. */
+	for (i = 0, size = ROUND(size, BY2PG); i < size; i += BY2PG)
+	{
+		/* create if entry of page directory not exists yet */
+		pgtable_entry = boot_pgdir_walk(pgdir, va + i, 1);
+		*pgtable_entry = PTE_ADDR(pa + i) | perm | PTE_V;
+		// PTE_ADDR : floor of | maybe va/pa is not multiple of BY2PG
+	}
 }
 
 /* Overview:
@@ -239,9 +257,7 @@ void page_free(struct Page *pp)
 {
 	/* Step 1: If there's still virtual address referring to this page, do nothing. */
 	if (pp->pp_ref > 0)
-	{
 		return;
-	}
 
 	/* Step 2: If the `pp_ref` reaches 0, mark this page as free and return. */
 	else if (pp->pp_ref == 0)
@@ -274,17 +290,33 @@ whether this function execute successfully or not.
 This function has something in common with function `boot_pgdir_walk`.*/
 int pgdir_walk(Pde *pgdir, u_long va, int create, Pte **ppte)
 {
-	Pde *pgdir_entryp;
-	Pte *pgtable;
+	Pde *pgdir_entry = pgdir + PDX(va);
 	struct Page *ppage;
+	int ret;
 
 	/* Step 1: Get the corresponding page directory entry and page table. */
 
 	/* Step 2: If the corresponding page table is not exist(valid) and parameter `create`
 	 * is set, create one. And set the correct permission bits for this new page table.
 	 * When creating new page table, maybe out of memory. */
+	if (!(*pgdir_entry & PTE_V))
+	{
+		if (create)
+		{
+			if ((ret = page_alloc(&page)) < 0)
+				return ret;
+			*pgdir_entry = page2pa(ppage) | PTE_V | PTE_R;
+			// ppage->pp_ref++;
+		}
+		else
+		{
+			*ppte = 0;
+			return 0;
+		}
+	}
 
 	/* Step 3: Set the page table entry to `*ppte` as return value. */
+	*ppte = (Pte *)KADDR(PTE_ADDR(*pgdir_entryp)) + PTX(va);
 
 	return 0;
 }
@@ -308,31 +340,38 @@ int page_insert(Pde *pgdir, struct Page *pp, u_long va, u_int perm)
 	PERM = perm | PTE_V;
 
 	/* Step 1: Get corresponding page table entry. */
-	pgdir_walk(pgdir, va, 0, &pgtable_entry);
-
+	// Step 0. check whether `va` is already mapping to `pa`
+	pgdir_walk(pgdir, va, 0 /* for check */, &pgtable_entry);
 	if (pgtable_entry != 0 && (*pgtable_entry & PTE_V) != 0)
 	{
+		// check whether `va` is mapping to another physical frame
 		if (pa2page(*pgtable_entry) != pp)
 		{
-			page_remove(pgdir, va);
+			page_remove(pgdir, va); // unmap it!
 		}
 		else
 		{
-			tlb_invalidate(pgdir, va);
-			*pgtable_entry = (page2pa(pp) | PERM);
+			tlb_invalidate(pgdir, va);			 // <~~
+			*pgtable_entry = page2pa(pp) | perm; // update the permission
 			return 0;
 		}
 	}
 
 	/* Step 2: Update TLB. */
-
 	/* hint: use tlb_invalidate function */
+	tlb_invalidate(pgdir, va); // <~~
 
 	/* Step 3: Do check, re-get page table entry to validate the insertion. */
 
 	/* Step 3.1 Check if the page can be insert, if can’t return -E_NO_MEM */
+	/* Step 1. use `pgdir_walk` to "walk" the page directory */
+	if ((ret = pgdir_walk(pgdir, va, 1, &pgtable_entry)) < 0)
+		return ret; // exception
 
 	/* Step 3.2 Insert page and increment the pp_ref */
+	/* Step 2. fill in the page table */
+	*pgtable_entry = page2pa(pp) | PERM;
+	pp->pp_ref++;
 
 	return 0;
 }
@@ -415,7 +454,7 @@ void page_remove(Pde *pgdir, u_long va)
 }
 
 // Overview:
-// 	Update TLB.
+// Update TLB.
 void tlb_invalidate(Pde *pgdir, u_long va)
 {
 	if (curenv)
