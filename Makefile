@@ -49,7 +49,7 @@ push:
 	git push
 
 run:
-	/OSLAB/gxemul -E testmips -C R3000 -M 64 -d ./$(vmlinux_elf)
+	/OSLAB/gxemul -E testmips -C R3000 -M 64 ./$(vmlinux_elf)
 
 include include.mk
 
