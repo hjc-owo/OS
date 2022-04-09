@@ -15,7 +15,7 @@
    - lab0-exam-result 表示 lab0课上基础部分得分
    - lab0-Extra 表示 lab0课上附加测试
    - lab0-Extra-result 表示 lab0课上附加测试得分
-   - lab0-Others 表示 lab0指导书选择填空答案 以及 lab0实验报告
+   - Others 表示 所有lab指导书选择填空答案 以及 所有lab实验报告
 
 2. 不要问，因为她也有很大可能不知道。
 
