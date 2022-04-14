@@ -660,6 +660,7 @@ int page_protect(struct Page *pp){
  	LIST_FOREACH(tmp, &page_free_list, pp_link) {
  		if(tmp == pp) {
  			in_list = 1;
+ 			break;
 		}
 	}
 	if(pp->protect)
@@ -678,6 +679,7 @@ int page_status_query(struct Page *pp) {
  	LIST_FOREACH(tmp, &page_free_list, pp_link) {
  		if(tmp == pp) {
  			in_list = 1;
+ 			break;
 		}
 	}
 	if(pp->protect)
