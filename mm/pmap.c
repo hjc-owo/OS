@@ -221,7 +221,14 @@ int page_alloc(struct Page **pp) {
     if (LIST_EMPTY(&page_free_list)) {
         return -E_NO_MEM;
     }
-    ppage_temp = LIST_FIRST(&page_free_list);
+    
+    LIST_FOREACH(ppage_temp, &page_free_list, pp_link) {
+    	if(ppage_temp->protect != 0){
+    		break;
+		}
+	}
+    
+//    ppage_temp = LIST_FIRST(&page_free_list);
     LIST_REMOVE(ppage_temp, pp_link);
 
     /* Step 2: Initialize this page.
@@ -645,4 +652,39 @@ void pageout(int va, int context) {
     page_insert((Pde *) context, p, VA2PFN(va), PTE_R);
     printf("pageout:\t@@@___0x%x___@@@  ins a page \n", va);
 }
+
+int page_protect(struct Page *pp){
+ 	struct Page *tmp;
+ 	int in_list = 0;
+ 	LIST_FOREACH(tmp, &page_free_list, pp_link) {
+ 		if(tmp == pp) {
+ 			in_list = 1;
+		}
+	}
+	if(pp->protect)
+		return -2;
+	else if(!in_list)
+		return -1;
+	else {
+		pp->protect = 1;
+		return 0;
+	}
+ }
+ 
+int page_status_query(struct Page *pp) {
+	struct Page *tmp;
+ 	int in_list = 0;
+ 	LIST_FOREACH(tmp, &page_free_list, pp_link) {
+ 		if(tmp == pp) {
+ 			in_list = 1;
+		}
+	}
+	if(pp->protect)
+		return 3;
+	else if(in_list)
+		return 2;
+	else
+		return 1;
+}
+
 

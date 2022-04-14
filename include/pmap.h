@@ -6,7 +6,6 @@
 #include "mmu.h"
 #include "printf.h"
 
-
 LIST_HEAD(Page_list, Page);
 typedef LIST_ENTRY(Page) Page_LIST_entry_t;
 
@@ -17,6 +16,7 @@ struct Page {
 	// to this page.  This only holds for pages allocated using
 	// page_alloc.  Pages allocated at boot time using pmap.c's "alloc"
 	// do not have valid reference count fields.
+	int protect;
 
 	u_short pp_ref;
 };
@@ -102,5 +102,7 @@ void boot_map_segment(Pde *pgdir, u_long va, u_long size, u_long pa, int perm);
 
 extern struct Page *pages;
 
+int page_protect(struct Page *pp);
+int page_status_query(struct Page *pp);
 
 #endif /* _PMAP_H_ */
