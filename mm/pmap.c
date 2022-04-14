@@ -226,18 +226,17 @@ int page_alloc(struct Page **pp) {
     
     LIST_FOREACH(ppage_temp, &page_free_list, pp_link) {
     	if(ppage_temp->protect == 0){
-    		break;
+			// ppage_temp = LIST_FIRST(&page_free_list);
+		    LIST_REMOVE(ppage_temp, pp_link);
+		
+		    /* Step 2: Initialize this page.
+		     * Hint: use `bzero`. */
+		    bzero(page2kva(ppage_temp), BY2PG);
+		    *pp = ppage_temp;
+		    return 0;
 		}
 	}
-    
-//    ppage_temp = LIST_FIRST(&page_free_list);
-    LIST_REMOVE(ppage_temp, pp_link);
-
-    /* Step 2: Initialize this page.
-     * Hint: use `bzero`. */
-    bzero(page2kva(ppage_temp), BY2PG);
-    *pp = ppage_temp;
-    return 0;
+	return -E_NO_MEM;
 }
 
 /* Exercise 2.5 */
