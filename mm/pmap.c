@@ -663,7 +663,7 @@ void buddy_init(void) {
 	int i;
 	for(i = 0; i < MAXL; i++) {
 		b[i].addr = 0x2000000 + PAGE_SIZE * i;
-		b[i].size = PAGE_SIZE;
+		b[i].size = 10;
 		b[i].status = 0;
 		b[i].start = PAGE_SIZE * i % 0x400000 + 0x2000000;
 		b[i].end = PAGE_SIZE * i % 0x400000 + 0x2400000;
@@ -683,11 +683,8 @@ int buddy_alloc(u_int size, u_int *pa, u_char *pi) {
 		for(j = i; b[j].addr < b[i].end; j++) {
 			b[j].status = 1;
 		}
-		int k, m;
-		for(k = 0, m = (b[i].end - b[i].start) / 4; m != 1; k++){
-			m >>= 1;
-		}
-		*pi = k;
+		
+		*pi = b[i].size;
 		*pa = b[i].start;
 		return 0;
 	}
@@ -695,9 +692,11 @@ int buddy_alloc(u_int size, u_int *pa, u_char *pi) {
 	u_int mid = (b[i].start + b[i].end) / 2;
 	for(j = i; b[j].addr < mid; j++) {
 		b[j].end = mid;
+		b[j].size--;
 	}
 	for(; b[j].addr < b[i].end; j++) {
 		b[j].start = mid;
+		b[j].size--;
 	}
 	
 	return buddy_alloc(size, *pa, *pi);
@@ -721,6 +720,7 @@ void buddy_free(u_int pa) {
 		for(k = i; b[k].addr < b[j].end; k++) {
 			b[k].start = b[i].start;
 			b[k].end = b[j].end;
+			b[k].size++;
 		}
 		buddy_free(pa);
 	}
