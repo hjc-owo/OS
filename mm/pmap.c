@@ -189,6 +189,7 @@ void page_init(void) {
     int i;
     for (i = 0; i < size; ++i) {
         pages[i].pp_ref = 1;
+        pages[i].protect = 0;
     }
 
     /* Step 4: Mark the other memory as free. */
