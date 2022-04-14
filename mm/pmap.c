@@ -195,6 +195,7 @@ void page_init(void) {
     /* Step 4: Mark the other memory as free. */
     for (i = size; i < npage; ++i) {
         pages[i].pp_ref = 0;
+        pages[i].protect = 0;
         LIST_INSERT_HEAD(&page_free_list, pages + i, pp_link);
     }
     LIST_REMOVE(pa2page(PADDR(TIMESTACK - BY2PG)), pp_link);
