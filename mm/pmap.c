@@ -3,6 +3,7 @@
 #include "printf.h"
 #include "env.h"
 #include "error.h"
+#include "types.h"
 
 /* These variables are set by mips_detect_memory() */
 u_long maxpa;    /* Maximum physical address */
@@ -646,9 +647,9 @@ void pageout(int va, int context) {
     printf("pageout:\t@@@___0x%x___@@@  ins a page \n", va);
 }
 
-#define MAXL (8192)
 #define MAX_SIZE (1 << 25)
 #define PAGE_SIZE (1 << 12)
+#define MAXL (MAX_SIZE / PAGE_SIZE)
 
 typedef struct buddy{
 	unsigned int addr, start, end;
@@ -664,8 +665,8 @@ void buddy_init(void) {
 		b[i].addr = 0x2000000 + PAGE_SIZE * i;
 		b[i].size = PAGE_SIZE;
 		b[i].status = 0;
-		b[i].start = ROUNDDOWN(b[i].addr, PAGE_SIZE);
-		b[i].end = ROUND(b[i].addr, PAGE_SIZE);
+		b[i].start = PAGE_SIZE * i % 0x400000 + 0x2000000;
+		b[i].end = PAGE_SIZE * i % 0x400000 + 0x2400000;
 	}
 }
 
@@ -675,8 +676,8 @@ int buddy_alloc(u_int size, u_int *pa, u_char *pi) {
 		if(b[i].status == 0 && b[i].end - b[i].start >= size){
 			break;
 		}
+		return -1;
 	}
-	if(i == MAXL) return -1;
 	
 	if((b[i].end - b[i].start) / 2 < size || b[i].end - b[i].start == PAGE_SIZE) {
 		for(j = i; b[j].addr < b[i].end; j++) {
@@ -686,7 +687,7 @@ int buddy_alloc(u_int size, u_int *pa, u_char *pi) {
 		for(k = 0, m = (b[i].end - b[i].start) / 4; m != 1; k++){
 			m >>= 1;
 		}
-		*pi = m;
+		*pi = k;
 		*pa = b[i].start;
 		return 0;
 	}
@@ -709,8 +710,8 @@ void buddy_free(u_int pa) {
 		if(b[i].start == pa) {
 			break;
 		}
+		return;
 	}
-	if(i == MAXL) return;
 	
 	for(j = i; b[j].addr < b[i].end; j++) {
 		b[j].status = 0;
