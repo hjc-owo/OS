@@ -223,7 +223,7 @@ int page_alloc(struct Page **pp) {
     }
     
     LIST_FOREACH(ppage_temp, &page_free_list, pp_link) {
-    	if(ppage_temp->protect != 0){
+    	if(ppage_temp->protect == 0){
     		break;
 		}
 	}
