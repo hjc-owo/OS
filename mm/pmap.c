@@ -682,7 +682,7 @@ int buddy_alloc(u_int size, u_int *pa, u_char *pi) {
 		for(j = i; b[j].addr < b[i].end; j++) {
 			b[j].status = 1;
 		}
-		int k;
+		int k, m;
 		for(k = 0, m = (b[i].end - b[i].start) / 4; m != 1; k++){
 			m >>= 1;
 		}
