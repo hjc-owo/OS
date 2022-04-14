@@ -646,3 +646,82 @@ void pageout(int va, int context) {
     printf("pageout:\t@@@___0x%x___@@@  ins a page \n", va);
 }
 
+#define MAXL (8192)
+#define MAX_SIZE (1 << 25)
+#define PAGE_SIZE (1 << 12)
+
+typedef struct buddy{
+	unsigned int addr, start, end;
+	unsigned int size;
+	int status;
+}B, *Bptr;
+
+B b[MAXL];
+
+void buddy_init(void) {
+	int i;
+	for(i = 0; i < MAXL; i++) {
+		b[i].addr = 0x2000000 + PAGE_SIZE * i;
+		b[i].size = PAGE_SIZE;
+		b[i].status = 0;
+		b[i].start = ROUNDDOWN(b[i].addr, PAGE_SIZE);
+		b[i].end = ROUND(b[i].addr, PAGE_SIZE);
+	}
+}
+
+int buddy_alloc(u_int size, u_int *pa, u_char *pi) {
+	int i, j;
+	for(i = 0; i < MAXL; i++){
+		if(b[i].status == 0 && b[i].end - b[i].start >= size){
+			break;
+		}
+	}
+	if(i == MAXL) return -1;
+	
+	if((b[i].end - b[i].start) / 2 < size || b[i].end - b[i].start == PAGE_SIZE) {
+		for(j = i; b[j].addr < b[i].end; j++) {
+			b[j].status = 1;
+		}
+		int k;
+		for(k = 0, m = (b[i].end - b[i].start) / 4; m != 1; k++){
+			m >>= 1;
+		}
+		*pi = m;
+		*pa = b[i].start;
+		return 0;
+	}
+	
+	u_int mid = (b[i].start + b[i].end) / 2;
+	for(j = i; b[j].addr < mid; j++) {
+		b[j].end = mid;
+	}
+	for(; b[j].addr < b[i].end; j++) {
+		b[j].start = mid;
+	}
+	
+	return buddy_alloc(size, *pa, *pi);
+	
+}
+
+void buddy_free(u_int pa) {
+	int i, j, k;
+	for(i = 0; i < MAXL; i++) {
+		if(b[i].start == pa) {
+			break;
+		}
+	}
+	if(i == MAXL) return;
+	
+	for(j = i; b[j].addr < b[i].end; j++) {
+		b[j].status = 0;
+	}
+	
+	if(b[j].status == 0 && b[j].end - b[j].start == b[i].end - b[i].start){
+		for(k = i; b[k].addr < b[j].end; k++) {
+			b[k].start = b[i].start;
+			b[k].end = b[j].end;
+		}
+		buddy_free(pa);
+	}
+	
+}
