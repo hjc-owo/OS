@@ -309,6 +309,7 @@ int pgdir_walk(Pde *pgdir, u_long va, int create, Pte **ppte) {
 Hint:
 If there is already a page mapped at `va`, call page_remove() to release this mapping.
 The `pp_ref` should be incremented if the insertion succeeds.*/
+
 int page_insert(Pde *pgdir, struct Page *pp, u_long va, u_int perm) {
     Pte *pgtable_entry;
     perm = perm | PTE_V;
@@ -347,25 +348,28 @@ int page_insert(Pde *pgdir, struct Page *pp, u_long va, u_int perm) {
     return 0;
 }
 
+#define MAXL (1 << 10)
+
 int inverted_page_lookup(Pde *pgdir, struct Page *pp, int vpn_buffer[]) {
 	int cnt = 0;
-	int n = PPN(VA2PFN(pp)), i, j;
+	u_long n = page2ppn(pp);
+	int i, j;
 	Pde *pgdir_entry;
 	Pte *pgtab_entry, *pgtab;
 	if (PPN(PADDR(pgdir)) == n){
 		vpn_buffer[cnt++] = VPN(PADDR(pgdir));
 	}
 	
-	for (i = 0; i < PTE2PT; i++) {
+	for (i = 0; i < MAXL; i++) {
 		pgdir_entry = pgdir + i;
-		if ((*pgdir_entry) & PTE_V) {
+		if ((*pgdir_entry & PTE_V)) {
 			if (PPN(*pgdir_entry) == n) {
 				vpn_buffer[cnt++] = VPN(*pgdir_entry);
 				pgtab = KADDR(PTE_ADDR(*pgdir_entry));
-				for (j = 0; j < PTE2PT; j++) {
+				for (j = 0; j < MAXL; j++) {
 					pgtab_entry = pgtab + j;
-					if ((*pgtab_entry) & PTE_V) {
-						if (PPN((*pgtab_entry)) == n) {
+					if ((*pgtab_entry & PTE_V)) {
+						if (PPN(*pgtab_entry) == n) {
 							vpn_buffer[cnt++] = VPN(*pgtab_entry);
 						}
 					}
