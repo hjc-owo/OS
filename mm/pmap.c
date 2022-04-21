@@ -347,6 +347,45 @@ int page_insert(Pde *pgdir, struct Page *pp, u_long va, u_int perm) {
     return 0;
 }
 
+int inverted_page_lookup(Pde *pgdir, struct Page *pp, int vpn_buffer[]) {
+	int cnt = 0;
+	int n = PPN(pp), i, j;
+	Pde *pgdir_entry;
+	Pte *pgtab_entry, *pgtab;
+	if (PPN(PADDR(pgdir)) == n){
+		vpn_buffer[cnt++] = VPN(PADDR(pgdir));
+	}
+	
+	for (i = 0; i < PTE2PT; i++) {
+		pgdir_entry = pgdir + i;
+		if ((*pgdir_entry) & PTE_V) {
+			if (PPN(*pgdir_entry) == n) {
+				vpn_buffer[cnt++] = VPN(*pgdir_entry);
+				pgtab = KADDR(PTE_ADDR(*pgdir_entry));
+				for (j = 0; j < PTE2PT; j++) {
+					pgtab_entry = pgtab + j;
+					if ((*pgtab_entry) & PTE_V) {
+						if (PPN((*pgtab_entry)) == n) {
+							vpn_buffer[cnt++] = VPN(*pgtab_entry);
+						}
+					}
+				}
+			}
+		}
+	}
+	
+//	for (i = 0; i < cnt; i++) {
+//		for (j = i + 1; j < cnt; j++) {
+//			if (vpn_buffer[i] > vpn_buffer[j]) {
+//				int tmp = vpn_buffer[i];
+//				vpn_buffer[i] = vpn_buffer[j];
+//				vpn_buffer[j] = tmp;
+//			}
+//		}
+//	}
+	return cnt;
+}
+
 /*Overview:
   Look up the Page that virtual address `va` map to.
 
@@ -377,45 +416,6 @@ struct Page *page_lookup(Pde *pgdir, u_long va, Pte **ppte) {
     }
 
     return ppage;
-}
-
-int inverted_page_lookup(Pde *pgdir, struct Page *pp, int vpn_buffer[]) {
-	int cnt = 0;
-	int n = PPN(pp), i, j;
-	Pde *pgdir_entry;
-	Pte *pgtab_entry, *pgtab;
-	if (PPN(PADDR(pgdir)) == n){
-		vpn_buffer[cnt++] = VPN(PADDR(pgdir));
-	}
-	
-	for (i = 0; i < PTE2PT; i++) {
-		pgdir_entry = pgdir + i;
-		if ((*pgdir_entry) & PTE_V) {
-			if (PPN(*pgdir_entry) == n) {
-				vpn_buffer[cnt++] = VPN(*pgdir_entry);
-				pgtab = KADDR(PTE_ADDR(*pgdir_entry));
-				for (j = 0; j < PTE2PT; j++) {
-					pgtab_entry = pgtab + j;
-					if ((*pgtab_entry) & PTE_V) {
-						if (PPN((*pgtab_entry)) == n) {
-							vpn_buffer[cnt++] = VPN(*pgtab_entry);
-						}
-					}
-				}
-			}
-		}
-	}
-	
-	for (i = 0; i < cnt; i++) {
-		for (j = i + 1; j < cnt; j++) {
-			if (vpn_buffer[i] > vpn_buffer[j]) {
-				int tmp = vpn_buffer[i];
-				vpn_buffer[i] = vpn_buffer[j];
-				vpn_buffer[j] = tmp;
-			}
-		}
-	}
-	return cnt;
 }
 
 // Overview:
