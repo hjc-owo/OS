@@ -381,24 +381,31 @@ struct Page *page_lookup(Pde *pgdir, u_long va, Pte **ppte) {
 
 int inverted_page_lookup(Pde *pgdir, struct Page *pp, int vpn_buffer[]) {
 	int cnt = 0;
-	int i = PPN(PADDR(pgdir)), j;
-	Pde *pgdir_entry = pgdir + i;
+	int n = PPN(pp), i, j;
+	Pde *pgdir_entry;
 	Pte *pgtab_entry, *pgtab;
-	vpn_buffer[cnt++] = PADDR(pgdir);
-	if ((*pgdir_entry) & PTE_V) {
-		if (PPN(*pgdir_entry) == i) {
-			vpn_buffer[cnt++] = *pgdir_entry;
-			pgtab = KADDR(PTE_ADDR(*pgdir_entry));
-			for (j = 0; j < PTE2PT; j++) {
-				pgtab_entry = pgtab + j;
-				if ((*pgtab_entry) & PTE_V) {
-					if (PPN((*pgtab_entry)) == i) {
-						vpn_buffer[cnt++] = *pgtab_entry;
+	if (PPN(PADDR(pgdir)) == n){
+		vpn_buffer[cnt++] = VPN(PADDR(pgdir));
+	}
+	
+	for (i = 0; i < PTE2PT; i++) {
+		pgdir_entry = pgdir + i;
+		if ((*pgdir_entry) & PTE_V) {
+			if (PPN(*pgdir_entry) == n) {
+				vpn_buffer[cnt++] = VPN(*pgdir_entry);
+				pgtab = KADDR(PTE_ADDR(*pgdir_entry));
+				for (j = 0; j < PTE2PT; j++) {
+					pgtab_entry = pgtab + j;
+					if ((*pgtab_entry) & PTE_V) {
+						if (PPN((*pgtab_entry)) == n) {
+							vpn_buffer[cnt++] = VPN(*pgtab_entry);
+						}
 					}
 				}
 			}
 		}
 	}
+	
 	for (i = 0; i < cnt; i++) {
 		for (j = i + 1; j < cnt; j++) {
 			if (vpn_buffer[i] > vpn_buffer[j]) {
