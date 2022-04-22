@@ -4,20 +4,25 @@ ENTRY(_start)
 SECTIONS
 {
   . = 0x80010000;
+
+  /*** exercise 3.13 ***/
+
   .text : {
-    *(.int)
-	*(.text)
-	*(.fini)
-        }
+        *(.text)
+    }
+
+  .bss  : {
+   *(.bss)
+   }
+
   .data : {
 	*(.data)
 	}
-  .bss  : {
-	*(.bss)
-    }
+
   .sdata : {
     *(.sdata)
-    }
+  }
+
   . = 0x80400000;
   end = . ;
 }
