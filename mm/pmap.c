@@ -351,40 +351,40 @@ int page_insert(Pde *pgdir, struct Page *pp, u_long va, u_int perm) {
 #define MAXL (1 << 10)
 
 int inverted_page_lookup(Pde *pgdir, struct Page *pp, int vpn_buffer[]) {
-	int cnt = 0;
-	int i, j;
-	Pde *pgdir_entry;
-	Pte *pgtab_entry, *pgtab;
-	if (PPN(PADDR(pgdir)) == page2ppn(pp)) {
-		vpn_buffer[cnt++] = VPN(PADDR(pgdir));
-	}
-	
-	for (i = 0; i < MAXL; i++) {
-		pgdir_entry = pgdir + i;
-		if ((*pgdir_entry & PTE_V)) {
-			if (PPN(*pgdir_entry) == page2ppn(pp)) {
-				vpn_buffer[cnt++] = VPN(*pgdir_entry);
-			}
-			pgtab = KADDR(PTE_ADDR(*pgdir_entry));
-			for (j = 0; j < MAXL; j++) {
-				pgtab_entry = pgtab + j;
-				if ((*pgtab_entry & PTE_V) && PPN(*pgtab_entry) == page2ppn(pp)) {
-					vpn_buffer[cnt++] = VPN(*pgtab_entry);
-				}
-			}
-		}
-	}
-	
-	for (i = 0; i < cnt; i++) {
-		for (j = i + 1; j < cnt; j++) {
-			if (vpn_buffer[i] > vpn_buffer[j]) {
-				int tmp = vpn_buffer[i];
-				vpn_buffer[i] = vpn_buffer[j];
-				vpn_buffer[j] = tmp;
-			}
-		}
-	}
-	return cnt;
+    int cnt = 0;
+    int i = 0, j = 0;
+    Pde *pgdir_entry;
+    Pte *pgtab_entry, *pgtab;
+    if (PPN(PADDR(pgdir)) == page2ppn(pp)) {
+        vpn_buffer[cnt++] = (i << 10) + j;
+    }
+
+    for (i = 0; i < MAXL; i++) {
+        pgdir_entry = pgdir + i;
+        if ((*pgdir_entry & PTE_V)) {
+            if (PPN(*pgdir_entry) == page2ppn(pp)) {
+                vpn_buffer[cnt++] = (i << 10) + j;
+            }
+            pgtab = KADDR(PTE_ADDR(*pgdir_entry));
+            for (j = 0; j < MAXL; j++) {
+                pgtab_entry = pgtab + j;
+                if ((*pgtab_entry & PTE_V) && PPN(*pgtab_entry) == page2ppn(pp)) {
+                    vpn_buffer[cnt++] = (i << 10) + j;
+                }
+            }
+        }
+    }
+
+    for (i = 0; i < cnt; i++) {
+        for (j = i + 1; j < cnt; j++) {
+            if (vpn_buffer[i] > vpn_buffer[j]) {
+                int tmp = vpn_buffer[i];
+                vpn_buffer[i] = vpn_buffer[j];
+                vpn_buffer[j] = tmp;
+            }
+        }
+    }
+    return cnt;
 }
 
 /*Overview:
