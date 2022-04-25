@@ -16,8 +16,7 @@ link_script   := $(tools_dir)/scse0_3.lds
 
 modules		  := boot drivers init lib mm
 objects		  := $(boot_dir)/start.o			  \
-				 $(init_dir)/main.o			  \
-				 $(init_dir)/init.o			  \
+				 $(init_dir)/*.o			  \
 			   	 $(drivers_dir)/gxconsole/console.o \
 				 $(lib_dir)/*.o				  \
 				 $(mm_dir)/*.o
@@ -39,20 +38,4 @@ clean:
 		done; \
 	rm -rf *.o *~ $(vmlinux_elf)
 
-commit:
-	make clean
-	git add .
-	git commit -m "a commit"
-
-push:
-	make clean
-	git add .
-	git commit -m "a commit"
-	git push
-
-run:
-	make
-	/OSLAB/gxemul -E testmips -C R3000 -M 64 ./$(vmlinux_elf)
-
 include include.mk
-

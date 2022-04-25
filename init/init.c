@@ -2,64 +2,77 @@
 #include <pmap.h>
 #include <env.h>
 #include <printf.h>
+#include <kclock.h>
 #include <trap.h>
 
-void mips_init() {
-    printf("init.c:\tmips_init() is called\n");
+void mips_init()
+{
+	printf("init.c:\tmips_init() is called\n");
+	mips_detect_memory();
 
-    // Lab 2 memory management initialization functions
-    mips_detect_memory();
-    mips_vm_init();
-    page_init();
+	mips_vm_init();
+	page_init();
 
-    physical_memory_manage_check();
-    page_check();
+	env_init();
+	env_check();
+	load_icode_check();
 
-    panic("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+	/*you can create some processes(env) here. in terms of binary code, please refer current directory/code_a.c
+	 * code_b.c*/
+	/*** exercise 3.9 ***/
+	/*you may want to create process by MACRO, please read env.h file, in which you will find it. this MACRO is very
+	 * interesting, have fun please*/
 
-    while (1);
 
-    panic("init.c:\tend of mips_init() reached!");
+
+	trap_init();
+	kclock_init();
+	panic("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+	while(1);
+	panic("init.c:\tend of mips_init() reached!");
 }
 
-void bcopy(const void *src, void *dst, size_t len) {
-    void *max;
+void bcopy(const void *src, void *dst, size_t len)
+{
+	void *max;
 
-    max = dst + len;
-
-    // copy machine words while possible
-    while (dst + 3 < max) {
-        *(int *) dst = *(int *) src;
-        dst += 4;
-        src += 4;
-    }
-
-    // finish remaining 0-3 bytes
-    while (dst < max) {
-        *(char *) dst = *(char *) src;
-        dst += 1;
-        src += 1;
-    }
+	max = dst + len;
+	// copy machine words while possible
+	while (dst + 3 < max)
+	{
+		*(int *)dst = *(int *)src;
+		dst+=4;
+		src+=4;
+	}
+	// finish remaining 0-3 bytes
+	while (dst < max)
+	{
+		*(char *)dst = *(char *)src;
+		dst+=1;
+		src+=1;
+	}
 }
 
-void bzero(void *b, size_t len) {
-    void *max;
+void bzero(void *b, size_t len)
+{
+	void *max;
 
-    max = b + len;
+	max = b + len;
 
-    //printf("init.c:\tzero from %x to %x\n",(int)b,(int)max);
+	//printf("init.c:\tzero from %x to %x\n",(int)b,(int)max);
 
-    // zero machine words while possible
+	// zero machine words while possible
 
-    while (b + 3 < max) {
-        *(int *) b = 0;
-        b += 4;
-    }
+	while (b + 3 < max)
+	{
+		*(int *)b = 0;
+		b+=4;
+	}
 
-    // finish remaining 0-3 bytes
-    while (b < max) {
-        *(char *) b++ = 0;
-    }
+	// finish remaining 0-3 bytes
+	while (b < max)
+	{
+		*(char *)b++ = 0;
+	}
 
 }
-
