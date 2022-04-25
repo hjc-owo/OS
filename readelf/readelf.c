@@ -72,5 +72,3 @@ int readelf(u_char *binary, int size) {
 
     return 0;
 }
-
-

@@ -16,7 +16,6 @@ int main(int argc, char *argv[]) {
     int fsize;
     unsigned char *p;
 
-
     if (argc < 2) {
         printf("Please input the filename.\n");
         return 0;
@@ -36,9 +35,6 @@ int main(int argc, char *argv[]) {
     fread(p, fsize, 1, fp);
     p[fsize] = 0;
 
-
     readelf(p, fsize);
     return 0;
 }
-
-

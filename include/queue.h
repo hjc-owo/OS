@@ -219,4 +219,3 @@
         }
 
 #endif /* !_SYS_QUEUE_H_ */
-

@@ -5,10 +5,10 @@
 #include "error.h"
 
 /* These variables are set by mips_detect_memory() */
-u_long maxpa;    /* Maximum physical address */
-u_long npage;    /* Amount of memory(in pages) */
+u_long maxpa;   /* Maximum physical address */
+u_long npage;   /* Amount of memory(in pages) */
 u_long basemem; /* Amount of base memory(in bytes) */
-u_long extmem;    /* Amount of extended memory(in bytes) */
+u_long extmem;  /* Amount of extended memory(in bytes) */
 
 Pde *boot_pgdir;
 
@@ -150,7 +150,7 @@ void mips_vm_init() {
 
     boot_pgdir = pgdir;
 
-    /* Step 2: Allocate proper size of physical memory for global array `pages`,
+    /* Step 2: Allocate proper size of physical memory for global array pages`,
      * for physical memory management. Then, map virtual address `UPAGES` to
      * physical address `pages` allocated before. In consideration of alignment,
      * you should round up the memory size before map. */
@@ -322,7 +322,7 @@ int page_insert(Pde *pgdir, struct Page *pp, u_long va, u_int perm) {
         if (pa2page(*pgtable_entry) != pp) {
             page_remove(pgdir, va); // unmap it!
         } else {
-            tlb_invalidate(pgdir, va);             // <~~
+            tlb_invalidate(pgdir, va);           // <~~
             *pgtable_entry = page2pa(pp) | perm; // update the permission
             return 0;
         }
@@ -645,4 +645,3 @@ void pageout(int va, int context) {
     page_insert((Pde *) context, p, VA2PFN(va), PTE_R);
     printf("pageout:\t@@@___0x%x___@@@  ins a page \n", va);
 }
-

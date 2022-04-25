@@ -335,5 +335,3 @@ int PrintNum(char *buf, unsigned long u, int base, int negFlag,
     /* adjust the string pointer */
     return length;
 }
-
-

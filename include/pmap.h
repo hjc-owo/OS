@@ -6,15 +6,15 @@
 #include "mmu.h"
 #include "printf.h"
 
-
 LIST_HEAD(Page_list, Page);
 typedef LIST_ENTRY(Page) Page_LIST_entry_t;
 
-struct Page {
-	Page_LIST_entry_t pp_link;	/* free list link */
+struct Page
+{
+	Page_LIST_entry_t pp_link; /* free list link */
 
 	// Ref is the count of pointers (usually in page table entries)
-	// to this page.  This only holds for pages allocated using 
+	// to this page.  This only holds for pages allocated using
 	// page_alloc.  Pages allocated at boot time using pmap.c's "alloc"
 	// do not have valid reference count fields.
 
@@ -31,7 +31,7 @@ page2ppn(struct Page *pp)
 static inline u_long
 page2pa(struct Page *pp)
 {
-	return page2ppn(pp)<<PGSHIFT;
+	return page2ppn(pp) << PGSHIFT;
 }
 
 static inline struct Page *
@@ -48,17 +48,16 @@ page2kva(struct Page *pp)
 	return KADDR(page2pa(pp));
 }
 
-
 static inline u_long
 va2pa(Pde *pgdir, u_long va)
 {
 	Pte *p;
 
 	pgdir = &pgdir[PDX(va)];
-	if (!(*pgdir&PTE_V))
+	if (!(*pgdir & PTE_V))
 		return ~0;
-	p = (Pte*)KADDR(PTE_ADDR(*pgdir));
-	if (!(p[PTX(va)]&PTE_V))
+	p = (Pte *)KADDR(PTE_ADDR(*pgdir));
+	if (!(p[PTX(va)] & PTE_V))
 		return ~0;
 	return PTE_ADDR(p[PTX(va)]);
 }
@@ -75,13 +74,12 @@ void page_free(struct Page *pp);
 void page_decref(struct Page *pp);
 int pgdir_walk(Pde *pgdir, u_long va, int create, Pte **ppte);
 int page_insert(Pde *pgdir, struct Page *pp, u_long va, u_int perm);
-struct Page* page_lookup(Pde *pgdir, u_long va, Pte **ppte);
-void page_remove(Pde *pgdir, u_long va) ;
+struct Page *page_lookup(Pde *pgdir, u_long va, Pte **ppte);
+void page_remove(Pde *pgdir, u_long va);
 void tlb_invalidate(Pde *pgdir, u_long va);
 
 void boot_map_segment(Pde *pgdir, u_long va, u_long size, u_long pa, int perm);
 
 extern struct Page *pages;
-
 
 #endif /* _PMAP_H_ */
