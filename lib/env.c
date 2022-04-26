@@ -367,7 +367,7 @@ static void load_icode(struct Env *e, u_char *binary, u_int size) {
 void env_create_priority(u_char *binary, int size, int priority) {
     struct Env *e;
     /* Step 1: Use env_alloc to alloc a new env. */
-    if ((e = env_alloc(&e, 0)) == NULL) {
+    if ((e = env_alloc(&e, 0)) != 0) {
         return;
     }
 
