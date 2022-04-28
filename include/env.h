@@ -27,7 +27,8 @@ struct Env {
 	Pde  *env_pgdir;                // Kernel virtual address of page dir
 	u_int env_cr3;
 	LIST_ENTRY(Env) env_sched_link;
-        u_int env_pri;
+	u_int env_pri;
+	u_int env_asid;
 	// Lab 4 IPC
 	u_int env_ipc_value;            // data value sent to us 
 	u_int env_ipc_from;             // envid of the sender  
@@ -58,7 +59,8 @@ void env_destroy(struct Env *e);
 
 int envid2env(u_int envid, struct Env **penv, int checkperm);
 void env_run(struct Env *e);
-
+u_int exam_env_run(struct Env *e);
+void exam_env_free(struct Env *e);
 
 // for the grading script
 #define ENV_CREATE2(x, y) \

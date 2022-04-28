@@ -10,6 +10,11 @@
 #include <printf.h>
 #include <types.h>
 
+#define asid2hard(X) ((X) & 0x3f)
+#define asid2ver(X) ((X) >> 6)
+#define ver2asid(X) ((X) << 6)
+#define HARDMAXL (1 << 6)
+
 struct Env *envs = NULL;   // All environments
 struct Env *curenv = NULL; // the current env
 
@@ -20,6 +25,9 @@ extern Pde *boot_pgdir;
 extern char *KERNEL_SP;
 
 static u_int asid_bitmap[2] = {0}; // 64
+
+int curver;
+char used[HARDMAXL];
 
 /* Overview:
  *  This function is to allocate an unused ASID
@@ -57,19 +65,29 @@ static void asid_free(u_int i) {
     asid_bitmap[index] &= ~(1 << inner);
 }
 
-/* Overview:
- *  This function is to make a unique ID for every env
- *
- * Pre-Condition:
- *  e should be valid
- *
- * Post-Condition:
- *  return e's envid on success
- */
-u_int mkenvid(struct Env *e) {
-    u_int idx = e - envs;
-    u_int asid = asid_alloc();
-    return (asid << (1 + LOG2NENV)) | (1 << LOG2NENV) | idx;
+// /* Overview:
+//  *  This function is to make a unique ID for every env
+//  *
+//  * Pre-Condition:
+//  *  e should be valid
+//  *
+//  * Post-Condition:
+//  *  return e's envid on success
+//  */
+// u_int mkenvid(struct Env *e) {
+//     u_int idx = e - envs;
+//     u_int asid = asid_alloc();
+//     return (asid << (1 + LOG2NENV)) | (1 << LOG2NENV) | idx;
+// }
+
+u_int mkenvid(struct Env *e)
+{
+    /*Hint: lower bits of envid hold e's position in the envs array. */
+    u_int idx = (u_int)e - (u_int)envs;
+    idx /= sizeof(struct Env);
+
+    /*Hint: avoid envid being zero. */
+    return (1 << (LOG2NENV)) | idx;  //LOG2NENV=10
 }
 
 /* Overview:
@@ -128,6 +146,14 @@ int envid2env(u_int envid, struct Env **penv, int checkperm) {
  *  You may use these macro definitions below:
  *      LIST_INIT, LIST_INSERT_HEAD
  */
+
+void clear_hard() {
+    int i;
+    for(i = 0; i < HARDMAXL; i++) {
+        used[i] = 0;
+    }
+}
+
 /*** exercise 3.2 ***/
 void env_init(void) {
     int i;
@@ -145,6 +171,10 @@ void env_init(void) {
         LIST_INSERT_HEAD(&env_free_list, &envs[i], env_link);
         envs[i].env_status = ENV_FREE;
     }
+
+    clear_hard();
+
+    curver = 0x4;
 }
 
 /* Overview:
@@ -235,6 +265,7 @@ int env_alloc(struct Env **new, u_int parent_id) {
     e->env_status = ENV_RUNNABLE;
     e->env_runs = 0;
     e->env_parent_id = parent_id;
+    e->env_asid = 0;
 
     /* Step 4: Focus on initializing the sp register and cp0_status of env_tf field, located at this new Env. */
     e->env_tf.cp0_status = 0x10001004;
@@ -501,6 +532,45 @@ void env_run(struct Env *e) {
     env_pop_tf(&(curenv->env_tf), GET_ENV_ASID(curenv->env_id));
 }
 
+int find_min() {
+    int i;
+    for (i = 0; i < HARDMAXL; i++) {
+        if (used[i] == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+u_int exam_env_run(struct Env *e) {
+    int min;
+    if (curver == asid2ver(e->env_asid)) {
+        return 0;
+    }
+    if (used[asid2hard(e->env_asid)] == 0) {
+        e->env_asid = ver2asid(curver) | asid2hard(e->env_asid);
+        used[asid2hard(e->env_asid)] = 1;
+        return 0;
+    }
+    if ((min = find_min()) > 0) {
+        e->env_asid = ver2asid(curver) | min;
+        used[min] = 1;
+        return 0;
+    }
+    curver++;
+    clear_hard();
+    min = find_min();
+    e->env_asid = ver2asid(curver) | min;
+    used[min] = 1;
+    return 1;
+}
+
+void exam_env_free(struct Env *e) {
+    if(asid2ver(e->env_asid) == curver) {
+        used[asid2hard(e->env_asid)] = 0;
+    }
+}
+
 void env_check() {
     struct Env *temp, *pe, *pe0, *pe1, *pe2;
     struct Env_list fl;
@@ -630,3 +700,4 @@ void load_icode_check() {
     env_free(e);
     printf("load_icode_check() succeeded!\n");
 }
+
