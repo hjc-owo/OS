@@ -552,7 +552,7 @@ u_int exam_env_run(struct Env *e) {
         used[asid2hard(e->env_asid)] = 1;
         return 0;
     }
-    if ((min = find_min()) > 0) {
+    if ((min = find_min()) >= 0) {
         e->env_asid = ver2asid(curver) | min;
         used[min] = 1;
         return 0;
