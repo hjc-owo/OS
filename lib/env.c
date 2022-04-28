@@ -9,6 +9,7 @@
 #include <pmap.h>
 #include <printf.h>
 #include <types.h>
+#define MAXL (10086)
 
 struct Env *envs = NULL;   // All environments
 struct Env *curenv = NULL; // the current env
@@ -20,6 +21,93 @@ extern Pde *boot_pgdir;
 extern char *KERNEL_SP;
 
 static u_int asid_bitmap[2] = {0}; // 64
+
+struct S {
+    int size;
+    int start, end;
+    struct Env *waiting[MAXL];
+};
+
+struct S s1, s2;
+
+void S_init(int s, int num) {
+    if (s == 1) {
+        s1.start = s1.end = 0;
+        s1.size = num;
+        int i;
+        for (i = 0; i < MAXL; i++) {
+            s1.waiting[i] = NULL;
+        }
+    }
+    else if (s == 2) {
+        s2.start = s2.end = 0;
+        s2.size = num;
+        int i;
+        for (i = 0; i < MAXL; i++) {
+            s2.waiting[i] = NULL;
+        }
+    }
+}
+
+int P(struct Env* e, int s) {
+    if (e->status == 1) {
+        return -1;
+    }
+    if (s == 1) {
+        if (s1.size) {
+            e->status = 2;
+            s1.size--;
+        } else {
+            s1.waiting[s1.end++] = e;
+            e->status = 1;
+        }
+    } else {
+        if (s2.size) {
+            e->status = 2;
+            s2.size--;
+        } else {
+            s2.waiting[s2.end++] = e;
+            e->status = 1;
+        }
+    }
+    return 0;
+}
+
+int V(struct Env* e, int s) {
+    if (e->status == 1) {
+        return -1;
+    }
+    if (s == 1) {
+        if (s1.end - s1.start) {
+            e->status = 3;
+            s1.waiting[s1.start++]->status = 2;
+        } else {
+            s1.size++;
+            e->status = 3;
+        }
+    } else {
+        if (s2.end - s2.start) {
+            e->status = 3;
+            s2.waiting[s2.start++]->status = 2;
+        } else {
+            s2.size++;
+            e->status = 3;
+        }
+    }
+    return 0;
+}
+
+int get_status(struct Env* e) {
+    return e->status;
+}
+
+int my_env_create() {
+    struct Env *e;
+    if (env_alloc(&e, 0) != 0) {
+        return -1;
+    }
+    return e->env_id;
+}
 
 /* Overview:
  *  This function is to allocate an unused ASID
@@ -630,3 +718,4 @@ void load_icode_check() {
     env_free(e);
     printf("load_icode_check() succeeded!\n");
 }
+
