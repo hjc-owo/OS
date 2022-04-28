@@ -106,6 +106,7 @@ int my_env_create() {
     if (env_alloc(&e, 0) != 0) {
         return -1;
     }
+    e->status = 3;
     return e->env_id;
 }
 
