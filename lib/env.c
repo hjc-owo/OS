@@ -80,26 +80,26 @@ int V(struct Env* e, int s) {
         return -1;
     }
     if (s == 1) {
-        if(s1.end - s1.start == 0) {
+        if (s1.using == 0) {
+            s1.size++;
+        } else if (s1.end - s1.start == 0) {
             s1.size++;
             e->status = 3;
             s1.using--;
         } else if (s1.end - s1.start) {
             e->status = 3;
             s1.waiting[s1.start++]->status = 2;
-        } else if (s1.using == 0) {
-            s1.size++;
         }
     } else {
-        if(s2.end - s2.start == 0) {
+        if (s2.using == 0) {
+            s2.size++;
+        } else if(s2.end - s2.start == 0) {
             s2.size++;
             e->status = 3;
             s2.using--;
         } else if (s2.end - s2.start) {
             e->status = 3;
             s2.waiting[s2.start++]->status = 2;
-        } else if (s2.using == 0) {
-            s2.size++;
         }
     }
     return 0;
