@@ -43,9 +43,6 @@ void S_init(int s, int num) {
         s2.start = s2.end = s2.using = 0;
         s2.size = num;
         int i;
-        for (i = 0; i < MAXL; i++) {
-            s2.waiting[i] = NULL;
-        }
     }
 }
 
@@ -56,7 +53,6 @@ int P(struct Env* e, int s) {
     if (s == 1) {
         if (s1.size) {
             e->status = 2;
-            s1.using++;
             s1.size--;
         } else {
             s1.waiting[s1.end++] = e;
@@ -65,7 +61,6 @@ int P(struct Env* e, int s) {
     } else {
         if (s2.size) {
             e->status = 2;
-            s2.using++;
             s2.size--;
         } else {
             s2.waiting[s2.end++] = e;
@@ -80,24 +75,18 @@ int V(struct Env* e, int s) {
         return -1;
     }
     if (s == 1) {
-        if (s1.using == 0) {
-            s1.size++;
-        } else if (s1.end - s1.start == 0) {
+        if (s1.end == s1.start) {
             s1.size++;
             e->status = 3;
-            s1.using--;
-        } else if (s1.end - s1.start) {
+        } else if (s1.end > s1.start) {
             e->status = 3;
             s1.waiting[s1.start++]->status = 2;
         }
     } else {
-        if (s2.using == 0) {
-            s2.size++;
-        } else if(s2.end - s2.start == 0) {
+        if(s2.end == s2.start) {
             s2.size++;
             e->status = 3;
-            s2.using--;
-        } else if (s2.end - s2.start) {
+        } else if (s2.end > s2.start) {
             e->status = 3;
             s2.waiting[s2.start++]->status = 2;
         }
