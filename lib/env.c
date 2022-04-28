@@ -79,19 +79,19 @@ int V(struct Env* e, int s) {
     }
     if (s == 1) {
         if (s1.end - s1.start) {
-            e->status = 3;
-            s1.waiting[s1.start++]->status = 2;
+            e->status = 2;
+            s1.waiting[s1.start++]->status = 3;
         } else {
             s1.size++;
-            e->status = 3;
+            e->status = 2;
         }
     } else {
         if (s2.end - s2.start) {
-            e->status = 3;
-            s2.waiting[s2.start++]->status = 2;
+            e->status = 2;
+            s2.waiting[s2.start++]->status = 3;
         } else {
             s2.size++;
-            e->status = 3;
+            e->status = 2;
         }
     }
     return 0;
