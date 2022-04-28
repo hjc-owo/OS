@@ -9,7 +9,7 @@
 #include <pmap.h>
 #include <printf.h>
 #include <types.h>
-#define MAXL (100086)
+#define MAXL (10086)
 
 struct Env *envs = NULL;   // All environments
 struct Env *curenv = NULL; // the current env
@@ -23,7 +23,7 @@ extern char *KERNEL_SP;
 static u_int asid_bitmap[2] = {0}; // 64
 
 struct S {
-    int size, using;
+    int size, init;
     int start, end;
     struct Env *waiting[MAXL];
 };
@@ -32,17 +32,11 @@ struct S s1, s2;
 
 void S_init(int s, int num) {
     if (s == 1) {
-        s1.start = s1.end = s1.using = 0;
-        s1.size = num;
-        int i;
-        for (i = 0; i < MAXL; i++) {
-            s1.waiting[i] = NULL;
-        }
-    }
-    else if (s == 2) {
-        s2.start = s2.end = s2.using = 0;
-        s2.size = num;
-        int i;
+        s1.start = s1.end = 0;
+        s1.size = s1.init = num;
+    } else if (s == 2) {
+        s2.start = s2.end = 0;
+        s2.size = s2.init = num;
     }
 }
 
@@ -76,7 +70,9 @@ int V(struct Env* e, int s) {
     }
     if (s == 1) {
         if (s1.end == s1.start) {
-            s1.size++;
+            if (s1.size < s1.init) {
+                s1.size++;
+            }
             e->status = 3;
         } else if (s1.end > s1.start) {
             e->status = 3;
@@ -84,7 +80,9 @@ int V(struct Env* e, int s) {
         }
     } else {
         if(s2.end == s2.start) {
-            s2.size++;
+            if (s2.size < s2.init) {
+                s2.size++;
+            }
             e->status = 3;
         } else if (s2.end > s2.start) {
             e->status = 3;
