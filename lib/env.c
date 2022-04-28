@@ -9,7 +9,7 @@
 #include <pmap.h>
 #include <printf.h>
 #include <types.h>
-#define MAXL (10086)
+#define MAXL (100086)
 
 struct Env *envs = NULL;   // All environments
 struct Env *curenv = NULL; // the current env
@@ -79,16 +79,16 @@ int V(struct Env* e, int s) {
     }
     if (s == 1) {
         if (s1.end - s1.start) {
-            e->status = 2;
-            s1.waiting[s1.start++]->status = 3;
+            e->status = 3;
+            s1.waiting[s1.start++]->status = 2;
         } else {
             s1.size++;
             e->status = 2;
         }
     } else {
         if (s2.end - s2.start) {
-            e->status = 2;
-            s2.waiting[s2.start++]->status = 3;
+            e->status = 3;
+            s2.waiting[s2.start++]->status = 2;
         } else {
             s2.size++;
             e->status = 2;
