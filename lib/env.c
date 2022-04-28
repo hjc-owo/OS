@@ -70,19 +70,15 @@ int V(struct Env* e, int s) {
     }
     if (s == 1) {
         if (s1.end == s1.start) {
-            if (s1.size < s1.init) {
-                s1.size++;
-            }
+            s1.size++;
             e->status = 3;
         } else if (s1.end > s1.start) {
             e->status = 3;
             s1.waiting[s1.start++]->status = 2;
         }
     } else {
-        if(s2.end == s2.start) {
-            if (s2.size < s2.init) {
-                s2.size++;
-            }
+        if (s2.end == s2.start) {
+            s2.size++;
             e->status = 3;
         } else if (s2.end > s2.start) {
             e->status = 3;
