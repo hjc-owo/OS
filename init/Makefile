@@ -5,11 +5,10 @@ INCLUDES := -I../include
 
 .PHONY: clean
 
-all: init.o main.o code_a.o code_b.o check_icode.o
+all: init.o main.o code.o check_icode.o
 
 clean:
 	rm -rf *~ *.o
 
 
 include ../include.mk
-
