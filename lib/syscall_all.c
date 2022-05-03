@@ -92,7 +92,7 @@ int sys_env_destroy(int sysno, u_int envid) {
         return r;
     }
 
-    printf("[%08x] destroying %08x\n", curenv->env_id, e->env_id);
+    // printf("[%08x] destroying %08x\n", curenv->env_id, e->env_id);
     env_destroy(e);
     return 0;
 }
@@ -115,11 +115,11 @@ int sys_set_pgfault_handler(int sysno, u_int envid, u_int func, u_int xstacktop)
     int ret;
     if ((ret = envid2env(envid, &env, 0)) < 0) {
         return ret;
-        env->env_pgfault_handler = func;
-        env->env_xstacktop = xstacktop;
-        return 0;
-        //	panic("sys_set_pgfault_handler not implemented");
     }
+    env->env_pgfault_handler = func;
+    env->env_xstacktop = xstacktop;
+    return 0;
+    //	panic("sys_set_pgfault_handler not implemented");
 }
 
 /* Overview:
