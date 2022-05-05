@@ -62,7 +62,7 @@ struct Env *env = (struct Env *)user_data;
 r = load_elf(binary, size, &entry_point, e, load_icode_mapper);
 ```
 
-而其中的e则为传入`load_icode`中的`struct Env *e`，因此我们的推测得到证实。
+而其中的 e 则为传入`load_icode`中的`struct Env *e`，因此我们的推测得到证实。
 
 没有进程指针，我们的加载镜像的步骤显然不能正常完成。
 
@@ -160,7 +160,7 @@ offest|                                        |                     |
 
 如下图所示。
 
-![截屏2022-05-03 14.52.32](https://cdn.jsdelivr.net/gh/hjc-owo/allImgs/img/202205031519854.png)
+![截屏2022-05-03 14.52.32](https://cdn.jsdelivr.net/gh/hjc-owo/hjc-owo.github.io/img/202205031519854.png)
 
 ### Thinking 3.9
 
@@ -173,14 +173,14 @@ LEAF(set_timer)
   # 首先先将 0x01 写入地址 0xb5000100 中
   # 其中基地址0xb5000000为gxemul用于映射实时钟的地址，偏移量0x100代表时钟的频率。
 	li t0, 0xc8
-	sb t0, 0xb5000100 
-	
+	sb t0, 0xb5000100
+
 	# 将栈指针设置为KERNEL_SP中能够正确产生时钟中断
 	sw	sp, KERNEL_SP
-	
+
 	# 再调用宏函数 setup_c0_status 来设置 CP0_STATUS 的值
   setup_c0_status STATUS_CU0|0x1001 0
-  
+
   # 通过 jr ra 来返回
 	jr ra
 	nop
@@ -240,7 +240,7 @@ timer_irq:
 
 ### 其他
 
-好几份汇编代码需要我们仔细阅读，包括env_asm.S, genex.S, kclock_asm.S 等，需要将汇编代码的功能与 C 语言代码的功能结合起来思考，才能正确理解中断发生以及进程调度的时候对于硬件以及软件需要做出的处理。
+好几份汇编代码需要我们仔细阅读，包括 env_asm.S, genex.S, kclock_asm.S 等，需要将汇编代码的功能与 C 语言代码的功能结合起来思考，才能正确理解中断发生以及进程调度的时候对于硬件以及软件需要做出的处理。
 
 ## 体会与感想
 
