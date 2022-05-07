@@ -160,7 +160,7 @@ offest|                                        |                     |
 
 如下图所示。
 
-![截屏2022-05-03 14.52.32](https://cdn.jsdelivr.net/gh/hjc-owo/hjc-owo.github.io/img/202205031519854.png)
+![截屏2022-05-03 14.52.32](https://cdn.jsdelivr.net/gh/hjc-owo/hjc-owo.github.io@img/202205031519854.png)
 
 ### Thinking 3.9
 
