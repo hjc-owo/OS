@@ -18,6 +18,7 @@ int init[3] = {1, 2, 4,};
 void sched_yield(void) {
     static int count = 0; // remaining time slices of current env
     static int point = 0; // current env_sched_list index
+    static int next_point = 0; // next env_sched_list index
 
     static struct Env *e = NULL;
     /*  hint:
@@ -36,9 +37,14 @@ void sched_yield(void) {
         if (e != NULL) {
             LIST_REMOVE(e, env_sched_link);
             if (e->env_status != ENV_FREE) {
-                point++;
-                point %= 3;
-                LIST_INSERT_TAIL(&env_sched_list[point], e, env_sched_link);
+                if (e->env_pri & 1) {
+                    next_point = point + 1;
+                    next_point %= 3;
+                } else {
+                    next_point = point + 2;
+                    next_point %= 3;
+                }
+                LIST_INSERT_TAIL(&env_sched_list[next_point], e, env_sched_link);
             }
         }
         while (1) {
