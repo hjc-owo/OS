@@ -61,7 +61,7 @@ void sched_yield(void) {
                     point %= 3;
                 }
 
-                LIST_INSERT_TAIL(&env_sched_list[next_point], e, env_sched_link);
+                LIST_INSERT_TAIL(&env_sched_list[point], e, env_sched_link);
 
             } else {
                 count = e->env_pri * init[point];
