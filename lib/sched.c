@@ -52,7 +52,6 @@ void sched_yield(void) {
             else if (e->env_status == ENV_NOT_RUNNABLE) {
                 LIST_REMOVE(e, env_sched_link);
 
-
                 if (e->env_pri & 1) {
                     point++;
                     point %= 3;
@@ -71,6 +70,6 @@ void sched_yield(void) {
     }
     count--;
     e->env_runs++;
-    env_run(e);
     printf("\n");
+    env_run(e);
 }
