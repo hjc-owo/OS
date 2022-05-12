@@ -14,7 +14,7 @@ struct Env *envs = NULL;   // All environments
 struct Env *curenv = NULL; // the current env
 
 static struct Env_list env_free_list; // Free list
-struct Env_list env_sched_list[2];    // Runnable list
+struct Env_list env_sched_list[3];    // Runnable list
 
 extern Pde *boot_pgdir;
 extern char *KERNEL_SP;
