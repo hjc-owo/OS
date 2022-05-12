@@ -12,6 +12,8 @@ extern void handle_sys();
 
 extern void handle_mod();
 
+extern void handle_adel();
+
 unsigned long exception_handlers[32];
 
 void trap_init() {
@@ -22,6 +24,7 @@ void trap_init() {
     set_except_vector(1, handle_mod);
     set_except_vector(2, handle_tlb);
     set_except_vector(3, handle_tlb);
+    set_except_vector(4, handle_adel);
     set_except_vector(8, handle_sys);
 }
 

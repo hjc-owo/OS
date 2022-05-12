@@ -152,8 +152,43 @@ nop
 			nop
 END(do_refill)
 
+// 地址错误中的 AdEL 错误
+NESTED(adel_refill,0 , sp)
+	.extern 	mCONTEXT
+1: 
+			lw		k1,mCONTEXT
+			lw		k2,mCONTEXT
+			nop
+			srl 	k1,26
+			nop
+			beq		k1,0xa3,lw_refill
+			nop
+			beq		k1,0xa1,lh_refill
+			nop
+			jr		ra
+			nop
+lw_refill:
+			and 	k2,0x3ffffff
+			li 		k1,0xa1
+			sll 	k1,26
+			or		k2,k1
+			sw 		k2,mCONTEXT
+			jr  	ra
+			nop
+lh_refill:
+			and		k2,0x3ffffff
+			li 		k1,0xa0
+			sll 	k1,26
+			or		k2,k1
+			jr  	ra
+			nop
+END(adel_refill)
+
+
+
 
 
 BUILD_HANDLER reserved do_reserved cli
 BUILD_HANDLER tlb	do_refill	cli
 BUILD_HANDLER mod	page_fault_handler cli
+BUILD_HANDLER adel	adel_refill	cli

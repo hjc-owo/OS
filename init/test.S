@@ -1,0 +1,14 @@
+#include <asm/regdef.h>
+#include <asm/cp0regdef.h>
+#include <asm/asm.h>
+#include <stackframe.h>
+LEAF(test1)
+        addu a0, a0, a1
+lw v0, 0(a0)
+        jr ra
+END(test1)
+LEAF(test2)
+        addu a0, a0, a1
+lw v0, 0(a0)
+        jr ra
+END(test2)
