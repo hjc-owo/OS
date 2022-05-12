@@ -157,29 +157,30 @@ NESTED(adel_refill,0 , sp)
 	.extern 	mCONTEXT
 1: 
 			lw		k1,mCONTEXT
-			lw		k2,mCONTEXT
+			lw		k0,mCONTEXT
 			nop
-			srl 	k1,26
+			srl 	k0,26
 			nop
-			beq		k1,0xa3,lw_refill
+			beq		k0,0xa3,lw_refill
 			nop
-			beq		k1,0xa1,lh_refill
+			beq		k0,0xa1,lh_refill
 			nop
 			jr		ra
 			nop
 lw_refill:
-			and 	k2,0x3ffffff
-			li 		k1,0xa1
-			sll 	k1,26
-			or		k2,k1
-			sw 		k2,mCONTEXT
+			and 	k1,0x3ffffff
+			li 		k0,0xa1
+			sll 	k0,26
+			or		k1,k0
+			sw 		k1,mCONTEXT
 			jr  	ra
 			nop
 lh_refill:
-			and		k2,0x3ffffff
-			li 		k1,0xa0
-			sll 	k1,26
-			or		k2,k1
+			and		k1,0x3ffffff
+			li 		k0,0xa0
+			sll 	k0,26
+			or		k1,k0
+			sw 		k1,mCONTEXT
 			jr  	ra
 			nop
 END(adel_refill)
