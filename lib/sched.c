@@ -2,6 +2,8 @@
 #include <pmap.h>
 #include <printf.h>
 
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+
 int init[3] = {1, 2, 4,};
 
 /* Overview:
@@ -43,18 +45,21 @@ void sched_yield(void) {
         }
         while (1) {
             while (LIST_EMPTY(&env_sched_list[point])) {
-                next_point = point + 1;
-                next_point %= 3;
+                point++;
+                point %= 3;
             }
-            e = LIST_FIRST(&env_sched_list[next_point]);
+            e = LIST_FIRST(&env_sched_list[point]);
             if (e->env_status == ENV_FREE)
                 LIST_REMOVE(e, env_sched_link);
             else if (e->env_status == ENV_NOT_RUNNABLE) {
                 LIST_REMOVE(e, env_sched_link);
 
 
-                if (e->env_pri & 1 == 0) {
-                    next_point++;
+                if (e->env_pri & 1) {
+                    next_point = point + 1;
+                    next_point %= 3;
+                } else {
+                    next_point = point + 2;
                     next_point %= 3;
                 }
 
@@ -66,7 +71,7 @@ void sched_yield(void) {
             }
         }
     }
-    count -= init[point];
+    count = MAX(count - init[point], 0);
     e->env_runs++;
     env_run(e);
     printf("\n");
