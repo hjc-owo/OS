@@ -152,36 +152,33 @@ nop
 			nop
 END(do_refill)
 
-// 地址错误中的 AdEL 错误
+/* 地址错误中的 AdEL 错误
+ * 如果异常由 lw 指令触发，则将发生异常的指令替换为 lh 指令。
+ * 如果异常由 lh 指令触发，则将发生异常的指令替换为 lb 指令。*/
 NESTED(adel_refill,0 , sp)
-	.extern 	mCONTEXT
-1: 
-			lw		k1,mCONTEXT
-			lw		k0,mCONTEXT
+			mfc0 		k0,CP0_BADVADDR
+			and		k0,0xfffff000
+			lw		k1,0(k0)
 			nop
-			srl 	k0,26
-			nop
-			beq		k0,0xa3,lw_refill
-			nop
-			beq		k0,0xa1,lh_refill
+					move		t0,k1
+					srl 		t0,26
+					beq 		t0,0xa3,lw_refill
+					nop
+					beq 		t0,0xa1,lh_refill
+					nop
+lw_refill:
+			and		k1,0x3ffffff
+			and		k1,0x84000000
+			sw		k1,0(k0)
 			nop
 			jr		ra
 			nop
-lw_refill:
-			and 	k1,0x3ffffff
-			li 		k0,0xa1
-			sll 	k0,26
-			or		k1,k0
-			sw 		k1,mCONTEXT
-			jr  	ra
-			nop
 lh_refill:
 			and		k1,0x3ffffff
-			li 		k0,0xa0
-			sll 	k0,26
-			or		k1,k0
-			sw 		k1,mCONTEXT
-			jr  	ra
+			and		k1,0x80000000
+			sw		k1,0(k0)
+			nop
+			jr		ra
 			nop
 END(adel_refill)
 
