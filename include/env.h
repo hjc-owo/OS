@@ -49,7 +49,7 @@ struct Env {
 LIST_HEAD(Env_list, Env);
 extern struct Env *envs;                  // All environments
 extern struct Env *curenv;                // the current env
-extern struct Env_list env_sched_list[2]; // runnable env list
+extern struct Env_list env_sched_list[3]; // runnable env list
 
 void env_init(void);
 
