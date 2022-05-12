@@ -1,0 +1,77 @@
+[33m[01m[05m[ You are changing the branch: lab3-2-exam ][0m
+Autotest: Begin at Thu May 12 14:49:41 CST 2022
+[35m[ testcase 1 begin ][0m
+for d in boot drivers init lib mm;	\
+	do					\
+		make --directory=$d clean; \
+	done; \
+rm -rf *.o *~ gxemul/vmlinux
+make[1]: Entering directory '/usr/src/workdir/boot'
+rm -rf *~ *.o
+make[1]: Leaving directory '/usr/src/workdir/boot'
+make[1]: Entering directory '/usr/src/workdir/drivers'
+for d in gxconsole; \
+	do				\
+		make --directory=$d clean; \
+	done
+make[2]: Entering directory '/usr/src/workdir/drivers/gxconsole'
+rm -rf *.o *~
+make[2]: Leaving directory '/usr/src/workdir/drivers/gxconsole'
+make[1]: Leaving directory '/usr/src/workdir/drivers'
+make[1]: Entering directory '/usr/src/workdir/init'
+rm -rf *~ *.o
+make[1]: Leaving directory '/usr/src/workdir/init'
+make[1]: Entering directory '/usr/src/workdir/lib'
+rm -rf *~ *.o
+make[1]: Leaving directory '/usr/src/workdir/lib'
+make[1]: Entering directory '/usr/src/workdir/mm'
+rm -rf *~ *.o
+make[1]: Leaving directory '/usr/src/workdir/mm'
+make --directory=boot
+make[1]: Entering directory '/usr/src/workdir/boot'
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -mips2 -I../include/ -c start.S 
+make[1]: Leaving directory '/usr/src/workdir/boot'
+make --directory=drivers
+make[1]: Entering directory '/usr/src/workdir/drivers'
+make --directory=gxconsole
+make[2]: Entering directory '/usr/src/workdir/drivers/gxconsole'
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -mips2   -c -o console.o console.c
+make[2]: Leaving directory '/usr/src/workdir/drivers/gxconsole'
+make[1]: Leaving directory '/usr/src/workdir/drivers'
+make --directory=init
+make[1]: Entering directory '/usr/src/workdir/init'
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -mips2 -I../include -c init.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -mips2 -I../include -c main.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -mips2 -I../include -c code_a.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -mips2 -I../include -c code_b.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -mips2 -I../include -c check_icode.c
+make[1]: Leaving directory '/usr/src/workdir/init'
+make --directory=lib
+make[1]: Entering directory '/usr/src/workdir/lib'
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -mips2 -I./ -I../ -I../include/ -c kernel_elfloader.c
+kernel_elfloader.c: In function 'load_elf':
+kernel_elfloader.c:76: warning: suggest parentheses around assignment used as truth value
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -mips2 -I./ -I../ -I../include/ -c env.c
+env.c: In function 'env_alloc':
+env.c:221: warning: unused variable 'r'
+env.c: In function 'load_icode_mapper':
+env.c:282: warning: passing argument 2 of 'bcopy' makes pointer from integer without a cast
+env.c:295: warning: passing argument 2 of 'bcopy' makes pointer from integer without a cast
+env.c: In function 'env_run':
+env.c:495: warning: passing argument 1 of 'lcontext' makes integer from pointer without a cast
+env.c: In function 'load_icode_check':
+env.c:590: warning: unused variable 'paddr'
+env.c:634:2: warning: no newline at end of file
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -mips2 -I./ -I../ -I../include/ -c print.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -mips2 -I./ -I../ -I../include/ -c printf.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -mips2 -I./ -I../ -I../include/ -c sched.c
+sched.c: In function 'sched_yield':
+sched.c:64: error: 'next_point' undeclared (first use in this function)
+sched.c:64: error: (Each undeclared identifier is reported only once
+sched.c:64: error: for each function it appears in.)
+make[1]: *** [Makefile:3: sched.o] Error 1
+make[1]: Leaving directory '/usr/src/workdir/lib'
+make: *** [Makefile:33: lib] Error 2
+[31m[01m[ There is something wrong with your vmlinx. ][0m
+[33m[01m[ You got 0 (of 100) this time. Thu May 12 14:49:43 CST 2022 ][0m
+Autotest: End at Thu May 12 14:49:43 CST 2022
