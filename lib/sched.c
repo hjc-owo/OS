@@ -2,6 +2,8 @@
 #include <pmap.h>
 #include <printf.h>
 
+int init[3] = {1, 2, 4,};
+
 /* Overview:
  *  Implement simple round-robin scheduling.
  *
@@ -15,6 +17,7 @@
 void sched_yield(void) {
     static int count = 0; // remaining time slices of current env
     static int point = 0; // current env_sched_list index
+    static int next_point = 0;
 
     static struct Env *e = NULL;
     /*  hint:
@@ -33,25 +36,38 @@ void sched_yield(void) {
         if (e != NULL) {
             LIST_REMOVE(e, env_sched_link);
             if (e->env_status != ENV_FREE) {
-                LIST_INSERT_TAIL(&env_sched_list[1 - point], e, env_sched_link);
+                next_point = point + 1;
+                next_point %= 3;
+                LIST_INSERT_TAIL(&env_sched_list[next_point], e, env_sched_link);
             }
         }
         while (1) {
-            while (LIST_EMPTY(&env_sched_list[point]))
-                point = 1 - point;
-            e = LIST_FIRST(&env_sched_list[point]);
+            while (LIST_EMPTY(&env_sched_list[point])) {
+                next_point = point + 1;
+                next_point %= 3;
+            }
+            e = LIST_FIRST(&env_sched_list[next_point]);
             if (e->env_status == ENV_FREE)
                 LIST_REMOVE(e, env_sched_link);
             else if (e->env_status == ENV_NOT_RUNNABLE) {
                 LIST_REMOVE(e, env_sched_link);
-                LIST_INSERT_TAIL(&env_sched_list[1 - point], e, env_sched_link);
+
+
+                if (e->env_pri & 1 == 0) {
+                    next_point++;
+                    next_point %= 3;
+                }
+
+                LIST_INSERT_TAIL(&env_sched_list[next_point], e, env_sched_link);
+
             } else {
                 count = e->env_pri;
                 break;
             }
         }
     }
-    count--;
+    count -= init[point];
     e->env_runs++;
     env_run(e);
+    printf("\n");
 }

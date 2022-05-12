@@ -136,6 +136,8 @@ void env_init(void) {
 
     LIST_INIT(&env_sched_list[0]);
     LIST_INIT(&env_sched_list[1]);
+    LIST_INIT(&env_sched_list[2]);
+
     /* Step 2: Traverse the elements of 'envs' array,
      *   set their status as free and insert them into the env_free_list.
      * Choose the correct loop order to finish the insertion.
@@ -235,6 +237,7 @@ int env_alloc(struct Env **new, u_int parent_id) {
     e->env_status = ENV_RUNNABLE;
     e->env_runs = 0;
     e->env_parent_id = parent_id;
+    e->run_time = 0;
 
     /* Step 4: Focus on initializing the sp register and cp0_status of env_tf field, located at this new Env. */
     e->env_tf.cp0_status = 0x10001004;
