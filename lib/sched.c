@@ -38,7 +38,7 @@ void sched_yield(void) {
             if (e->env_status != ENV_FREE) {
                 point++;
                 point %= 3;
-                LIST_INSERT_TAIL(&env_sched_list[next_point], e, env_sched_link);
+                LIST_INSERT_TAIL(&env_sched_list[point], e, env_sched_link);
             }
         }
         while (1) {
