@@ -157,7 +157,6 @@ END(do_refill)
  * 如果异常由 lh 指令触发，则将发生异常的指令替换为 lb 指令。*/
 NESTED(adel_refill,0 , sp)
 			mfc0 		k0,CP0_BADVADDR
-			and		k0,0xfffff000
 			lw		k1,0(k0)
 			nop
 					move		t0,k1
