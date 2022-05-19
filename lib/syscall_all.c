@@ -369,7 +369,7 @@ void sys_ipc_recv(int sysno, u_int dstva) {
         e->env_status = ENV_RUNNABLE;
         if (srcva != 0) {
             p = page_lookup(curenv->env_pgdir, srcva, NULL);
-            if (p == NULL || e->env_ipc_dstva >= UTOP)
+            if (p == NULL || dstva >= UTOP)
                 return;
             if ((r = page_insert(e->env_pgdir, p, dstva, perm)) < 0)
                 return;
@@ -425,6 +425,7 @@ int sys_ipc_can_send(int sysno, u_int envid, u_int value, u_int srcva,
 
         curenv->env_status = ENV_NOT_RUNNABLE;
         sys_yield();
+        return -E_IPC_NOT_RECV;
     }
 
     e->env_ipc_value = value;
