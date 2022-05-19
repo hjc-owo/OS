@@ -370,9 +370,9 @@ void sys_ipc_recv(int sysno, u_int dstva) {
         if (srcva != 0) {
             p = page_lookup(curenv->env_pgdir, srcva, NULL);
             if (p == NULL || e->env_ipc_dstva >= UTOP)
-                return -E_INVAL;
+                return;
             if ((r = page_insert(e->env_pgdir, p, dstva, perm)) < 0)
-                return r;
+                return;
         }
         return;
     }
