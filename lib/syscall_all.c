@@ -327,6 +327,11 @@ void sys_panic(int sysno, char *msg) {
     panic("%s", TRUP(msg));
 }
 
+#define MAXL (50)
+struct Env *buffer[MAXL][MAXL];
+u_int value[MAXL][MAXL], srcva[MAXL][MAXL], perm[MAXL][MAXL];
+u_int head[MAXL], tail[MAXL];
+
 /* Overview:
  * 	This function enables caller to receive message from
  * other process. To be more specific, it will flag
@@ -343,6 +348,28 @@ void sys_panic(int sysno, char *msg) {
 /*** exercise 4.7 ***/
 void sys_ipc_recv(int sysno, u_int dstva) {
     if (dstva >= UTOP) {
+        return;
+    }
+    int recv_id = ENVX(curenv->env_id);
+    if (head[recv_id] < tail[recv_id]) {
+        struct Env *e = buffer[recv_id][head[recv_id]];
+        u_int value = value[recv_id][head[recv_id]];
+        u_int srcva = srcva[recv_id][head[recv_id]];
+        u_int perm = perm[recv_id][head[recv_id]];
+        head[recv_id]++;
+        curenv->env_ipc_value = value;
+        curenv->env_ipc_from = e->env_id;
+        curenv->env_ipc_perm = perm;
+        curenv->env_ipc_recving = 0;
+        curenv->env_status = ENV_RUNNABLE;
+        e->env_status = ENV_RUNNABLE;
+        if (srcva != 0) {
+            p = page_lookup(curenv->env_pgdir, srcva, NULL);
+            if (p == NULL || e->env_ipc_dstva >= UTOP)
+                return -E_INVAL;
+            if ((r = page_insert(e->env_pgdir, p, dstva, perm)) < 0)
+                return r;
+        }
         return;
     }
     curenv->env_ipc_recving = 1;
@@ -382,9 +409,15 @@ int sys_ipc_can_send(int sysno, u_int envid, u_int value, u_int srcva,
     if ((r = envid2env(envid, &e, 0)) < 0) {
         return r;
     }
-    if (e->env_ipc_recving == 0) {
-        return -E_IPC_NOT_RECV;
-    }
+
+    int send_id = ENVX(curenv->env_id);
+
+    buffer[send_id][tail[send_id]] = e;
+    value[send_id][tail[send_id]] = value;
+    srcva[send_id][tail[send_id]] = srcva;
+    perm[send_id][tail[send_id]] = perm;
+    tail[send_id]++;
+
     e->env_ipc_value = value;
     e->env_ipc_from = curenv->env_id;
     e->env_ipc_perm = perm;
