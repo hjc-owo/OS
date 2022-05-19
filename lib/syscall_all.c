@@ -328,11 +328,11 @@ void sys_panic(int sysno, char *msg) {
 }
 
 #define MAXL (50)
-struct Env *buffer[MAXL][MAXL];
-u_int value[MAXL][MAXL];
-u_int srcva[MAXL][MAXL];
-u_int perm[MAXL][MAXL];
-int head[MAXL], tail[MAXL];
+struct Env *exbuffer[MAXL][MAXL];
+u_int exvalue[MAXL][MAXL];
+u_int exsrcva[MAXL][MAXL];
+u_int experm[MAXL][MAXL];
+int exhead[MAXL], extail[MAXL];
 
 /* Overview:
  * 	This function enables caller to receive message from
@@ -356,12 +356,12 @@ void sys_ipc_recv(int sysno, u_int dstva) {
         return;
     }
     int recv_id = ENVX(curenv->env_id);
-    if (head[recv_id] < tail[recv_id]) {
-        struct Env *e = buffer[recv_id][head[recv_id]];
-        u_int value = value[recv_id][head[recv_id]];
-        u_int srcva = srcva[recv_id][head[recv_id]];
-        u_int perm = perm[recv_id][head[recv_id]];
-        head[recv_id]++;
+    if (exhead[recv_id] < extail[recv_id]) {
+        struct Env *e = exbuffer[recv_id][exhead[recv_id]];
+        u_int value = exvalue[recv_id][exhead[recv_id]];
+        u_int srcva = exsrcva[recv_id][exhead[recv_id]];
+        u_int perm = experm[recv_id][exhead[recv_id]];
+        exhead[recv_id]++;
         curenv->env_ipc_value = value;
         curenv->env_ipc_from = e->env_id;
         curenv->env_ipc_perm = perm;
@@ -418,10 +418,10 @@ int sys_ipc_can_send(int sysno, u_int envid, u_int value, u_int srcva,
     if (e->env_ipc_recving == 0) {
         int send_id = ENVX(curenv->env_id);
 
-        buffer[send_id][tail[send_id]] = curenv;
-        value[send_id][tail[send_id]] = value;
-        srcva[send_id][tail[send_id]] = srcva;
-        perm[send_id][tail[send_id]] = perm;
+        buffer[send_id][extail[send_id]] = curenv;
+        value[send_id][extail[send_id]] = value;
+        srcva[send_id][extail[send_id]] = srcva;
+        perm[send_id][extail[send_id]] = perm;
         tail[send_id]++;
 
         curenv->env_status = ENV_NOT_RUNNABLE;
