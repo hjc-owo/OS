@@ -369,10 +369,10 @@ void sys_ipc_recv(int sysno, u_int dstva) {
         curenv->env_status = ENV_RUNNABLE;
         e->env_status = ENV_RUNNABLE;
         if (srcva != 0) {
-            p = page_lookup(curenv->env_pgdir, srcva, NULL);
+            p = page_lookup(e->env_pgdir, srcva, NULL);
             if (p == NULL || dstva >= UTOP)
                 return;
-            if ((r = page_insert(e->env_pgdir, p, dstva, perm)) < 0)
+            if ((r = page_insert(curenv->env_pgdir, p, dstva, perm)) < 0)
                 return;
         }
         return;
