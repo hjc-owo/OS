@@ -330,7 +330,7 @@ void sys_panic(int sysno, char *msg) {
 #define MAXL (50)
 struct Env *exbuffer[MAXL][MAXL];
 u_int exvalue[MAXL][MAXL], exsrcva[MAXL][MAXL], experm[MAXL][MAXL];
-int exhead[MAXL], extail[MAXL];
+int exhead[MAXL] = {0}, extail[MAXL] = {0};
 
 /* Overview:
  * 	This function enables caller to receive message from
@@ -360,6 +360,7 @@ void sys_ipc_recv(int sysno, u_int dstva) {
         u_int srcva = exsrcva[recv_id][exhead[recv_id]];
         u_int perm = experm[recv_id][exhead[recv_id]];
         exhead[recv_id]++;
+
         curenv->env_ipc_value = value;
         curenv->env_ipc_from = e->env_id;
         curenv->env_ipc_perm = perm;
