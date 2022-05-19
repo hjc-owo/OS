@@ -16,7 +16,8 @@ struct Env *lock = NULL;
  * 	`c` is the character you want to print.
  */
 void sys_putchar(int sysno, int c, int a2, int a3, int a4, int a5) {
-    if (lock == curenv) { printcharc((char) c); }
+    if (lock != curenv) return;
+    printcharc((char) c);
     return;
 }
 
