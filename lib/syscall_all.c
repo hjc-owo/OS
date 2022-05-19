@@ -329,8 +329,10 @@ void sys_panic(int sysno, char *msg) {
 
 #define MAXL (50)
 struct Env *buffer[MAXL][MAXL];
-u_int value[MAXL][MAXL], srcva[MAXL][MAXL], perm[MAXL][MAXL];
-u_int head[MAXL], tail[MAXL];
+u_int value[MAXL][MAXL];
+u_int srcva[MAXL][MAXL];
+u_int perm[MAXL][MAXL];
+int head[MAXL], tail[MAXL];
 
 /* Overview:
  * 	This function enables caller to receive message from
@@ -348,7 +350,6 @@ u_int head[MAXL], tail[MAXL];
 /*** exercise 4.7 ***/
 void sys_ipc_recv(int sysno, u_int dstva) {
     int r;
-    struct Env *e;
     struct Page *p;
 
     if (dstva >= UTOP) {
@@ -417,7 +418,7 @@ int sys_ipc_can_send(int sysno, u_int envid, u_int value, u_int srcva,
     if (e->env_ipc_recving == 0) {
         int send_id = ENVX(curenv->env_id);
 
-        buffer[send_id][tail[send_id]] = e;
+        buffer[send_id][tail[send_id]] = curenv;
         value[send_id][tail[send_id]] = value;
         srcva[send_id][tail[send_id]] = srcva;
         perm[send_id][tail[send_id]] = perm;
