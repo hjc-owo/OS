@@ -418,7 +418,7 @@ int sys_ipc_can_send(int sysno, u_int envid, u_int value, u_int srcva,
 
         exbuffer[send_id][extail[send_id]] = curenv;
         exvalue[send_id][extail[send_id]] = value;
-        exesrcva[send_id][extail[send_id]] = srcva;
+        exsrcva[send_id][extail[send_id]] = srcva;
         experm[send_id][extail[send_id]] = perm;
         extail[send_id]++;
 
