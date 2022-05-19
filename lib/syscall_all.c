@@ -7,7 +7,8 @@
 
 extern char *KERNEL_SP;
 extern struct Env *curenv;
-struct Env *lock = NULL;
+//struct Env *lock = NULL;
+int lock = 0;
 
 /* Overview:
  * 	This function is used to print a character on screen.
@@ -16,7 +17,7 @@ struct Env *lock = NULL;
  * 	`c` is the character you want to print.
  */
 void sys_putchar(int sysno, int c, int a2, int a3, int a4, int a5) {
-    if (lock != curenv) return;
+    if (lock != curenv->env_id) return;
     printcharc((char) c);
     return;
 }
@@ -404,16 +405,16 @@ int sys_ipc_can_send(int sysno, u_int envid, u_int value, u_int srcva,
 
 // 若锁处于空闲状态，该函数设置锁由当前进程持有，并返回 0；否则，该函数返回 -1。
 int sys_try_acquire_console(int sysno, u_int envid, u_int value, u_int srcva, u_int perm) {
-    if (lock != NULL)
+    if (lock != 0)
         return -1;
-    lock = curenv;
+    lock = curenv->env_id;
     return 0;
 }
 
 int sys_release_console(int sysno, u_int envid, u_int value, u_int srcva, u_int perm) {
-    if (lock != curenv)
+    if (lock != curenv->env_id)
         return -1;
-    lock = NULL;
+    lock = 0;
     return 0;
 }
 
