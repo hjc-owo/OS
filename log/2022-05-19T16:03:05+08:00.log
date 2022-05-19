@@ -1,0 +1,104 @@
+[33m[01m[05m[ You are changing the branch: lab4-1-Extra ][0m
+Autotest: Begin at Thu May 19 16:03:05 CST 2022
+Begin build at Thu May 19 16:03:05 CST 2022
+Cleanning the project.................
+
+for d in boot drivers init lib mm user;	\
+	do					\
+		make --directory=$d clean; \
+	done; \
+rm -rf *.o *~ gxemul/vmlinux
+make[1]: Entering directory '/usr/src/workdir/boot'
+rm -rf *~ *.o
+make[1]: Leaving directory '/usr/src/workdir/boot'
+make[1]: Entering directory '/usr/src/workdir/drivers'
+for d in gxconsole; \
+	do				\
+		make --directory=$d clean; \
+	done
+make[2]: Entering directory '/usr/src/workdir/drivers/gxconsole'
+rm -rf *.o *~
+make[2]: Leaving directory '/usr/src/workdir/drivers/gxconsole'
+make[1]: Leaving directory '/usr/src/workdir/drivers'
+make[1]: Entering directory '/usr/src/workdir/init'
+rm -rf *~ *.o
+make[1]: Leaving directory '/usr/src/workdir/init'
+make[1]: Entering directory '/usr/src/workdir/lib'
+rm -rf *~ *.o
+make[1]: Leaving directory '/usr/src/workdir/lib'
+make[1]: Entering directory '/usr/src/workdir/mm'
+rm -rf *~ *.o
+make[1]: Leaving directory '/usr/src/workdir/mm'
+make[1]: Entering directory '/usr/src/workdir/user'
+rm -rf *~ *.o *.b.c *.x *.b
+make[1]: Leaving directory '/usr/src/workdir/user'
+
+Building the project..................
+
+make --directory=boot
+make[1]: Entering directory '/usr/src/workdir/boot'
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -c start.S 
+make[1]: Leaving directory '/usr/src/workdir/boot'
+make --directory=drivers
+make[1]: Entering directory '/usr/src/workdir/drivers'
+make --directory=gxconsole
+make[2]: Entering directory '/usr/src/workdir/drivers/gxconsole'
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000   -c -o console.o console.c
+make[2]: Leaving directory '/usr/src/workdir/drivers/gxconsole'
+make[1]: Leaving directory '/usr/src/workdir/drivers'
+make --directory=init
+make[1]: Entering directory '/usr/src/workdir/init'
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include -c init.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include -c main.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include -c code.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include -c check_icode.c
+make[1]: Leaving directory '/usr/src/workdir/init'
+make --directory=lib
+make[1]: Entering directory '/usr/src/workdir/lib'
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I./ -I../ -I../include/ -c kernel_elfloader.c
+kernel_elfloader.c: In function 'load_elf':
+kernel_elfloader.c:76: warning: suggest parentheses around assignment used as truth value
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I./ -I../ -I../include/ -c env.c
+env.c: In function 'env_alloc':
+env.c:219: warning: unused variable 'r'
+env.c: In function 'load_icode_mapper':
+env.c:280: warning: passing argument 2 of 'bcopy' makes pointer from integer without a cast
+env.c:293: warning: passing argument 2 of 'bcopy' makes pointer from integer without a cast
+env.c: In function 'env_run':
+env.c:493: warning: passing argument 1 of 'lcontext' makes integer from pointer without a cast
+env.c: In function 'load_icode_check':
+env.c:588: warning: unused variable 'paddr'
+env.c:632:2: warning: no newline at end of file
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I./ -I../ -I../include/ -c print.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I./ -I../ -I../include/ -c printf.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I./ -I../ -I../include/ -c sched.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I./ -I../ -I../include/ -c env_asm.S
+env_asm.S: Assembler messages:
+env_asm.S:62: Warning: Used $at without ".set noat"
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I./ -I../ -I../include/ -c kclock.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I./ -I../ -I../include/ -c traps.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I./ -I../ -I../include/ -c genex.S
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I./ -I../ -I../include/ -c kclock_asm.S
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I./ -I../ -I../include/ -c syscall.S
+syscall.S: Assembler messages:
+syscall.S:9: Warning: Used $at without ".set noat"
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I./ -I../ -I../include/ -c syscall_all.c
+syscall_all.c: In function 'sys_putchar':
+syscall_all.c:18: warning: implicit declaration of function 'printcharc'
+syscall_all.c: In function 'sys_ipc_recv':
+syscall_all.c:360: error: subscripted value is neither array nor pointer
+syscall_all.c:361: error: subscripted value is neither array nor pointer
+syscall_all.c:362: error: subscripted value is neither array nor pointer
+syscall_all.c:373: warning: 'return' with a value, in function returning void
+syscall_all.c:375: warning: 'return' with a value, in function returning void
+syscall_all.c:351: warning: unused variable 'e'
+syscall_all.c: In function 'sys_ipc_can_send':
+syscall_all.c:421: error: subscripted value is neither array nor pointer
+syscall_all.c:422: error: subscripted value is neither array nor pointer
+syscall_all.c:423: error: subscripted value is neither array nor pointer
+make[1]: *** [Makefile:3: syscall_all.o] Error 1
+make[1]: Leaving directory '/usr/src/workdir/lib'
+make: *** [Makefile:34: lib] Error 2
+Compile Error!
+[33m[01m[ You got 0 (of 100) this time. Thu May 19 16:03:09 CST 2022 ][0m
+Autotest: End at Thu May 19 16:03:09 CST 2022
