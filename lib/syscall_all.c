@@ -347,6 +347,10 @@ u_int head[MAXL], tail[MAXL];
  */
 /*** exercise 4.7 ***/
 void sys_ipc_recv(int sysno, u_int dstva) {
+    int r;
+    struct Env *e;
+    struct Page *p;
+
     if (dstva >= UTOP) {
         return;
     }
@@ -410,13 +414,18 @@ int sys_ipc_can_send(int sysno, u_int envid, u_int value, u_int srcva,
         return r;
     }
 
-    int send_id = ENVX(curenv->env_id);
+    if (e->env_ipc_recving == 0) {
+        int send_id = ENVX(curenv->env_id);
 
-    buffer[send_id][tail[send_id]] = e;
-    value[send_id][tail[send_id]] = value;
-    srcva[send_id][tail[send_id]] = srcva;
-    perm[send_id][tail[send_id]] = perm;
-    tail[send_id]++;
+        buffer[send_id][tail[send_id]] = e;
+        value[send_id][tail[send_id]] = value;
+        srcva[send_id][tail[send_id]] = srcva;
+        perm[send_id][tail[send_id]] = perm;
+        tail[send_id]++;
+
+        curenv->env_status = ENV_NOT_RUNNABLE;
+        sys_yield();
+    }
 
     e->env_ipc_value = value;
     e->env_ipc_from = curenv->env_id;
