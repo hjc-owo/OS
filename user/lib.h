@@ -53,6 +53,8 @@ int syscall_mem_alloc(u_int envid, u_int va, u_int perm);
 int syscall_mem_map(u_int srcid, u_int srcva, u_int dstid, u_int dstva,
 					u_int perm);
 int syscall_mem_unmap(u_int envid, u_int va);
+int syscall_try_acquire_console(void);
+int syscall_release_console(void);
 
 inline static int syscall_env_alloc(void)
 {

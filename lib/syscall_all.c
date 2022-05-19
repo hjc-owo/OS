@@ -399,3 +399,21 @@ int sys_ipc_can_send(int sysno, u_int envid, u_int value, u_int srcva,
     }
     return 0;
 }
+
+struct Env *lock = NULL;
+
+// 若锁处于空闲状态，该函数设置锁由当前进程持有，并返回 0；否则，该函数返回 -1。
+int sys_try_acquire_console(int sysno, u_int envid, u_int value, u_int srcva, u_int perm) {
+    if (lock != NULL)
+        return -1;
+    lock = curenv;
+    return 0;
+}
+
+int sys_release_console(int sysno, u_int envid, u_int value, u_int srcva, u_int perm) {
+    if (lock != curenv)
+        return -1;
+    lock = NULL;
+    return 0;
+}
+

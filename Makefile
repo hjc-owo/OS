@@ -25,7 +25,7 @@ objects		  := $(boot_dir)/start.o			\
 
 .PHONY: all $(modules) clean
 
-all: $(modules) vmlinux
+all: $(modules) vmlinux lktest.x lktest.b
 
 vmlinux: $(modules)
 	$(LD) -o $(vmlinux_elf) -N -T $(link_script) $(objects)

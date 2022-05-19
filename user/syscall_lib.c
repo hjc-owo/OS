@@ -87,3 +87,14 @@ syscall_cgetc()
 {
 	return msyscall(SYS_cgetc, 0, 0, 0, 0, 0);
 }
+
+
+int syscall_try_acquire_console(void)
+{
+    return msyscall(SYS_try_acquire_console, 0, 0, 0, 0, 0);
+}
+
+int syscall_release_console(void)
+{
+    return msyscall(SYS_release_console, 0, 0, 0, 0, 0);
+}
