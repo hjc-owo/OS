@@ -329,9 +329,7 @@ void sys_panic(int sysno, char *msg) {
 
 #define MAXL (50)
 struct Env *exbuffer[MAXL][MAXL];
-u_int exvalue[MAXL][MAXL];
-u_int exsrcva[MAXL][MAXL];
-u_int experm[MAXL][MAXL];
+u_int exvalue[MAXL][MAXL], exsrcva[MAXL][MAXL], experm[MAXL][MAXL];
 int exhead[MAXL], extail[MAXL];
 
 /* Overview:
@@ -418,11 +416,11 @@ int sys_ipc_can_send(int sysno, u_int envid, u_int value, u_int srcva,
     if (e->env_ipc_recving == 0) {
         int send_id = ENVX(curenv->env_id);
 
-        buffer[send_id][extail[send_id]] = curenv;
-        value[send_id][extail[send_id]] = value;
-        srcva[send_id][extail[send_id]] = srcva;
-        perm[send_id][extail[send_id]] = perm;
-        tail[send_id]++;
+        exbuffer[send_id][extail[send_id]] = curenv;
+        exvalue[send_id][extail[send_id]] = value;
+        exesrcva[send_id][extail[send_id]] = srcva;
+        experm[send_id][extail[send_id]] = perm;
+        extail[send_id]++;
 
         curenv->env_status = ENV_NOT_RUNNABLE;
         sys_yield();
