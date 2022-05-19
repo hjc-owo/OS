@@ -1,12 +1,30 @@
 #include "lib.h"
 
-void umain() {
-    u_int me = syscall_getenvid();
-    while (syscall_try_acquire_console() != 0) {
-        syscall_yield();
-    }
-    writef("I'm %x\n", me);
-    syscall_release_console();
 
-    while (1);
+void umain()
+{
+	int a = 0;
+	int id = 0;
+
+	if ((id = fork()) == 0) {
+		if ((id = fork()) == 0) {
+			a += 3;
+
+			for (;;) {
+				writef("\t\tthis is child2 :a:%d\n", a);
+			}
+		}
+
+		a += 2;
+
+		for (;;) {
+			writef("\tthis is child :a:%d\n", a);
+		}
+	}
+
+	a++;
+
+	for (;;) {
+		writef("this is father: a:%d\n", a);
+	}
 }
