@@ -194,7 +194,7 @@ int sys_mem_map(int sysno, u_int srcid, u_int srcva, u_int dstid, u_int dstva, u
     round_srcva = ROUNDDOWN(srcva, BY2PG);
     round_dstva = ROUNDDOWN(dstva, BY2PG);
 
-    //your code here
+    // your code here
     if ((perm & PTE_V) == 0)
         return -E_INVAL;
     if (srcva >= UTOP || dstva >= UTOP)
@@ -327,10 +327,12 @@ void sys_panic(int sysno, char *msg) {
     panic("%s", TRUP(msg));
 }
 
-#define MAXL (50)
-struct Env *exbuffer[MAXL][MAXL];
-u_int exvalue[MAXL][MAXL], exsrcva[MAXL][MAXL], experm[MAXL][MAXL];
-int exhead[MAXL] = {0}, extail[MAXL] = {0};
+struct Env *extra_buffer[50][50];
+u_int extra_value[50][50];
+u_int extra_srcva[50][50];
+u_int extra_perm[50][50];
+int head[50] = {0};
+int tail[50] = {0};
 
 /* Overview:
  * 	This function enables caller to receive message from
@@ -347,19 +349,17 @@ int exhead[MAXL] = {0}, extail[MAXL] = {0};
  */
 /*** exercise 4.7 ***/
 void sys_ipc_recv(int sysno, u_int dstva) {
-    int r;
     struct Page *p;
-
     if (dstva >= UTOP) {
         return;
     }
-    int recv_id = ENVX(curenv->env_id);
-    if (exhead[recv_id] < extail[recv_id]) {
-        struct Env *e = exbuffer[recv_id][exhead[recv_id]];
-        u_int value = exvalue[recv_id][exhead[recv_id]];
-        u_int srcva = exsrcva[recv_id][exhead[recv_id]];
-        u_int perm = experm[recv_id][exhead[recv_id]];
-        exhead[recv_id]++;
+    int toid = ENVX(curenv->env_id);
+    if (head[toid] < tail[toid]) {
+        struct Env *e = extra_buffer[toid][head[toid]];
+        u_int value = extra_value[toid][head[toid]];
+        u_int srcva = extra_srcva[toid][head[toid]];
+        u_int perm = extra_perm[toid][head[toid]];
+        head[toid]++;
 
         curenv->env_ipc_value = value;
         curenv->env_ipc_from = e->env_id;
@@ -369,10 +369,10 @@ void sys_ipc_recv(int sysno, u_int dstva) {
         e->env_status = ENV_RUNNABLE;
         if (srcva != 0) {
             p = page_lookup(e->env_pgdir, srcva, NULL);
-            if (p == NULL || dstva >= UTOP)
+            if (p == NULL || dstva >= UTOP) {
                 return;
-            if ((r = page_insert(curenv->env_pgdir, p, dstva, perm)) < 0)
-                return;
+            }
+            page_insert(curenv->env_pgdir, p, dstva, perm);
         }
         return;
     }
@@ -410,24 +410,21 @@ int sys_ipc_can_send(int sysno, u_int envid, u_int value, u_int srcva,
     if (srcva >= UTOP) {
         return -E_INVAL;
     }
-    if ((r = envid2env(envid, &e, 0)) < 0) {
+    r = envid2env(envid, &e, 0);
+    if (r < 0) {
         return r;
     }
-
     if (e->env_ipc_recving == 0) {
-        int send_id = ENVX(curenv->env_id);
-
-        exbuffer[send_id][extail[send_id]] = curenv;
-        exvalue[send_id][extail[send_id]] = value;
-        exsrcva[send_id][extail[send_id]] = srcva;
-        experm[send_id][extail[send_id]] = perm;
-        extail[send_id]++;
-
+        int toid = ENVX(envid);
+        extra_buffer[toid][tail[toid]] = curenv;
+        extra_value[toid][tail[toid]] = value;
+        extra_perm[toid][tail[toid]] = perm;
+        extra_srcva[toid][tail[toid]] = srcva;
+        tail[toid]++;
         curenv->env_status = ENV_NOT_RUNNABLE;
         sys_yield();
         return -E_IPC_NOT_RECV;
     }
-
     e->env_ipc_value = value;
     e->env_ipc_from = curenv->env_id;
     e->env_ipc_perm = perm;
@@ -435,10 +432,13 @@ int sys_ipc_can_send(int sysno, u_int envid, u_int value, u_int srcva,
     e->env_status = ENV_RUNNABLE;
     if (srcva != 0) {
         p = page_lookup(curenv->env_pgdir, srcva, NULL);
-        if (p == NULL || e->env_ipc_dstva >= UTOP)
+        if (p == NULL || e->env_ipc_dstva >= UTOP) {
             return -E_INVAL;
-        if ((r = page_insert(e->env_pgdir, p, e->env_ipc_dstva, perm)) < 0)
+        }
+        r = page_insert(e->env_pgdir, p, e->env_ipc_dstva, perm);
+        if (r) {
             return r;
+        }
     }
     return 0;
 }
