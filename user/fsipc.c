@@ -114,12 +114,12 @@ int fsipc_dirty(u_int fileid, u_int offset) {
 //	Ask the file server to delete a file, given its pathname.
 /*** exercise 5.10 ***/
 int fsipc_remove(const char *path) {
-    struct Fsreq_remove *req;
-    // Step 1: Check the length of path, decide if the path is valid.
-    if (path[0] == '\0' || strlen(path) >= MAXPATHLEN)
+    // Step 1: decide if the path is valid.
+    // The path is too long.
+    if (strlen(path) >= MAXPATHLEN)
         return -E_BAD_PATH;
     // Step 2: Transform fsipcbuf to struct Fsreq_remove*
-    req = (struct Fsreq_remove *) fsipcbuf;
+    struct Fsreq_remove *req = (struct Fsreq_map *) fsipcbuf;
     // Step 3: Copy path to path in req.
     strcpy((char *) req->req_path, path);
     // Step 4: Send request to fs server with IPC.
