@@ -81,9 +81,8 @@ void unmap_block(u_int blockno) {
     //can't be unmap directly.
 
     // Step 3: use 'syscall_mem_unmap' to unmap corresponding virtual memory.
-    r = syscall_mem_unmap(0, addr);
-    if (r < 0)
-        return r;
+    if ((r = syscall_mem_unmap(0, addr)) < 0)
+        return;
     // Step 4: validate result of this unmap operation.
     user_assert(!block_is_mapped(blockno));
 }
