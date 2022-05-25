@@ -15,9 +15,12 @@ int block_is_free(u_int);
 //	than disk's nblocks, panic.
 /*** exercise 5.5 ***/
 u_int diskaddr(u_int blockno) {
-    if (super != NULL && blockno > super->s_nblocks)
-        user_panic("diskaddr panic");
-    return DISKMAP + blockno * BY2BLK;
+    u_int offset;
+    if (super && blockno > super->s_nblocks) {
+        user_panic("diskaddr() : blockno is too large!");
+    }
+    offset = blockno * BY2BLK;
+    return DISKMAP + offset;
 }
 
 // Overview:
@@ -58,11 +61,13 @@ u_int block_is_dirty(u_int blockno) {
 //	and return the result(success or fail) of `syscall_mem_alloc`.
 /*** exercise 5.6 ***/
 int map_block(u_int blockno) {
-    // Step 1: Decide whether this block has already mapped to a page of physical memory.
-    if (block_is_mapped(blockno))
+    u_int addr;
+    // Step 1: Decide whether this block is already mapped to a page of physical memory.
+    if ((addr = block_is_mapped(blockno)) != 0) {
         return 0;
+    }
     // Step 2: Alloc a page of memory for this block via syscall.
-    return syscall_mem_alloc(0, diskaddr(blockno), PTE_R | PTE_V);
+    return syscall_mem_alloc(0, addr, PTE_V | PTE_R);
 }
 
 // Overview:
@@ -73,16 +78,21 @@ void unmap_block(u_int blockno) {
     u_int addr;
     // Step 1: check if this block is mapped.
     addr = block_is_mapped(blockno);
+    if (addr == 0) {
+        return;
+    }
     // Step 2: use block_is_free，block_is_dirty to check block ,
     //if this block is used(not free) and dirty, it needs to be synced to disk: write_block
+    //can't be unmap directly.
     if (!block_is_free(blockno) && block_is_dirty(blockno)) {
         write_block(blockno);
     }
-    //can't be unmap directly.
 
     // Step 3: use 'syscall_mem_unmap' to unmap corresponding virtual memory.
-    if ((r = syscall_mem_unmap(0, addr)) < 0)
+    if ((r = syscall_mem_unmap(0, addr)) < 0) {
+        writef("unmap_block faild!");
         return;
+    }
     // Step 4: validate result of this unmap operation.
     user_assert(!block_is_mapped(blockno));
 }
@@ -494,22 +504,21 @@ int dir_lookup(struct File *dir, char *name, struct File **file) {
     struct File *f;
 
     // Step 1: Calculate nblock: how many blocks this dir have.
-
-    nblock = dir->f_size / BY2BLK;
+    nblock = ROUND(dir->f_size, BY2BLK) / BY2BLK;
 
     for (i = 0; i < nblock; i++) {
         // Step 2: Read the i'th block of the dir.
         // Hint: Use file_get_block.
-        r = file_get_block(dir, i, &blk);
-        if (r)
+        if ((r = file_get_block(dir, i, &blk)) < 0) {
             return r;
-        f = (struct File *) blk;
+        }
         // Step 3: Find target file by file name in all files on this block.
         // If we find the target file, set the result to *file and set f_dir field.
-        for (j = 0; j < FILE2BLK; ++j) {
-            if (strcmp(name, f[j].f_name) == 0) {
-                *file = f + j;
-                f[j].f_dir = dir;
+        for (j = 0; j < FILE2BLK; j++) {
+            f = ((struct File *) blk) + j;
+            if (strcmp(f->f_name, name) == 0) {
+                f->f_dir = dir;
+                *file = f;
                 return 0;
             }
         }

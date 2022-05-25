@@ -168,7 +168,6 @@ int read(int fdnum, void *buf, u_int n) {
     struct Dev *dev;
     struct Fd *fd;
 
-    // Similar to 'write' function.
     // Step 1: Get fd and dev.
     if ((r = fd_lookup(fdnum, &fd)) < 0 || (r = dev_lookup(fd->fd_dev_id, &dev)) < 0) {
         return r;
@@ -180,15 +179,17 @@ int read(int fdnum, void *buf, u_int n) {
         return -E_INVAL;
     }
 
-    // Step 3: Read starting from seek position.
-    if (debug)
-        writef("read %d %p %d via dev %s\n",
-               fdnum, buf, n, dev->dev_name);
+    if (debug) {
+        writef("read %d %p %d via dev %s\n", fdnum, buf, n, dev->dev_name);
+    }
 
-    if ((r = (*dev->dev_read)(fd, buf, n, fd->fd_offset)) > 0) {
+    // Step 3: Read starting from seek position.
+    r = (*dev->dev_read)(fd, buf, n, fd->fd_offset);
+
+    // Step 4: Update seek position and set '\0' at the end of buf.
+    if (r > 0) {
         fd->fd_offset += r;
     }
-    // Step 4: Update seek position and set '\0' at the end of buf.
     ((char *) buf)[r] = '\0';
     return r;
 }
