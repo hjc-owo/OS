@@ -9,6 +9,7 @@
 #include <assert.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <dirent.h>
 
 /* Prevent inc/types.h, included from inc/fs.h,
  * From attempting to redefine types defined in the host's inttypes.h. */
