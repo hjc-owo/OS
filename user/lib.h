@@ -47,15 +47,12 @@ void syscall_putchar(char ch);
 u_int syscall_getenvid(void);
 void syscall_yield(void);
 int syscall_env_destroy(u_int envid);
-int syscall_set_pgfault_handler(u_int envid, void (*func)(void),
-								u_int xstacktop);
+int syscall_set_pgfault_handler(u_int envid, void (*func)(void), u_int xstacktop);
 int syscall_mem_alloc(u_int envid, u_int va, u_int perm);
-int syscall_mem_map(u_int srcid, u_int srcva, u_int dstid, u_int dstva,
-					u_int perm);
+int syscall_mem_map(u_int srcid, u_int srcva, u_int dstid, u_int dstva, u_int perm);
 int syscall_mem_unmap(u_int envid, u_int va);
 
-inline static int syscall_env_alloc(void)
-{
+inline static int syscall_env_alloc(void) {
     return msyscall(SYS_env_alloc, 0, 0, 0, 0, 0);
 }
 
@@ -65,6 +62,8 @@ void syscall_panic(char *msg);
 int syscall_ipc_can_send(u_int envid, u_int value, u_int srcva, u_int perm);
 void syscall_ipc_recv(u_int dstva);
 int syscall_cgetc();
+int syscall_write_dev(u_int va, u_int dev, u_int offset);
+int syscall_read_dev(u_int va, u_int dev, u_int offset);
 
 // string.c
 int strlen(const char *s);
@@ -112,7 +111,7 @@ int	close(int fd);
 int	read(int fd, void *buf, u_int nbytes);
 int	write(int fd, const void *buf, u_int nbytes);
 int	seek(int fd, u_int offset);
-void	close_all(void);
+void close_all(void);
 int	readn(int fd, void *buf, u_int nbytes);
 int	dup(int oldfd, int newfd);
 int fstat(int fdnum, struct Stat *stat);

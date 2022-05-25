@@ -14,6 +14,7 @@
  * From attempting to redefine types defined in the host's inttypes.h. */
 #define _INC_TYPES_H_
 #define BY2PG       4096        // bytes to a page
+
 #include "../include/fs.h"
 
 #define nelem(x)    (sizeof(x) / sizeof((x)[0]))
@@ -27,12 +28,12 @@ uint32_t nextbno;   // next availiable block.
 struct Super super; // super block.
 
 enum {
-    BLOCK_FREE  = 0,
-    BLOCK_BOOT  = 1,
-    BLOCK_BMAP  = 2,
+    BLOCK_FREE = 0,
+    BLOCK_BOOT = 1,
+    BLOCK_BMAP = 2,
     BLOCK_SUPER = 3,
-    BLOCK_DATA  = 4,
-    BLOCK_FILE  = 5,
+    BLOCK_DATA = 4,
+    BLOCK_FILE = 5,
     BLOCK_INDEX = 6,
 };
 
@@ -59,46 +60,45 @@ void reverse_block(struct Block *b) {
     uint32_t *u;
 
     switch (b->type) {
-    case BLOCK_FREE:
-    case BLOCK_BOOT:
-        break; // do nothing.
-    case BLOCK_SUPER:
-        s = (struct Super *)b->data;
-        reverse(&s->s_magic);
-        reverse(&s->s_nblocks);
+        case BLOCK_FREE:
+        case BLOCK_BOOT:
+            break; // do nothing.
+        case BLOCK_SUPER:
+            s = (struct Super *) b->data;
+            reverse(&s->s_magic);
+            reverse(&s->s_nblocks);
 
-        ff = &s->s_root;
-        reverse(&ff->f_size);
-        reverse(&ff->f_type);
-        for(i = 0; i < NDIRECT; ++i) {
-            reverse(&ff->f_direct[i]);
-        }
-        reverse(&ff->f_indirect);
-        break;
-    case BLOCK_FILE:
-        f = (struct File *)b->data;
-        for(i = 0; i < FILE2BLK; ++i) {
-            ff = f + i;
-            if(ff->f_name[0] == 0) {
-                break;
+            ff = &s->s_root;
+            reverse(&ff->f_size);
+            reverse(&ff->f_type);
+            for (i = 0; i < NDIRECT; ++i) {
+                reverse(&ff->f_direct[i]);
             }
-            else {
-                reverse(&ff->f_size);
-                reverse(&ff->f_type);
-                for(j = 0; j < NDIRECT; ++j) {
-                    reverse(&ff->f_direct[j]);
+            reverse(&ff->f_indirect);
+            break;
+        case BLOCK_FILE:
+            f = (struct File *) b->data;
+            for (i = 0; i < FILE2BLK; ++i) {
+                ff = f + i;
+                if (ff->f_name[0] == 0) {
+                    break;
+                } else {
+                    reverse(&ff->f_size);
+                    reverse(&ff->f_type);
+                    for (j = 0; j < NDIRECT; ++j) {
+                        reverse(&ff->f_direct[j]);
+                    }
+                    reverse(&ff->f_indirect);
                 }
-                reverse(&ff->f_indirect);
             }
-        }
-        break;
-    case BLOCK_INDEX:
-    case BLOCK_BMAP:
-        u = (uint32_t *)b->data;
-        for(i = 0; i < BY2BLK/4; ++i) {
-            reverse(u+i);
-        }
-        break;
+            break;
+        case BLOCK_INDEX:
+        case BLOCK_BMAP:
+            u = (uint32_t *) b->data;
+            for (i = 0; i < BY2BLK / 4; ++i) {
+                reverse(u + i);
+            }
+            break;
     }
 }
 
@@ -114,15 +114,15 @@ void init_disk() {
     nextbno = 2 + nbitblock;
 
     // Step 2: Initialize bitmap blocks.
-    for(i = 0; i < nbitblock; ++i) {
-        disk[2+i].type = BLOCK_BMAP;
+    for (i = 0; i < nbitblock; ++i) {
+        disk[2 + i].type = BLOCK_BMAP;
     }
-    for(i = 0; i < nbitblock; ++i) {
-        memset(disk[2+i].data, 0xff, BY2BLK);
+    for (i = 0; i < nbitblock; ++i) {
+        memset(disk[2 + i].data, 0xff, BY2BLK);
     }
-    if(NBLOCK != nbitblock * BIT2BLK) {
+    if (NBLOCK != nbitblock * BIT2BLK) {
         diff = NBLOCK % BIT2BLK / 8;
-        memset(disk[2+(nbitblock-1)].data+diff, 0x00, BY2BLK - diff);
+        memset(disk[2 + (nbitblock - 1)].data + diff, 0x00, BY2BLK - diff);
     }
 
     // Step 3: Initialize super block.
@@ -143,8 +143,8 @@ int next_block(int type) {
 void flush_bitmap() {
     int i;
     // update bitmap, mark all bit where corresponding block is used.
-    for(i = 0; i < nextbno; ++i) {
-        ((uint32_t *)disk[2+i/BIT2BLK].data)[(i%BIT2BLK)/32] &= ~(1<<(i%32));
+    for (i = 0; i < nextbno; ++i) {
+        ((uint32_t *) disk[2 + i / BIT2BLK].data)[(i % BIT2BLK) / 32] &= ~(1 << (i % 32));
     }
 }
 
@@ -157,9 +157,9 @@ void finish_fs(char *name) {
     memcpy(disk[1].data, &super, sizeof(super));
 
     // Dump data in `disk` to target image file.
-    fd = open(name, O_RDWR|O_CREAT, 0666);
-    for(i = 0; i < 1024; ++i) {
-        reverse_block(disk+i);
+    fd = open(name, O_RDWR | O_CREAT, 0666);
+    for (i = 0; i < 1024; ++i) {
+        reverse_block(disk + i);
         write(fd, disk[i].data, BY2BLK);
     }
 
@@ -168,19 +168,17 @@ void finish_fs(char *name) {
 }
 
 // Save block link.
-void save_block_link(struct File *f, int nblk, int bno)
-{
+void save_block_link(struct File *f, int nblk, int bno) {
     assert(nblk < NINDIRECT); // if not, file is too large !
 
-    if(nblk < NDIRECT) {
+    if (nblk < NDIRECT) {
         f->f_direct[nblk] = bno;
-    }
-    else {
-        if(f->f_indirect == 0) {
+    } else {
+        if (f->f_indirect == 0) {
             // create new indirect block.
             f->f_indirect = next_block(BLOCK_INDEX);
         }
-        ((uint32_t *)(disk[f->f_indirect].data))[nblk] = bno;
+        ((uint32_t * )(disk[f->f_indirect].data))[nblk] = bno;
     }
 }
 
@@ -210,42 +208,51 @@ struct File *create_file(struct File *dirf) {
     struct File *dirblk;
     int i, bno, found;
     int nblk = dirf->f_size / BY2BLK;
-
+    int j;
     // Your code here
     // Step1: According to different range of nblk, make classified discussion to
     //        calculate the correct block number.
-
-
     // Step2: Find an unused pointer
-
-
+    for (i = 0; i < nblk; ++i) {
+        if (i < NDIRECT)
+            bno = dirf->f_direct[i];
+        else
+            bno = ((int *) (disk[dirf->f_indirect].data))[i];
+        dirblk = (struct File *) (disk[bno].data);
+        for (j = 0; j < FILE2BLK; ++j) {
+            if (dirblk[j].f_name[0] == '\0')
+                return dirblk + j;
+        }
+    }
+    bno = make_link_block(dirf, nblk);
+    return (struct File *) (disk[bno].data);
 }
 
 // Write file to disk under specified dir.
 void write_file(struct File *dirf, const char *path) {
     int iblk = 0, r = 0, n = sizeof(disk[0].data);
-    uint8_t buffer[n+1], *dist;
+    uint8_t buffer[n + 1], *dist;
     struct File *target = create_file(dirf);
 
     /* in case `create_file` is't filled */
     if (target == NULL) return;
 
     int fd = open(path, O_RDONLY);
- 
+
     // Get file name with no path prefix.
     const char *fname = strrchr(path, '/');
-    if(fname)
+    if (fname)
         fname++;
     else
         fname = path;
     strcpy(target->f_name, fname);
- 
+
     target->f_size = lseek(fd, 0, SEEK_END);
     target->f_type = FTYPE_REG;
- 
+
     // Start reading file.
     lseek(fd, 0, SEEK_SET);
-    while((r = read(fd, disk[nextbno].data, n)) > 0) {
+    while ((r = read(fd, disk[nextbno].data, n)) > 0) {
         save_block_link(target, iblk++, next_block(BLOCK_DATA));
     }
     close(fd); // Close file descriptor.
@@ -260,6 +267,43 @@ void write_file(struct File *dirf, const char *path) {
 //      We ASSUME that this funcion will never fail
 void write_directory(struct File *dirf, char *name) {
     // Your code here
+    DIR *dir;
+    struct dirent *info;
+    struct File *ndir, *pdir;
+    int dirlen;
+    char sub[512];
+    if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0)
+        return;
+    dir = opendir(name);
+    if (dir == NULL)
+        return;
+    dirlen = strlen(name);
+    if (name[dirlen - 1] == '/')
+        name[dirlen - 1] = 0;
+    pdir = create_file(dirf);
+    char *p, *q;
+    p = q = name;
+    while (*p) {
+        if (*p == '/') {
+            q = ++p;
+        } else {
+            p++;
+        }
+    }
+    strcpy(pdir->f_name, q);
+    pdir->f_type = FTYPE_DIR;
+    while ((info = readdir(dir)) != NULL) {
+        if (info->d_type == DT_DIR) {
+            if (strcmp(info->d_name, ".") != 0 && strcmp(info->d_name, "..") != 0) {
+                sprintf(sub, "%s/%s", name, info->d_name);
+                write_directory(pdir, sub);
+            }
+        } else {
+            sprintf(sub, "%s/%s", name, info->d_name);
+            write_file(pdir, sub);
+        }
+    }
+    closedir(dir);
 }
 
 int main(int argc, char **argv) {
@@ -267,20 +311,19 @@ int main(int argc, char **argv) {
 
     init_disk();
 
-    if(argc < 3 || (strcmp(argv[2], "-r") == 0 && argc != 4)) {
+    if (argc < 3 || (strcmp(argv[2], "-r") == 0 && argc != 4)) {
         fprintf(stderr, "\
 Usage: fsformat gxemul/fs.img files...\n\
        fsformat gxemul/fs.img -r DIR\n");
         exit(0);
     }
 
-    if(strcmp(argv[2], "-r") == 0) {
+    if (strcmp(argv[2], "-r") == 0) {
         for (i = 3; i < argc; ++i) {
             write_directory(&super.s_root, argv[i]);
         }
-    }
-    else {
-        for(i = 2; i < argc; ++i) {
+    } else {
+        for (i = 2; i < argc; ++i) {
             write_file(&super.s_root, argv[i]);
         }
     }
