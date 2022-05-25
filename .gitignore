@@ -6,5 +6,5 @@
 *.swp
 *~
 /gxemul/vmlinux
-/gxemul/fs.img
+/gxemul/fs*.img
 /fs/fsformat
