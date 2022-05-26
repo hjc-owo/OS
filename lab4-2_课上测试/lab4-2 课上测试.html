@@ -1,0 +1,346 @@
+<h1 id="考试说明">考试说明</h1>
+<p><strong>考试时间：14:00 ~ <font color="red">16:30</font></strong></p>
+<p>本次题面以 pdf 和 html 两种格式下发，需要复制代码的同学请使用 html
+格式的题面。</p>
+<h2 id="lab4-2-exam">lab4-2-exam</h2>
+<h3 id="创建并切换分支">创建并切换分支</h3>
+<pre class="shell"><code>git checkout lab4
+git add .
+git commit --allow-empty -m &quot;save my lab4&quot;
+git checkout -b lab4-2-exam</code></pre>
+<h3 id="题目描述">题目描述</h3>
+<p>请你在 <code>user/fork.c</code> 中实现下面这个用户函数，并在
+<code>user/lib.h</code> 中添加相应的声明，使用户程序能使用该函数：</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">// user/lib.h</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> make_shared<span class="op">(</span><span class="dt">void</span> <span class="op">*</span>va<span class="op">);</span></span></code></pre></div>
+<ul>
+<li>该函数将当前进程中虚拟地址 va
+所属的虚拟页标记为<strong>共享页</strong>，并返回其映射到的物理页的物理地址。</li>
+<li>在该进程后续执行 fork
+时，其共享页应与子进程共享，使得两个进程的地址空间中该页映射到同一个物理页。</li>
+<li>fork <strong>不应</strong>对共享页进行 COW
+保护。若父进程或子进程修改了共享页中的数据，随后另一进程读取该页时也会读取到修改后的数据。</li>
+</ul>
+<h4 id="实现要求">实现要求</h4>
+<ul>
+<li>若当前进程的页表中不存在该虚拟页，该函数应首先分配一页物理内存，并将该虚拟页映射到新分配的物理页，使当前进程能够<strong>读写</strong>该虚拟页。若无法分配新的物理页，该函数应返回
+-1 表示失败。</li>
+<li>若 va 不在用户空间中（大于或等于
+UTOP），或者当前进程的页表中已存在该虚拟页，但进程对其没有写入权限，则该函数应返回
+-1 表示失败，不产生任何影响。</li>
+<li>除了失败的情况，该函数都应返回 va
+所在的虚拟页所映射到的物理页的物理地址。</li>
+<li>若虚拟页 va
+已经为共享页，该函数仍应成功，直接返回对应的物理地址。</li>
+<li>评测保证调用 <code>make_shared</code> 之前，虚拟页 va 没有被 COW
+保护。</li>
+</ul>
+<p>请注意：</p>
+<ul>
+<li>进程的共享页作为进程的状态，在执行 fork
+后创建的子进程中仍应保持。即：若虚拟页 va
+是父进程中的共享页，则在子进程中 va
+仍然是子进程的共享页。若子进程再执行一次
+fork，父进程、子进程、子进程的子进程都能通过 va 共享同一个物理页。</li>
+<li>作为参数传入 <code>make_shared</code> 的 va
+不一定是页对齐的，但<strong>返回的物理地址一定是页对齐的</strong>。</li>
+</ul>
+<h3 id="实现提示">实现提示</h3>
+<ul>
+<li>在用户函数中，你可以读取当前进程的页表，也可以调用已有的
+<code>syscall_</code>
+开头的系统调用函数，但不能直接调用内核中的函数。</li>
+<li>你可以回顾指导书中 <code>duppage</code>
+函数的相关说明，利用其中已实现的机制完成页面共享。</li>
+</ul>
+<h3 id="本地测试">本地测试</h3>
+<h4 id="测试程序">测试程序</h4>
+<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">// user/shmtest.c</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&quot;lib.h&quot;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> umain<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">volatile</span> u_int <span class="op">*</span>a <span class="op">=</span> <span class="op">(</span><span class="dt">volatile</span> u_int <span class="op">*)</span> <span class="bn">0x23333334</span><span class="op">;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    make_shared<span class="op">((</span><span class="dt">void</span> <span class="op">*)</span> a<span class="op">);</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">*</span>a <span class="op">=</span> <span class="dv">233</span><span class="op">;</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>fork<span class="op">()</span> <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        u_int ch <span class="op">=</span> syscall_getenvid<span class="op">();</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        <span class="op">*</span>a <span class="op">=</span> ch<span class="op">;</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> <span class="op">(*</span>a <span class="op">==</span> ch<span class="op">)</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>            syscall_yield<span class="op">();</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>        writef<span class="op">(</span><span class="st">&quot;parent is %x</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> <span class="op">*</span>a<span class="op">);</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> <span class="op">(*</span>a <span class="op">==</span> <span class="dv">233</span><span class="op">)</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>            syscall_yield<span class="op">();</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>        writef<span class="op">(</span><span class="st">&quot;child is %x</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> <span class="op">*</span>a<span class="op">);</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>        <span class="op">*</span>a <span class="op">=</span> syscall_getenvid<span class="op">();</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h4 id="测试流程">测试流程</h4>
+<ol type="1">
+<li>将以上的用户程序保存为 <code>user/shmtest.c</code></li>
+<li>修改 <code>user/Makefile</code>，在构建目标 <code>all:</code> 后添加
+<code>shmtest.x</code> 和 <code>shmtest.b</code></li>
+<li>将 <code>init/init.c</code> 中的 <code>mips_init()</code>
+函数修改为以下内容：</li>
+</ol>
+<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> mips_init<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">&quot;init.c:</span><span class="sc">\t</span><span class="st">mips_init() is called</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    mips_detect_memory<span class="op">();</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    mips_vm_init<span class="op">();</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    page_init<span class="op">();</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    env_init<span class="op">();</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    ENV_CREATE<span class="op">(</span>user_shmtest<span class="op">);</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    trap_init<span class="op">();</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    kclock_init<span class="op">();</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span><span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    panic<span class="op">(</span><span class="st">&quot;init.c:</span><span class="sc">\t</span><span class="st">end of mips_init() reached!&quot;</span><span class="op">);</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<ol start="4" type="1">
+<li>构建并运行：</li>
+</ol>
+<pre class="shell"><code>make clean &amp;&amp; make
+/OSLAB/gxemul -E testmips -C R3000 -M 64 gxemul/vmlinux</code></pre>
+<h4 id="参考输出">参考输出</h4>
+<pre class="plain"><code>child is c01
+parent is 400</code></pre>
+<p>此处略去了输出中的空行，以及
+<code>pageout</code>、<code>main is start</code>、<code>i am killed</code>
+等内核输出。</p>
+<h3 id="提交评测">提交评测</h3>
+<pre class="shell"><code>git add .
+git commit -m &quot;finish exam&quot;
+git push origin lab4-2-exam:lab4-2-exam</code></pre>
+<h2 id="lab4-2-extra">lab4-2-Extra</h2>
+<h3 id="创建并切换分支-1">创建并切换分支</h3>
+<pre class="shell"><code>git checkout lab4
+git checkout -b lab4-2-Extra</code></pre>
+<h3 id="题目背景">题目背景</h3>
+<blockquote>
+<p>信号（英语：Signals）是Unix、类Unix以及其他POSIX兼容的操作系统中进程间通讯的一种有限制的方式。它是一种异步的通知机制，用来提醒进程一个事件已经发生。当一个信号发送给一个进程，操作系统会打断进程正常的控制流程，此时，任何非原子操作都将被打断。如果进程注册了信号的处理函数，那么它将被执行，否则就执行默认的处理函数。</p>
+<p>信号的机制类似于硬件中断（异常），不同之处在于中断由处理器发出并由内核处理，而信号由内核发出并由用户程序处理。除了进程通过系统调用向另一进程（或它自身）发出的信号，内核还可以将发生的中断通过信号通知给引发中断的进程。如果说系统调用是一种用户程序通知内核的机制，那么信号就是内核通知用户程序的机制。</p>
+<p>—— Unix信号，维基百科（有删改）</p>
+</blockquote>
+<p>以上材料仅用于帮助理解概念，具体的实现要求请以下文为准。</p>
+<h3 id="题目描述-1">题目描述</h3>
+<p>请你在 <code>user/ipc.c</code>
+中实现以下两个用户函数（以及可能需要的辅助函数和变量），并在
+<code>user/lib.h</code> 中相应声明：</p>
+<h4 id="发送信号">发送信号</h4>
+<div class="sourceCode" id="cb9"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">// user/lib.h</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> kill<span class="op">(</span>u_int envid<span class="op">,</span> <span class="dt">int</span> sig<span class="op">);</span></span></code></pre></div>
+<p>该函数向 envid 为 <code>envid</code> 的进程发送编号为
+<code>sig</code> 的信号。</p>
+<p>若 <code>envid</code> 为 0 或当前进程的
+envid，则向当前进程自身发送信号。</p>
+<h4 id="注册信号处理函数">注册信号处理函数</h4>
+<div class="sourceCode" id="cb10"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">// user/lib.h</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> signal<span class="op">(</span><span class="dt">int</span> sig<span class="op">,</span> <span class="dt">void</span> <span class="op">(*</span>handler<span class="op">)(</span><span class="dt">int</span><span class="op">));</span></span></code></pre></div>
+<p>该函数为当前进程注册一个信号处理函数。注册完成后，每当该进程收到一个编号为
+<code>sig</code> 的信号，该进程将打断原有的流程，开始执行信号处理函数
+<code>handler</code>，同时信号编号 <code>sig</code> 会作为
+<code>handler</code> 的参数传入。</p>
+<p>若 <code>handler</code> 为空指针，该函数取消已为信号 <code>sig</code>
+注册的处理函数，如同未曾注册过该信号的处理函数。</p>
+<h4 id="信号列表">信号列表</h4>
+<p>本题中定义的信号有且仅有以下几种：</p>
+<table>
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 23%" />
+<col style="width: 17%" />
+<col style="width: 17%" />
+<col style="width: 17%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>信号</th>
+<th>编号</th>
+<th>来源</th>
+<th>描述</th>
+<th>默认处理动作</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>SIGTERM</td>
+<td>15</td>
+<td>用户程序</td>
+<td>用于终止进程，但允许目标进程通过信号处理函数拦截</td>
+<td>退出</td>
+</tr>
+<tr class="even">
+<td>SIGSEGV</td>
+<td>11</td>
+<td>操作系统</td>
+<td>用户程序访问了页表中未映射且地址严格小于 0x10000 的虚拟页</td>
+<td>退出</td>
+</tr>
+<tr class="odd">
+<td>SIGCHLD</td>
+<td>18</td>
+<td>操作系统</td>
+<td>进程的某个子进程退出</td>
+<td>忽略</td>
+</tr>
+</tbody>
+</table>
+<p>如上表所示，除了用户程序通过 <code>kill</code> 发送的 SIGTERM
+信号，你还需要修改内核中原有的实现，在以上的后两种情况发生时，向进程发送相应的信号。</p>
+<h4 id="实现说明">实现说明</h4>
+<ul>
+<li>进程注册的信号处理函数应视作进程状态的一部分，即进程调用
+<code>fork()</code> 后创建的子进程中仍应注册有 <code>fork()</code>
+前父进程注册的处理函数。</li>
+<li>信号处理函数返回后，进程应继续执行被信号打断的流程。当然，信号处理函数也可能不返回，如调用
+<code>exit()</code> 使进程退出。</li>
+<li>若收到信号的进程没有为该信号注册处理函数，其行为须与上表中的默认处理动作一致。</li>
+<li>若收到信号的进程注册了该信号的处理函数，上表中的默认处理动作不再生效。即，如果处理函数正常返回，即使该信号的默认处理动作是退出，进程也会回到原流程继续执行。</li>
+<li>如果子进程退出时父进程也已退出，则不会产生 SIGCHLD 信号。</li>
+<li>本题中的“子进程”仅指 <code>fork()</code> 产生的直接子进程，即在进程
+A 的子进程 B 的子进程 C 退出时，只有进程 B 可能收到 SIGCHLD 信号，进程 A
+不会收到。</li>
+<li>SIGSEGV
+信号的处理函数返回后，进程应恢复到用户程序中进行非法访存的指令处，这意味着该处理函数可能被反复执行。</li>
+<li>进程使用 <code>kill()</code> 向自身发送的信号也应是同步处理的，即
+<code>kill()</code>
+返回时该信号的处理函数（或默认动作）应已执行完毕。</li>
+<li>除上述的 SIGSEGV
+和向自身发送信号的情况外，信号的收发可能是异步的，即收到信号的进程在哪条指令被打断可能依赖于调度策略，评测对此没有特定要求。</li>
+</ul>
+<p>评测保证：</p>
+<ul>
+<li>参数中传入的 <code>sig</code> 均为本题的信号列表中出现的编号。对于
+<code>kill()</code>，<code>sig</code> 只会为 15。</li>
+<li>向目标进程发送信号时，目标进程尚未退出，且不在前一个信号的处理过程中。
+<ul>
+<li>这包括调用 <code>kill()</code>
+的时刻，以及触发操作系统信号的事件发生的时刻。此时要么未向目标进程发送过任何信号，要么目标进程已从向它发送的前一个信号的处理函数中返回到原流程。</li>
+<li>这意味着你实现的信号处理不需要是可重入的。</li>
+</ul></li>
+<li>调用 <code>signal()</code> 时，<code>handler</code>
+要么为空指针，要么指向用户空间中定义的函数。</li>
+<li>除了信号列表中对 SIGSEGV
+的描述，用户程序不会进行其他的非法内存访问。</li>
+<li>每次评测创建的总进程数量不超过 20。</li>
+</ul>
+<h3 id="实现提示-1">实现提示</h3>
+<ul>
+<li>为使进程进入信号处理函数以及从信号处理过程返回，你可能需要引入新的系统调用。</li>
+<li>你可以参照实现 COW
+机制时用户程序注册异常处理函数的过程，将信号处理过程在用户空间中的入口告知内核。</li>
+<li>为使进程从原流程跳转到信号处理过程，你可以参照
+<code>sys_env_alloc</code>
+的实现，在内核中修改进程保存的上下文（Trapframe）。
+<ul>
+<li>根据目标进程为当前发起系统调用的进程还是其他进程，为该进程保存上下文的地址可能不同，需要修改的寄存器也可能不同。</li>
+<li>为了向信号处理函数传递参数，你可能需要修改上下文中保存的通用寄存器。</li>
+<li>为使进程能返回到原流程，可能需要将信号产生前进程原本的上下文保存到内核或用户空间中。</li>
+</ul></li>
+<li>根据信号编号分发信号的过程可以参考内核中异常和系统调用的分发，使用向量表来实现。</li>
+<li>你可以定义一个用户空间中的信号处理入口函数，进行信号的分发，并在处理函数返回后恢复原本的上下文。或者，也可以在内核中直接分发。</li>
+<li>如果你需要在系统调用中恢复上下文，请注意从系统调用返回时会被覆盖的通用寄存器。</li>
+<li>在原实现中，访问非法的内存地址可能导致内核输出 TOO LOW 并
+panic，因此实现 SIGSEGV 时需要修改此行为。</li>
+<li>为了保证内存映射的正确性，请避免修改结构体 <code>struct Env</code>
+的定义。你可以使用 <code>ENVX</code> 宏等方式获取进程控制块在
+<code>envs</code>
+中的下标，并使用独立的静态数组为每个进程在内核中维护必要的信息。</li>
+<li>你可能还需要阅读或修改以下文件：
+<ul>
+<li><code>user/libos.c</code></li>
+<li><code>lib/env.c</code></li>
+<li><code>lib/genex.S</code> 和 <code>mm/pmap.c</code></li>
+<li>关于系统调用的文件：
+<ul>
+<li><code>include/unistd.h</code></li>
+<li><code>lib/syscall.S</code></li>
+<li><code>lib/syscall_all.c</code></li>
+<li><code>user/lib.h</code></li>
+<li><code>user/syscall_lib.c</code></li>
+</ul></li>
+</ul></li>
+</ul>
+<p>以上提示仅供参考，在满足题目要求，正确实现三种信号的前提下，你可以不遵循以上提及的实现细节。</p>
+<h3 id="评测说明">评测说明</h3>
+<p>评测时，以下文件可能会被替换为标准版本：</p>
+<ul>
+<li><code>Makefile</code></li>
+<li><code>user/Makefile</code></li>
+<li><code>init/init.c</code></li>
+</ul>
+<p>评测由 5 个 Part 组成，各个 Part 独立评测，分值均为 20 分。每个 Part
+使用的用户程序满足相应的约束：</p>
+<ul>
+<li>Part 1：信号只涉及 SIGTERM，不会调用 <code>signal()</code>
+函数。</li>
+<li>Part 2：信号只涉及 SIGTERM，使用 <code>signal()</code>
+注册的所有信号处理函数最后都会调用 <code>exit()</code>
+函数退出进程。</li>
+<li>Part 3：信号只涉及 SIGTERM。</li>
+<li>Part 4：信号只涉及 SIGTERM 和 SIGSEGV。</li>
+<li>Part 5：信号只涉及 SIGTERM 和 SIGCHLD。</li>
+</ul>
+<h3 id="本地测试-1">本地测试</h3>
+<div class="sourceCode" id="cb11"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">// user/sigtest.c</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&quot;lib.h&quot;</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> flag <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> handle<span class="op">(</span><span class="dt">int</span> sig<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    flag <span class="op">+=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>sig <span class="op">==</span> <span class="dv">15</span><span class="op">)</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>        writef<span class="op">(</span><span class="st">&quot;%x: kill me baby!</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> syscall_getenvid<span class="op">());</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>sig <span class="op">==</span> <span class="dv">18</span><span class="op">)</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>        writef<span class="op">(</span><span class="st">&quot;%x: child exited</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> syscall_getenvid<span class="op">());</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> handle_segv<span class="op">(</span><span class="dt">int</span> sig<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    writef<span class="op">(</span><span class="st">&quot;%x: segmentation fault</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> syscall_getenvid<span class="op">());</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>    exit<span class="op">();</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> umain<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>    signal<span class="op">(</span><span class="dv">15</span><span class="op">,</span> handle<span class="op">);</span></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>    signal<span class="op">(</span><span class="dv">18</span><span class="op">,</span> handle<span class="op">);</span></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>    signal<span class="op">(</span><span class="dv">11</span><span class="op">,</span> handle_segv<span class="op">);</span></span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> parent <span class="op">=</span> syscall_getenvid<span class="op">();</span></span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> ch <span class="op">=</span> fork<span class="op">();</span></span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>ch <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>        kill<span class="op">(</span>parent<span class="op">,</span> <span class="dv">15</span><span class="op">);</span></span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>        ipc_recv<span class="op">(</span><span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>        <span class="op">*(</span><span class="dt">int</span> <span class="op">*)</span> NULL <span class="op">=</span> <span class="dv">233</span><span class="op">;</span></span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> <span class="op">(!</span>flag<span class="op">)</span></span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a>            syscall_yield<span class="op">();</span></span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a>        ipc_send<span class="op">(</span>ch<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> <span class="op">(</span>flag <span class="op">&lt;</span> <span class="dv">2</span><span class="op">)</span></span>
+<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a>            syscall_yield<span class="op">();</span></span>
+<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a>    signal<span class="op">(</span><span class="dv">15</span><span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a>    kill<span class="op">(</span><span class="dv">0</span><span class="op">,</span> <span class="dv">15</span><span class="op">);</span></span>
+<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a>    writef<span class="op">(</span><span class="st">&quot;this is unreachable&quot;</span><span class="op">);</span></span>
+<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<ol type="1">
+<li>将以上程序保存为 <code>user/sigtest.c</code></li>
+<li>在 <code>user/Makefile</code> 中添加构建目标
+<code>sigtest.b sigtest.x</code></li>
+<li>在 <code>init/init.c</code> 中添加
+<code>ENV_CREATE(user_sigtest)</code> 并删除其他
+<code>ENV_CREATE</code></li>
+<li>构建并运行</li>
+</ol>
+<h4 id="参考输出-1">参考输出</h4>
+<pre class="plain"><code>400: kill me baby!
+[ warning: LOW reference: vaddr=0x00000000, exception TLBS, pc=0x004001ec &lt;(no symbol)&gt; ]
+c01: segmentation fault
+400: child exited</code></pre>
+<p>此处略去了空行，以及 pageout、<code>i am killed</code>
+等内核输出。gxemul 所产生 warning 中的 PC 也是不确定的。</p>
+<h3 id="提交评测-1">提交评测</h3>
+<pre class="shell"><code>git add .
+git commit -m &quot;finish Extra&quot;
+git push origin lab4-2-Extra:lab4-2-Extra</code></pre>
