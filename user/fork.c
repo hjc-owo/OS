@@ -177,6 +177,7 @@ int sfork(void) {
 
 int make_shared(void *va) {
     int r;
+    u_int perm = (*vpt)[VPN(va)] & 0xfff;
     if (va >= (void *) UTOP)
         return -1;
 
@@ -186,7 +187,7 @@ int make_shared(void *va) {
         return ROUNDDOWN((*vpt)[VPN(va)] & 0xfffff000, BY2PG);
     }
 
-    if (((*vpt)[VPN(va)] & 0xfff & PTE_R) == 0) {
+    if ((perm & PTE_R) == 0) {
         return -1;
     }
 
