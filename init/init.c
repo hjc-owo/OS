@@ -8,20 +8,14 @@
 void mips_init() {
     printf("init.c:\tmips_init() is called\n");
     mips_detect_memory();
-
     mips_vm_init();
     page_init();
-
     env_init();
 
-    ENV_CREATE(user_tltest);
-    // ENV_CREATE(user_fktest);
-    // ENV_CREATE(user_pingpong);
+    ENV_CREATE(user_shmtest);
 
     trap_init();
     kclock_init();
-
-
     while (1);
     panic("init.c:\tend of mips_init() reached!");
 }
