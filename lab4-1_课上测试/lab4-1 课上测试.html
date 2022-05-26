@@ -1,0 +1,334 @@
+<p>本次题面以 pdf 和 html 两种格式下发，需要复制代码的同学请使用 html
+格式的题面。</p>
+<h2 id="lab4-1-exam">lab4-1-exam</h2>
+<h3 id="创建并切换分支">创建并切换分支</h3>
+<pre class="shell"><code>cd ~/学号
+git checkout lab4
+git add .
+git commit --allow-empty -m &quot;save my lab4&quot;
+git checkout -b lab4-1-exam</code></pre>
+<h3 id="题目背景">题目背景</h3>
+<p>借助系统调用，用户进程可以向操作系统请求多种服务，访问各类资源和外部设备。但是，内核所持有的资源也需要相应的保护机制，以避免在多进程环境中产生竞争冲突。以下介绍一种称为自旋锁的锁机制。</p>
+<blockquote>
+<p>自旋锁是计算机科学用于多线程同步的一种锁，线程反复检查锁变量是否可用。由于线程在这一过程中保持执行，因此是一种忙等待。一旦获取了自旋锁，线程会一直保持该锁，直至显式释放自旋锁。</p>
+<p>获取、释放自旋锁，实际上是读写自旋锁的存储内存或寄存器。因此这种读写操作必须是原子的。</p>
+<p>—— 自旋锁，维基百科（有删改）</p>
+</blockquote>
+<p>（以上材料仅用于帮助理解概念，与本题的要求可能不完全一致，其中提到的“线程”对应
+MOS 中的进程）</p>
+<p>锁机制的实现首先需要保证多进程并发的环境下获取锁和释放锁操作不会产生冲突，而系统调用机制恰好提供了这种<strong>原子性</strong>。在本题中，你需要添加新的系统调用，在
+MOS 系统中实现简单的自旋锁，并对控制台输出设备加锁保护。</p>
+<h3 id="题目描述">题目描述</h3>
+<p>在本题中，内核需要面向所有进程维护一个公用的锁（下称<strong>锁</strong>）。对于用户程序，锁在同一时刻要么被唯一一个进程持有，要么不被任何进程持有（此时称锁处于<strong>空闲状态</strong>）。内核初始化时，锁应当处于空闲状态。</p>
+<p>为了在用户空间提供自旋锁机制，你需要实现以下两个用户函数：</p>
+<h4 id="检查并设置-锁">“检查并设置” 锁</h4>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">/* user/lib.h */</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> syscall_try_acquire_console<span class="op">(</span><span class="dt">void</span><span class="op">);</span></span></code></pre></div>
+<p>若锁处于空闲状态，该函数设置锁由当前进程持有，并返回
+<code>0</code>；否则，该函数返回 <code>-1</code>。</p>
+<p>请注意：只要锁不处于空闲状态，即使锁已由当前进程持有，该函数也返回
+<code>-1</code>。</p>
+<h4 id="释放锁">释放锁</h4>
+<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">/* user/lib.h */</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> syscall_release_console<span class="op">(</span><span class="dt">void</span><span class="op">);</span></span></code></pre></div>
+<p>若锁由当前进程持有，该函数设置锁为空闲状态，并返回
+<code>0</code>，从而使当前进程不再持有锁。否则，该函数返回
+<code>-1</code>。</p>
+<ul>
+<li>为了实现这两个用户函数，你需要设计并添加相应的系统调用，保证这两个锁操作具有原子性，即不会被其他进程打断，导致多个进程持有锁。</li>
+</ul>
+<h4 id="控制台输出锁保护">控制台输出锁保护</h4>
+<p>为了在内核中控制控制台输出设备的使用，你需要修改
+<code>lib/syscall_all.c</code> 中 <code>sys_putchar</code>
+系统调用函数的实现，使得只有持有锁的进程才能向控制台输出字符。如果当前进程不持有锁，该函数应直接返回，<strong>不应输出任何内容</strong>。</p>
+<h3 id="实现要求">实现要求</h3>
+<ul>
+<li>在 <code>user/lib.h</code> 中声明函数
+<code>int syscall_try_acquire_console();</code></li>
+<li>在 <code>user/lib.h</code> 中声明函数
+<code>int syscall_release_console();</code></li>
+<li>在 <code>user/syscall_lib.c</code>
+中实现以上两个用户函数，发起系统调用</li>
+<li>修改相关文件，在内核中添加必要的系统调用，并维护必要的信息，以供用户函数使用。可能涉及的文件有：
+<ul>
+<li><code>lib/syscall_all.c</code>：添加系统调用在内核中的实现函数</li>
+<li><code>lib/syscall.S</code>：将实现函数添加到系统调用入口向量表</li>
+<li><code>include/unistd.h</code>：定义系统调用号</li>
+</ul></li>
+<li>修改 <code>lib/syscall_all.c</code> 中的 <code>sys_putchar</code>
+函数</li>
+</ul>
+<p>评测时，仓库中的以下文件可能被替换为标准版本：</p>
+<ul>
+<li><code>Makefile</code></li>
+<li><code>user/Makefile</code></li>
+<li><code>init/init.c</code></li>
+</ul>
+<h3 id="本地测试">本地测试</h3>
+<h4 id="测试程序">测试程序</h4>
+<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">/* user/lktest.c */</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&quot;lib.h&quot;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> umain<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    u_int me <span class="op">=</span> syscall_getenvid<span class="op">();</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(</span>syscall_try_acquire_console<span class="op">()</span> <span class="op">!=</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>        syscall_yield<span class="op">();</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    writef<span class="op">(</span><span class="st">&quot;I&#39;m %x</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> me<span class="op">);</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    syscall_release_console<span class="op">();</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span><span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h4 id="样例说明">样例说明</h4>
+<p>用户程序首先进行忙等待，尝试通过
+<code>syscall_try_acquire_console()</code>
+向内核获取自旋锁；成功获取锁后，通过 <code>writef()</code>
+函数输出自身的 envid。由于当前进程已持有锁，<code>writef()</code>
+函数依赖的 <code>syscall_putchar()</code>
+函数能够正常工作。最后，进程通过 <code>syscall_release_console()</code>
+释放锁。</p>
+<p>由于此程序正确使用了自旋锁机制，即使同时运行在多个进程中，输出的文本也不会交错。</p>
+<h4 id="测试流程">测试流程</h4>
+<p>将以上的用户程序保存为 <code>user/lktest.c</code>，并修改
+<code>user/Makefile</code>，在构建目标 <code>all:</code> 后添加
+<code>lktest.x</code> 和 <code>lktest.b</code>，最后将
+<code>init/init.c</code>
+中的<code>mips_init()</code>函数修改为以下内容，以在多个进程中运行测试程序：</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> mips_init<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">&quot;init.c:</span><span class="sc">\t</span><span class="st">mips_init() is called</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    mips_detect_memory<span class="op">();</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    mips_vm_init<span class="op">();</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    page_init<span class="op">();</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    env_init<span class="op">();</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> i<span class="op">;</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span>i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> <span class="dv">10</span><span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>        ENV_CREATE<span class="op">(</span>user_lktest<span class="op">);</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    trap_init<span class="op">();</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    kclock_init<span class="op">();</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span><span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    panic<span class="op">(</span><span class="st">&quot;init.c:</span><span class="sc">\t</span><span class="st">end of mips_init() reached!&quot;</span><span class="op">);</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>编译并运行：</p>
+<pre class="shell"><code>make clean &amp;&amp; make
+/OSLAB/gxemul -E testmips -C R3000 -M 64 gxemul/vmlinux</code></pre>
+<h3 id="参考输出">参考输出</h3>
+<pre><code>main.c: main is start ...
+init.c: mips_init() is called
+Physical memory: 65536K available, base = 65536K, extended = 0K
+to memory 80401000 for struct page directory.
+to memory 80431000 for struct Pages.
+pmap.c:  mips vm init success
+I&#39;m 4c09
+I&#39;m 4408
+I&#39;m 3c07
+I&#39;m 3406
+I&#39;m 2c05
+I&#39;m 2404
+I&#39;m 1c03
+I&#39;m 1402
+I&#39;m c01
+I&#39;m 400</code></pre>
+<p>此处<strong>略去了输出中的空行，以及 pageout
+的输出</strong>。该测试中各进程间的输出顺序也不是唯一确定的。</p>
+<p>你还可以将用户程序中 <code>syscall_release_console();</code>
+一行注释掉再编译运行（即获取锁后不再释放锁），可能观察到仅有第一个获取锁的进程成功输出。哪个进程成功获取锁同样是不确定的。评测使用的进程不会在持有锁时不释放锁直接退出。</p>
+<h3 id="实现提示">实现提示</h3>
+<ul>
+<li>请回顾在 MOS
+操作系统中添加系统调用的具体流程，包括需要修改哪些文件</li>
+<li>可以在内核中记录锁的相关状态，使内核中的系统调用函数能够确定当前持有锁的进程</li>
+<li>无需处理死锁、进程销毁前未释放锁等错误行为</li>
+</ul>
+<h3 id="提交评测">提交评测</h3>
+<pre class="shell"><code>git add .
+git commit -m &quot;finish exam&quot;
+git push origin lab4-1-exam:lab4-1-exam</code></pre>
+<h2 id="lab4-1-extra">lab4-1-Extra</h2>
+<h3 id="创建并切换分支-1">创建并切换分支</h3>
+<pre class="shell"><code>git checkout lab4
+git checkout -b lab4-1-Extra</code></pre>
+<h3 id="题目背景-1">题目背景</h3>
+<p>通过使用系统调用，我们在 MOS
+系统中实现了进程间通信（IPC）机制，允许进程之间传递数据和共享页面。阅读
+<code>user/ipc.c</code> 后我们可以发现，通过 IPC 机制发送数据的用户函数
+<code>ipc_send</code> 是使用轮询实现的。在接收方调用
+<code>ipc_recv</code> 进入接收状态之前，发送方会不断使用
+<code>syscall_ipc_can_send</code>
+发起系统调用，尝试发送数据，这种忙等待的方式会产生较高的 CPU
+和系统调用开销。</p>
+<p>反观接收函数 <code>ipc_recv</code>
+，它只需要进行一次系统调用即可完成接收，这是因为我们在
+<code>sys_ipc_recv</code> 函数中通过修改进程的 <code>env_status</code>
+实现了阻塞机制，让接收进程在数据发来前处于阻塞状态，不被调度运行。在
+<code>sys_ipc_can_send</code> 函数进行发送时，接收进程才被唤醒。</p>
+<h3 id="题目描述-1">题目描述</h3>
+<p>在本题中，你需要调整 IPC 机制的实现，修改内核中的
+<code>sys_ipc_can_send</code> 和 <code>sys_ipc_recv</code>
+这两个函数，使得用户进程使用 <code>ipc_send</code> 时只需要调用一次
+<code>syscall_ipc_can_send</code> 就能完成发送，不进行多次系统调用。</p>
+<h3 id="实现要求-1">实现要求</h3>
+<ul>
+<li><p>修改 <code>lib/syscall_all.c</code> 中
+<code>sys_ipc_can_send</code> 和 <code>sys_ipc_recv</code>
+函数的实现（根据需要，可定义其他辅助函数和变量）</p></li>
+<li><p>如下修改 <code>user/ipc.c</code> 中 <code>ipc_send</code>
+函数的实现：</p></li>
+</ul>
+<div class="sourceCode" id="cb10"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> ipc_send<span class="op">(</span>u_int whom<span class="op">,</span> u_int val<span class="op">,</span> u_int srcva<span class="op">,</span> u_int perm<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    syscall_ipc_can_send<span class="op">(</span>whom<span class="op">,</span> val<span class="op">,</span> srcva<span class="op">,</span> perm<span class="op">);</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<ul>
+<li><strong>不要</strong>修改用户空间中
+<code>syscall_ipc_can_send</code>、<code>syscall_ipc_recv</code> 和
+<code>msyscall</code> 函数的原有实现</li>
+</ul>
+<h3 id="评测说明">评测说明</h3>
+<ul>
+<li>评测满足以下约束：</li>
+</ul>
+<table>
+<thead>
+<tr class="header">
+<th>约束</th>
+<th>数值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>创建的最大进程数目</td>
+<td>25</td>
+</tr>
+<tr class="even">
+<td>单个进程进行 IPC 发送的最大次数</td>
+<td>50</td>
+</tr>
+<tr class="odd">
+<td>单个进程进行 IPC 接收的最大次数</td>
+<td>50</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><p>评测程序进行的 IPC 操作一定合法，即参数中传入的 envid
+一定属于已创建且未退出的进程，传入的虚拟地址一定在用户空间内且页对齐，地址非
+0 时的 <code>perm</code> 一定带有
+<code>PTE_V</code>，且接收进程一定与发送进程不同，也不会涉及死锁等错误行为。</p></li>
+<li><p>评测<strong>不会</strong>检查 <code>sys_ipc_can_send</code>
+的返回值。</p></li>
+<li><p>评测时，仓库中的以下文件或目录可能被替换为标准版本。标准版本中的
+<code>ipc_send</code> 函数与“实现要求”中所提供代码的行为一致。</p>
+<ul>
+<li><code>Makefile</code></li>
+<li><code>user/Makefile</code></li>
+<li><code>user/ipc.c</code></li>
+<li><code>user/syscall_lib.c</code></li>
+<li><code>user/syscall_wrap.S</code></li>
+<li><code>init/init.c</code></li>
+</ul></li>
+</ul>
+<h3 id="实现提示-1">实现提示</h3>
+<ul>
+<li>可以参考当前对接收进程实现的阻塞机制，在接收进程进入接收状态前，让发送进程进入阻塞状态从而不被调度。在接收进程开始接收时，需要唤醒发送进程，并在接收过程中为其完成发送操作。这种情况下，接收进程不再需要被阻塞。</li>
+<li>发送进程进行发送时，如果接收进程已处于接收状态，则不需要阻塞发送进程，可如同课下实现直接发送。</li>
+<li>你可以将完成发送时传递数据的过程封装为单独的函数，并在发送和接收过程中调用，以处理以上的两种情况。</li>
+<li>在接收进程开始接收时，可能有多个进程都向其进行过发送，此时
+<code>sys_ipc_recv</code>
+仍应保证每次接收只选择一个发送进程，接收其数据并将其唤醒，而其余发送进程仍应处于阻塞状态，等待接收进程下一次调用
+<code>ipc_recv</code>。我们对这一接收顺序没有要求（可以与发送顺序不一致），但不应有发送的数据被遗漏。</li>
+<li>在阻塞一个发送进程时，你可能需要将描述本次发送的相关数据信息存储在内核中的缓冲区中，包括发送方和接收方的
+envid，以及被发送的 <code>value</code>、<code>srcva</code> 和
+<code>perm</code>。开始接收时，你需要找到该接收进程对应的数据信息。</li>
+<li>你可以为每个未进入接收状态的进程准备一个接收队列，将来自每个发送进程的数据放入其中暂存。开始接收时，需要检查接收进程的接收队列是否为空。</li>
+<li>为了保证内存映射的正确性，请避免在 <code>struct Env</code>
+中新增字段。你可以使用 <code>ENVX</code> 宏等方式获取进程控制块在
+<code>envs</code>
+中的下标，并使用独立的静态数组为每个进程在内核中维护必要的信息。</li>
+</ul>
+<p>以上提示仅供参考，在满足题目要求，正确实现 IPC
+机制的前提下，你的实现可以不遵循以上提及的实现细节。</p>
+<h2 id="本地测试-1">本地测试</h2>
+<p>首先，将 <code>user/syscall_lib.c</code> 中的
+<code>syscall_ipc_can_send</code> 函数修改如下：</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> syscall_ipc_can_send<span class="op">(</span>u_int envid<span class="op">,</span> u_int value<span class="op">,</span> u_int srcva<span class="op">,</span> u_int perm<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    writef<span class="op">(</span><span class="st">&quot;%x: sending %d to %x</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> env<span class="op">-&gt;</span>env_id<span class="op">,</span> value<span class="op">,</span> envid<span class="op">);</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    msyscall<span class="op">(</span>SYS_ipc_can_send<span class="op">,</span> envid<span class="op">,</span> value<span class="op">,</span> srcva<span class="op">,</span> perm<span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>然后创建如下两个用户程序：</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">// user/ipcsend.c</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&quot;lib.h&quot;</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> umain<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    u_int me <span class="op">=</span> syscall_getenvid<span class="op">();</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    u_int dst <span class="op">=</span> envs<span class="op">[</span><span class="dv">3</span><span class="op">].</span>env_id<span class="op">;</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    u_int val <span class="op">=</span> ENVX<span class="op">(</span>me<span class="op">);</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    ipc_send<span class="op">(</span>dst<span class="op">,</span> val<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    u_int who<span class="op">;</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> <span class="op">*</span>buf <span class="op">=</span> <span class="op">(</span><span class="dt">int</span> <span class="op">*)</span> <span class="bn">0x60000000</span><span class="op">;</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    ipc_recv<span class="op">(&amp;</span>who<span class="op">,</span> buf<span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    writef<span class="op">(</span><span class="st">&quot;%x: got %d from %x</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> me<span class="op">,</span> buf<span class="op">[</span><span class="dv">0</span><span class="op">],</span> who<span class="op">);</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">// user/ipcrecv.c</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&quot;lib.h&quot;</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> umain<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    u_int me <span class="op">=</span> syscall_getenvid<span class="op">();</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    u_int i<span class="op">,</span> sum <span class="op">=</span> <span class="dv">0</span><span class="op">,</span> whos<span class="op">[</span><span class="dv">3</span><span class="op">];</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span>i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> <span class="dv">10000</span><span class="op">;</span> <span class="op">++</span>i<span class="op">)</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>        syscall_yield<span class="op">();</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span>i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> <span class="dv">3</span><span class="op">;</span> <span class="op">++</span>i<span class="op">)</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>        sum <span class="op">+=</span> ipc_recv<span class="op">(&amp;</span>whos<span class="op">[</span>i<span class="op">],</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> <span class="op">*</span>buf <span class="op">=</span> <span class="op">(</span><span class="dt">int</span> <span class="op">*)</span> <span class="bn">0x60000000</span><span class="op">;</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    syscall_mem_alloc<span class="op">(</span><span class="dv">0</span><span class="op">,</span> buf<span class="op">,</span> PTE_V <span class="op">|</span> PTE_R<span class="op">);</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    buf<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> sum<span class="op">;</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span>i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> <span class="dv">3</span><span class="op">;</span> <span class="op">++</span>i<span class="op">)</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>        ipc_send<span class="op">(</span>whos<span class="op">[</span>i<span class="op">],</span> i<span class="op">,</span> buf<span class="op">,</span> PTE_V <span class="op">|</span> PTE_R<span class="op">);</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>将以上两个用户程序分别保存为 <code>user/ipcsend.c</code> 和
+<code>user/ipcrecv.c</code>，最后参照 lab4-1-exam
+或指导书中的相关描述，修改 <code>user/Makefile</code> 中的构建目标，并将
+<code>init/init.c</code> 中的 <code>mips_init()</code>
+修改为以下内容：</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> mips_init<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">&quot;init.c:</span><span class="sc">\t</span><span class="st">mips_init() is called</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    mips_detect_memory<span class="op">();</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    mips_vm_init<span class="op">();</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    page_init<span class="op">();</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    env_init<span class="op">();</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> i<span class="op">;</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span>i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> <span class="dv">3</span><span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>        ENV_CREATE<span class="op">(</span>user_ipcsend<span class="op">);</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    ENV_CREATE<span class="op">(</span>user_ipcrecv<span class="op">);</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>    trap_init<span class="op">();</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>    kclock_init<span class="op">();</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span><span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>    panic<span class="op">(</span><span class="st">&quot;init.c:</span><span class="sc">\t</span><span class="st">end of mips_init() reached!&quot;</span><span class="op">);</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="参考输出-1">参考输出</h3>
+<pre><code>1402: sending 2 to 1c03
+c01: sending 1 to 1c03
+400: sending 0 to 1c03
+1c03: sending 0 to 400
+1c03: sending 1 to c01
+1c03: sending 2 to 1402
+1402: got 3 from 1c03
+c01: got 3 from 1c03
+400: got 3 from 1c03</code></pre>
+<p>此处略去了部分空行、内核初始化和 pageout
+的输出。各行输出的顺序不是唯一确定的，且可能出现交错，但前三行输出应当与你一致（内部顺序可能不同）。</p>
+<h3 id="提交评测-1">提交评测</h3>
+<pre class="shell"><code>git add .
+git commit -m &quot;finish extra&quot;
+git push origin lab4-1-Extra:lab4-1-Extra</code></pre>
