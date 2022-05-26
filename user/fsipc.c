@@ -116,7 +116,7 @@ int fsipc_dirty(u_int fileid, u_int offset) {
 int fsipc_remove(const char *path) {
     // Step 1: decide if the path is valid.
     // The path is too long.
-    if (strlen(path) >= MAXPATHLEN)
+    if (path[0] == '\0' || strlen(path) >= MAXPATHLEN)
         return -E_BAD_PATH;
     // Step 2: Transform fsipcbuf to struct Fsreq_remove*
     struct Fsreq_remove *req = (struct Fsreq_map *) fsipcbuf;
