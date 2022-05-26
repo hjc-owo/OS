@@ -179,14 +179,14 @@ int make_shared(void *va) {
     int r;
     // 若 va 不在用户空间中（大于或等于 UTOP），
     // 或者当前进程的页表中已存在该虚拟页，但进程对其没有写入权限，则该函数应返回 -1 表示失败，不产生任何影响。
-    if (va >= (void *) UTOP || ((*vpt)[VPN(va)] & PTE_W) == 0) {
+    if (va >= (void *) UTOP || ((*vpt)[VPN(va)] & PTE_COW) == 0) {
         return -1;
     }
 
     // 若当前进程的页表中不存在该虚拟页，该函数应首先分配一页物理内存，并将该虚拟页映射到新分配的物理页，使当前进程能够读写该虚拟页。
     // 若无法分配新的物理页，该函数应返回 -1 表示失败。
     if ((*vpt)[VPN(va)] == 0) {
-        r = syscall_mem_alloc(0, va, PTE_V | PTE_R | PTE_W);
+        r = syscall_mem_alloc(0, va, PTE_V | PTE_R);
         if (r < 0) {
             return -1;
         }
