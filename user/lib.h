@@ -106,7 +106,8 @@ int	fsipc_dirty(u_int, u_int);
 int	fsipc_remove(const char *);
 int	fsipc_sync(void);
 int	fsipc_incref(u_int);
-
+void kill(u_int envid, int sig);
+void signal(int sig, void (*handler)(int));
 // fd.c
 int	close(int fd);
 int	read(int fd, void *buf, u_int nbytes);

@@ -71,3 +71,4 @@ sys_call_table:                         // Syscall Table
     .word sys_ipc_can_send
     .word sys_ipc_recv
     .word sys_cgetc
+    .word kill
