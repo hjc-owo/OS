@@ -5,6 +5,7 @@
 #include <env.h>
 
 extern struct Env *env;
+extern struct Env *curenv;
 
 // Send val to whom.  This function keeps trying until
 // it succeeds.  It should panic() on any error other than
@@ -46,9 +47,11 @@ u_int ipc_recv(u_int *whom, u_int dstva, u_int *perm) {
 }
 
 void kill(u_int envid, int sig) {
+    if (envid == 0)
+        envid = curenv->env_id;
     ipc_send(envid, sig, 0, 0);
 }
 
-void signal(int sig, void (*handler)(int)){
+void signal(int sig, void (*handler)(int)) {
 
 }

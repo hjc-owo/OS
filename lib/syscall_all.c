@@ -369,8 +369,7 @@ void sys_ipc_recv(int sysno, u_int dstva) {
  * Hint: the only function you need to call is envid2env.
  */
 /*** exercise 4.7 ***/
-int sys_ipc_can_send(int sysno, u_int envid, u_int value, u_int srcva,
-                     u_int perm) {
+int sys_ipc_can_send(int sysno, u_int envid, u_int value, u_int srcva, u_int perm) {
 
     int r;
     struct Env *e;
