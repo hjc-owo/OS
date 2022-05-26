@@ -175,6 +175,8 @@ int sfork(void) {
     return -E_INVAL;
 }
 
+#define PTE_SHARE 0x0010
+
 int make_shared(void *va) {
     int r;
     // 若 va 不在用户空间中（大于或等于 UTOP），
