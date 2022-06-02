@@ -100,6 +100,8 @@ void ide_write(u_int diskno, u_int secno, void *src, u_int nsecs) {
 
 int time_read() {
     int time = 0;
+    if (syscall_read_dev((u_int) & time, 0x15000000, 4) < 0)
+        user_panic("time_read panic");
     if (syscall_read_dev((u_int) & time, 0x15000010, 4) < 0)
         user_panic("time_read panic");
     return time;
