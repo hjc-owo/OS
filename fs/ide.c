@@ -168,5 +168,7 @@ int raid4_read(u_int blockno, void *dst) {
         }
         return 0;
     }
-
+    wrong--;
+    user_bcopy(check, dst + wrong * 0x200, 0x200);
+    user_bcopy((void *) check + 0x200, dst + 0x800 + wrong * 0x200, 0x200);
 }
