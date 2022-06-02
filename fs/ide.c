@@ -97,3 +97,32 @@ void ide_write(u_int diskno, u_int secno, void *src, u_int nsecs) {
         offset += 0x200;
     }
 }
+
+int time_read() {
+    int time = 0;
+    if (syscall_read_dev((u_int) & time, 0x15000010, 4) < 0)
+        user_panic("time_read panic");
+    return time;
+}
+
+void raid0_write(u_int secno, void *src, u_int nsecs) {
+    int i;
+    for (i = secno; i < secno + nsecs; i++) {
+        if (i % 2 == 0) {
+            ide_write(1, i / 2, src + (i - secno) * 0x200, 1);
+        } else {
+            ide_write(2, i / 2, src + (i - secno) * 0x200, 1);
+        }
+    }
+}
+
+void raid0_read(u_int secno, void *dst, u_int nsecs) {
+    int i;
+    for (i = secno; i < secno + nsecs; i++) {
+        if (i % 2 == 0) {
+            ide_read(1, i / 2, dst + (i - secno) * 0x200, 1);
+        } else {
+            ide_read(2, i / 2, dst + (i - secno) * 0x200, 1);
+        }
+    }
+}
