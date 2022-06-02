@@ -124,7 +124,7 @@ int raid4_write(u_int blockno, void *src) {
                 check[j] ^= *(int *) (src + (4 * i + k) * 0x200 + j * 4);
             }
         }
-        ide_write(5, 2 * blockno + 1, check, 1);
+        ide_write(5, 2 * blockno + 1, (void *) check, 1);
     }
     return invalid / 2;
 }
@@ -169,4 +169,5 @@ int raid4_read(u_int blockno, void *dst) {
         }
         return 0;
     }
+
 }
