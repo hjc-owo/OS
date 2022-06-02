@@ -99,14 +99,15 @@ void ide_write(u_int diskno, u_int secno, void *src, u_int nsecs) {
 }
 
 int raid4_valid(u_int diskno) {
-    return ide_read(diskno, 0, (void *) 0x13004000, 1);
+    ide_read(diskno, 0, (void *) 0x13004000, 1);
+    return *(u_int *) 0x13004000;
 }
 
 int raid4_write(u_int blockno, void *src) {
     int i;
     int invalid = 0;
     int check[50];
-    bzero(check, 0x200);
+    user_bzero(check, 0x200);
     for (i = 0; i < 4; i++) {
         if (raid4_valid(i + 1)) {
             invalid++;
@@ -125,7 +126,7 @@ int raid4_read(u_int blockno, void *dst) {
     int i;
     int invalid = 0;
     int check[50];
-    bzero(check, 0x200);
+    user_bzero(check, 0x200);
     for (i = 0; i < 4; i++) {
         if (raid4_valid(i + 1)) {
             invalid++;
