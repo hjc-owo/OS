@@ -102,7 +102,7 @@ int raid4_valid(u_int diskno) {
     return !ide_read(diskno, 0, (void *) 0x13004000, 1);
 }
 
-#define MAXL (0x80)
+#define MAXL (128)
 
 int raid4_write(u_int blockno, void *src) {
     int i;
@@ -124,7 +124,7 @@ int raid4_write(u_int blockno, void *src) {
                 check[j] ^= *(int *) (src + (4 * i + k) * 0x200 + j * 4);
             }
         }
-        ide_write(5, 2 * blockno + 1, (void *) check, 1);
+        ide_write(5, 2 * blockno + i, (void *) check, 1);
     }
     return invalid / 2;
 }
@@ -134,7 +134,6 @@ int raid4_read(u_int blockno, void *dst) {
     int invalid = 0;
     int wrong = 0;
     int check[2 * MAXL];
-    user_bzero(check, 4 * 2 * MAXL);
     for (i = 1; i <= 5; i++) {
         if (!raid4_valid(i)) {
             invalid++;
