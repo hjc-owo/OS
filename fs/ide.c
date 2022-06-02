@@ -22,7 +22,7 @@
 //
 // Hint: use syscalls to access device registers and buffers
 /*** exercise 5.2 ***/
-void ide_read(u_int diskno, u_int secno, void *dst, u_int nsecs) {
+int ide_read(u_int diskno, u_int secno, void *dst, u_int nsecs) {
     // 0x200: the size of a sector: 512 bytes.
     int offset_begin = secno * 0x200;
     int offset_end = offset_begin + nsecs * 0x200;
@@ -45,7 +45,7 @@ void ide_read(u_int diskno, u_int secno, void *dst, u_int nsecs) {
         if (syscall_read_dev((u_int) & succ, 0x13000030, 4) < 0)
             user_panic("ide_read panic");
         if (!succ)
-            user_panic("ide_read panic");
+            return 1;
         if (syscall_read_dev((u_int)(dst + offset), 0x13004000, 0x200) < 0)
             user_panic("ide_read panic");
         offset += 0x200;
@@ -99,8 +99,7 @@ void ide_write(u_int diskno, u_int secno, void *src, u_int nsecs) {
 }
 
 int raid4_valid(u_int diskno) {
-    ide_read(diskno, 0, (void *) 0x13004000, 1);
-    return (*(u_int *) 0x13000030) == 0 ? 0 : 1;
+    return !ide_read(diskno, 0, (void *) 0x13004000, 1);
 }
 
 int raid4_write(u_int blockno, void *src) {
