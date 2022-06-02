@@ -108,7 +108,6 @@ int raid4_write(u_int blockno, void *src) {
     int i;
     int invalid = 0;
     int check[MAXL];
-    user_bzero(check, 4 * MAXL);
     for (i = 0; i < 8; i++) {
         if (raid4_valid(i % 4 + 1)) {
             ide_write(i % 4 + 1, 2 * blockno + i / 4, src + i * 0x200, 1);
@@ -120,6 +119,7 @@ int raid4_write(u_int blockno, void *src) {
     int j, k;
     for (i = 0; i < 2; i++) {
         for (j = 0; j < MAXL; j++) {
+            check[j] = 0;
             for (k = 0; k < 4; k++) {
                 check[j] ^= *(int *) (src + (4 * i + k) * 0x200 + j * 4);
             }
