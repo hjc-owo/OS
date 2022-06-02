@@ -16,6 +16,8 @@ USERLIB :=	$(user_dir)/printf.o \
 		$(user_dir)/pageref.o \
 		$(user_dir)/file.o \
 		$(user_dir)/fsipc.o \
+		$(user_dir)/wait.o \
+		$(user_dir)/spawn.o \
 		$(user_dir)/pipe.o \
 		$(user_dir)/console.o \
 		$(user_dir)/fprintf.o
@@ -24,7 +26,15 @@ FSLIB :=	fs.o \
 		ide.o \
 		test.o
 
-FSIMGFILES := motd newmotd
+USERAPPS :=  $(user_dir)/num.b  \
+			 $(user_dir)/echo.b \
+			 $(user_dir)/ls.b \
+			 $(user_dir)/sh.b  \
+			 $(user_dir)/cat.b \
+		 $(user_dir)/testptelibrary.b
+
+
+FSIMGFILES := motd newmotd $(user_dir)/testarg.b $(user_dir)/init.b $(USERAPPS)
 
 CFLAGS += -nostdlib -static
 
@@ -39,7 +49,7 @@ all: serv.x fs.img serv.b
 	echo bintoc $* $< > $@~
 	chmod +x $(tools_dir)/bintoc
 	$(tools_dir)/bintoc $* $< > $@~ && mv -f $@~ $@
-#	grep \. $@
+#   grep \. $@
 	
 %.b: ../user/entry.o ../user/syscall_wrap.o %.o $(USERLIB) $(FSLIB)
 	echo ld $@
@@ -53,12 +63,11 @@ all: serv.x fs.img serv.b
 	echo as $<
 	$(CC) $(CFLAGS) $(INCLUDES) -c -o $@ $<
 
-
 %.o: $(user_dir)/lib.h
 
 fs.img: $(FSIMGFILES)
 	dd if=/dev/zero of=../gxemul/fs.img bs=4096 count=1024 2>/dev/null
-	gcc fsformat.c -o $(tools_dir)/fsformat -m32
+	gcc $(INCLUDES) fsformat.c -o $(tools_dir)/fsformat -m32
 	chmod +x $(tools_dir)/fsformat
 	$(tools_dir)/fsformat ../gxemul/fs.img $(FSIMGFILES)
 

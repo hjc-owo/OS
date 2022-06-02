@@ -13,12 +13,13 @@ fs_dir		  := fs
 mm_dir		  := mm
 tools_dir	  := tools
 vmlinux_elf	  := gxemul/vmlinux
+user_disk     := gxemul/fs.img
 
 link_script   := $(tools_dir)/scse0_3.lds
 
 modules		  := boot drivers init lib mm user fs
 objects		  := $(boot_dir)/start.o			  \
-				 $(init_dir)/*.o 				  \
+				 $(init_dir)/*.o			  \
 			   	 $(drivers_dir)/gxconsole/console.o \
 				 $(lib_dir)/*.o				  \
 				 $(user_dir)/*.x \
@@ -40,6 +41,6 @@ clean:
 		do					\
 			$(MAKE) --directory=$$d clean; \
 		done; \
-	rm -rf *.o *~ $(vmlinux_elf) gxemul/*.img
+	rm -rf *.o *~ $(vmlinux_elf)  $(user_disk)
 
 include include.mk
