@@ -16,7 +16,7 @@
 #define DISKMAX		0x40000000
 
 /* ide.c */
-void ide_read(u_int diskno, u_int secno, void *dst, u_int nsecs);
+int ide_read(u_int diskno, u_int secno, void *dst, u_int nsecs);
 void ide_write(u_int diskno, u_int secno, void *src, u_int nsecs);
 
 /* fs.c */
