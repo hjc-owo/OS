@@ -146,7 +146,7 @@ int raid4_read(u_int blockno, void *dst) {
     }
     for (i = 0; i < 8; i++) {
         if (i % 4 + 1 != wrong) {
-            ide_read(i % 4 + 1, 2 * blockno + i / 4, src + i * 0x200, 1);
+            ide_read(i % 4 + 1, 2 * blockno + i / 4, dst + i * 0x200, 1);
         }
     }
     if (wrong == 5) {
