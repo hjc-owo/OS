@@ -105,7 +105,7 @@ int raid4_valid(u_int diskno) {
 int raid4_write(u_int blockno, void *src) {
     int i;
     int invalid = 0;
-    int check[50];
+    int check[0x50];
     user_bzero(check, 0x200);
     for (i = 0; i < 4; i++) {
         if (raid4_valid(i + 1)) {
@@ -124,7 +124,7 @@ int raid4_write(u_int blockno, void *src) {
 int raid4_read(u_int blockno, void *dst) {
     int i;
     int invalid = 0;
-    int check[50];
+    int check[0x50];
     user_bzero(check, 0x200);
     for (i = 0; i < 4; i++) {
         if (raid4_valid(i + 1)) {
