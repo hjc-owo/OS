@@ -100,7 +100,7 @@ void ide_write(u_int diskno, u_int secno, void *src, u_int nsecs) {
 
 int raid4_valid(u_int diskno) {
     ide_read(diskno, 0, (void *) 0x13004000, 1);
-    return *(u_int *) 0x1300030 & 1;
+    return *(u_int *) 0x13000030 & 1;
 }
 
 int raid4_write(u_int blockno, void *src) {
