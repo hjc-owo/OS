@@ -102,39 +102,71 @@ int raid4_valid(u_int diskno) {
     return !ide_read(diskno, 0, (void *) 0x13004000, 1);
 }
 
+#define MAXL (0x80)
+
 int raid4_write(u_int blockno, void *src) {
     int i;
     int invalid = 0;
-    int check[0x50];
-    user_bzero(check, 0x200);
-    for (i = 0; i < 4; i++) {
-        if (raid4_valid(i + 1)) {
-            invalid++;
-            ide_write(i + 1, 2 * blockno, src + i * 0x200, 1);
-        }
-        int j;
-        for (j = 0; j < 0x50; j++) {
-            check[j] ^= *(int *) (src + i * 0x200 + j * 4);
-        }
+    int check[MAXL];
+    user_bzero(check, 4 * MAXL);
+    for (i = 0; i < 8; i++) {
+        if (raid4_valid(i % 4 + 1)) {
+            ide_write(i % 4 + 1, 2 * blockno + i / 4, src + i * 0x200, 1);
+        } else { invalid++; }
     }
-    ide_write(5, 2 * blockno, check, 2);
-    return invalid;
+    if (!raid4_valid(5)) {
+        return invalid / 2 + 1;
+    }
+    int j, k;
+    for (i = 0; i < 2; i++) {
+        for (j = 0; j < MAXL; j++) {
+            for (k = 0; k < 4; k++) {
+                check[j] ^= *(int *) (src + (4 * i + k) * 0x200 + j * 4);
+            }
+        }
+        ide_write(5, 2 * blockno + 1, check, 1);
+    }
+    return invalid / 2;
 }
 
 int raid4_read(u_int blockno, void *dst) {
     int i;
     int invalid = 0;
-    int check[0x50];
-    user_bzero(check, 0x200);
-    for (i = 0; i < 4; i++) {
-        if (raid4_valid(i + 1)) {
+    int wrong = 0;
+    int check[2 * MAXL];
+    user_bzero(check, 4 * 2 * MAXL);
+    for (i = 1; i <= 5; i++) {
+        if (!raid4_valid(i)) {
             invalid++;
-            ide_read(i + 1, 2 * blockno, dst + i * 0x200, 1);
-        }
-        int j;
-        for (j = 0; j < 0x50; j++) {
-            check[j] ^= *(int *) (dst + i * 0x200 + j * 4);
+            wrong = i;
         }
     }
-    return invalid;
+    if (invalid > 1) {
+        return invalid;
+    }
+    for (i = 0; i < 8; i++) {
+        if (i % 4 + 1 != wrong) {
+            ide_read(i % 4 + 1, 2 * blockno + i / 4, src + i * 0x200, 1);
+        }
+    }
+    if (wrong == 5) {
+        return 1;
+    }
+    int j, k;
+    ide_read(5, 2 * blockno, check, 2);
+    for (i = 0; i < 2; i++) {
+        for (j = 0; j < MAXL; j++) {
+            for (k = 0; k < 4; k++) {
+                check[i * MAXL + j] ^= *(int *) (dst + (4 * i + k) * 0x200 + j * 4);
+            }
+        }
+    }
+    if (!wrong) {
+        for (j = 0; j < 2 * MAXL; j++) {
+            if (check[j] != 0) {
+                return -1;
+            }
+        }
+        return 0;
+    }
 }
