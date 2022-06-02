@@ -97,3 +97,44 @@ void ide_write(u_int diskno, u_int secno, void *src, u_int nsecs) {
         offset += 0x200;
     }
 }
+
+int raid4_valid(u_int diskno) {
+    return ide_read(diskno, 0, (void *) 0x13004000, 1);
+}
+
+int raid4_write(u_int blockno, void *src) {
+    int i;
+    int invalid = 0;
+    int check[50];
+    bzero(check, 0x200);
+    for (i = 0; i < 4; i++) {
+        if (raid4_valid(i + 1)) {
+            invalid++;
+            ide_write(i + 1, 2 * blockno, src + i * 0x200, 2);
+            int j;
+            for (j = 0; j < 50; j++) {
+                check[j] ^= *(int *) (src + i * 0x200 + j * 4);
+            }
+        }
+    }
+    ide_write(5, 2 * blockno, check, 2);
+    return invalid;
+}
+
+int raid4_read(u_int blockno, void *dst) {
+    int i;
+    int invalid = 0;
+    int check[50];
+    bzero(check, 0x200);
+    for (i = 0; i < 4; i++) {
+        if (raid4_valid(i + 1)) {
+            invalid++;
+            ide_read(i + 1, 2 * blockno, dst + i * 0x200, 2);
+            int j;
+            for (j = 0; j < 50; j++) {
+                check[j] ^= *(int *) (dst + i * 0x200 + j * 4);
+            }
+        }
+    }
+    return invalid;
+}
