@@ -111,38 +111,42 @@ int spawn(char *prog, char **argv) {
     u_int esp;
     Elf32_Ehdr *elf;
     Elf32_Phdr *ph;
-    Elf32_Ehdr *ehdr;
-    Elf32_Phdr *phdr;
-    int entry_size;
-    int count;
     // Note 0: some variable may be not used,you can cancel them as you like
     // Step 1: Open the file specified by `prog` (prog is the path of the program)
-    if ((r = open(prog, O_RDONLY)) < 0) {
-        user_panic("spawn ::open line 102 RDONLY wrong !\n");
+
+    char progname[32];
+    int name_len = strlen(prog);
+    strcpy(progname, prog);
+    if (name_len <= 2 || prog[name_len - 1] != 'b' || prog[name_len - 2] != '.') {
+        strcat(progname, ".b");
+    }
+
+    if ((r = open(progname, O_RDONLY)) < 0) {
+        // user_panic("spawn ::open line 102 RDONLY wrong !\n");
+        progname[strlen(progname) - 2] = 0;
+        writef("command [%s] is not found.\n", progname);
         return r;
     }
+    // Your code begins here
     fd = r;
-    r = readn(fd, elfbuf, sizeof(Elf32_Ehdr));
-    if (r < 0) {
-        user_panic("read Ehdr failed!");
-    }
-    ehdr = (Elf32_Ehdr *) elfbuf;
-    if ((!usr_is_elf_format((u_char *) ehdr)) || ehdr->e_type != ET_EXEC) {
-        user_panic("Not elf or exec!");
-    }
-    entry_size = ehdr->e_phentsize;
-    text_start = ehdr->e_phoff;
-    count = ehdr->e_phnum;
+    if ((r = readn(fd, elfbuf, sizeof(Elf32_Ehdr))) < 0)
+        return r;
 
-    //can't use ehdr after
+    elf = (Elf32_Ehdr *) elfbuf;
 
     // Before Step 2 , You had better check the "target" spawned is a execute bin
-    // Step 2: Allocate an env (Hint: using syscall_env_alloc())
+    if (!usr_is_elf_format(elf) || elf->e_type != 2)
+        return -E_INVAL;
 
-    child_envid = syscall_env_alloc();
-    if (child_envid < 0) {
-        user_panic("Alloc env failed!");
+    // Step 2: Allocate an env (Hint: using syscall_env_alloc())
+    r = syscall_env_alloc();
+    if (r < 0)
+        return r;
+    if (r == 0) {
+        env = envs + ENVX(syscall_getenvid());
+        return 0;
     }
+    child_envid = r;
 
     // Step 3: Using init_stack(...) to initialize the stack of the allocated env
     init_stack(child_envid, argv, &esp);
@@ -155,38 +159,32 @@ int spawn(char *prog, char **argv) {
     //       the file is opened successfully, and env is allocated successfully.
     // Note2: You can achieve this func in any way ，remember to ensure the correctness
     //        Maybe you can review lab3
-    for (i = 0; i < count; i++) {
-        r = seek(fd, text_start);
-        if (r < 0) {
-            user_panic("seek failed!");
-        }
-        r = readn(fd, elfbuf, entry_size);
-        if (r < 0) {
-            user_panic("readn failed!");
-        }
-        phdr = (Elf32_Phdr *) elfbuf;
-        if (phdr->p_type == PT_LOAD) {
-            r = usr_load_elf(fd, phdr, child_envid);
-            if (r < 0) {
-                user_panic("load faild %d!", r);
-            }
-        }
-        text_start += entry_size;
-    }
     // Your code ends here
-
-    // to replace mul
-    int res = 0;
-    for (i = 0; i < count; i++) {
-        res += entry_size;
+    // writef("before copy\n");
+    // size = ((struct Filefd *)num2fd(fd))->f_file.f_size;
+    text_start = elf->e_phoff;
+    size = elf->e_phentsize;
+    for (i = 0; i < elf->e_phnum; ++i) {
+        if ((r = seek(fd, text_start)) < 0)
+            return r;
+        if ((r = readn(fd, elfbuf, size)) < 0)
+            return r;
+        ph = (Elf32_Phdr *) elfbuf;
+        if (ph->p_type == PT_LOAD) {
+            // writef("copy %d\n", i);
+            r = usr_load_elf(fd, ph, child_envid);
+            if (r < 0)
+                return r;
+        }
+        text_start += size;
     }
+    // writef("after copy\n");
 
     struct Trapframe *tf;
-    writef("\n::::::::::spawn size : %x  sp : %x::::::::\n", size, esp);
+    writef("\n::::::::::spawn size : %x  sp : %x::::::::\n", size * elf->e_phnum, esp);
     tf = &(envs[ENVX(child_envid)].env_tf);
     tf->pc = UTEXT;
     tf->regs[29] = esp;
-
 
     // Share memory
     u_int pdeno = 0;
@@ -211,13 +209,12 @@ int spawn(char *prog, char **argv) {
         }
     }
 
-
+    // writef("QAQAQAQAQAQAQAQAQ\n");
     if ((r = syscall_set_env_status(child_envid, ENV_RUNNABLE)) < 0) {
         writef("set child runnable is wrong\n");
         return r;
     }
     return child_envid;
-
 }
 
 int spawnl(char *prog, char *args, ...) {
