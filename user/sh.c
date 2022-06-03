@@ -99,37 +99,6 @@ void runcmd(char *s) {
                 }
                 argv[argc++] = t;
                 break;
-            case '&':
-                hang = 1;
-                break;
-            case ';':
-                if ((pid = fork()) == 0) {
-                    hang = 0;
-                    goto runit;
-                }
-                wait(pid);
-                argc = 0;
-                hang = 0;
-                buf_len = 0;
-                rightpipe = 0;
-                do {
-                    close(0);
-                    if ((r = opencons()) < 0)
-                        user_panic("opencons: %e", r);
-                } while (r != 0);
-                dup(0, 1);
-                break;
-            case '$':
-                if (argc == MAXARGS) {
-                    writef("too many arguments\n");
-                    exit();
-                }
-                if (syscall_get_env(t, buffer[buf_len]) < 0) {
-                    argv[argc++] = t;
-                } else {
-                    argv[argc++] = buffer[buf_len++];
-                }
-                break;
             case '<':
                 if (gettoken(0, &t) != 'w') {
                     writef("syntax error: < not followed by word\n");
@@ -169,20 +138,6 @@ void runcmd(char *s) {
                 close(fdnum);
 
                 user_panic("> redirection not implemented");
-                break;
-            case 'a':
-                if (gettoken(0, &t) != 'w') {
-                    writef("syntax error: >> not followed by word\n");
-                    exit();
-                }
-                r = stat(t, &state);
-                if (r >= 0 && state.st_isdir != FTYPE_REG) {
-                    writef("specified path should be file\n");
-                    exit();
-                }
-                fdnum = open(t, O_WRONLY | O_CREAT | O_APPND);
-                dup(fdnum, 1);
-                close(fdnum);
                 break;
             case '|':
                 // Your code here.
