@@ -116,8 +116,6 @@ static void pgfault(u_int va) {
 static void duppage(u_int envid, u_int pn) {
     u_int addr = pn << PGSHIFT;
     u_int perm = ((Pte * )(*vpt))[pn] & 0xfff;
-    u_int addr;
-    u_int perm;
     int flag = 0;
     if ((perm & PTE_R) && (!(perm & PTE_LIBRARY))) {
         flag = 1;
