@@ -119,13 +119,6 @@ void runcmd(char *s) {
                 } while (r != 0);
                 dup(0, 1);
                 break;
-            case 'w':
-                if (argc == MAXARGS) {
-                    writef("too many arguments\n");
-                    exit();
-                }
-                argv[argc++] = t;
-                break;
             case '$':
                 if (argc == MAXARGS) {
                     writef("too many arguments\n");
@@ -149,7 +142,7 @@ void runcmd(char *s) {
                     writef("cannot open file\n");
                     exit();
                 }
-                if (state.st_type != FTYPE_REG) {
+                if (state.st_isdir != FTYPE_REG) {
                     writef("specified path should be file\n");
                     exit();
                 }
@@ -167,7 +160,7 @@ void runcmd(char *s) {
                 // Your code here -- open t for writing,
                 // dup it onto fd 1, and then close the fd you got.
                 r = stat(t, &state);
-                if (r >= 0 && state.st_type != FTYPE_REG) {
+                if (r >= 0 && state.st_isdir != FTYPE_REG) {
                     writef("specified path should be file\n");
                     exit();
                 }
@@ -183,7 +176,7 @@ void runcmd(char *s) {
                     exit();
                 }
                 r = stat(t, &state);
-                if (r >= 0 && state.st_type != FTYPE_REG) {
+                if (r >= 0 && state.st_isdir != FTYPE_REG) {
                     writef("specified path should be file\n");
                     exit();
                 }
