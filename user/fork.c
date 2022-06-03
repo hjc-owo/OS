@@ -116,16 +116,26 @@ static void pgfault(u_int va) {
 static void duppage(u_int envid, u_int pn) {
     u_int addr = pn << PGSHIFT;
     u_int perm = ((Pte * )(*vpt))[pn] & 0xfff;
-
-    int flag = 0;
-    if ((perm & PTE_R) && !(perm & PTE_LIBRARY)) {
-        perm |= PTE_COW;
-        flag = 1;
+    if ((perm & PTE_R) == 0) {
+        if (syscall_mem_map(0, addr, envid, addr, perm) < 0) {
+            user_panic("user panic mem map error!1");
+        }
+    } else if (perm & PTE_LIBRARY) {
+        if (syscall_mem_map(0, addr, envid, addr, perm) < 0) {
+            user_panic("user panic mem map error!2");
+        }
+    } else if (perm & PTE_COW) {
+        if (syscall_mem_map(0, addr, envid, addr, perm) < 0) {
+            user_panic("user panic mem map error!3");
+        }
+    } else {
+        if (syscall_mem_map(0, addr, envid, addr, perm | PTE_COW) < 0) {
+            user_panic("user panic mem map error!4");
+        }
+        if (syscall_mem_map(0, addr, 0, addr, perm | PTE_COW) < 0) {
+            user_panic("user panic mem map error!5");
+        }
     }
-    syscall_mem_map(0, addr, envid, addr, perm);
-    if (flag)
-        syscall_mem_map(0, addr, 0, addr, perm);
-    //	user_panic("duppage not implemented");
 }
 
 /* Overview:
