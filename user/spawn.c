@@ -99,6 +99,8 @@ int usr_load_elf(int fd, Elf32_Phdr *ph, int child_envid) {
     return 0;
 }
 
+#define ET_EXEC 2
+
 int spawn(char *prog, char **argv) {
     u_char elfbuf[512];
     int r;
@@ -111,6 +113,8 @@ int spawn(char *prog, char **argv) {
     Elf32_Phdr *ph;
     Elf32_Ehdr *ehdr;
     Elf32_Phdr *phdr;
+    int entry_size;
+    int count;
     // Note 0: some variable may be not used,you can cancel them as you like
     // Step 1: Open the file specified by `prog` (prog is the path of the program)
     if ((r = open(prog, O_RDONLY)) < 0) {
