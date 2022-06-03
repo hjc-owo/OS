@@ -118,8 +118,10 @@ int spawn(char *prog, char **argv) {
         strcat(progname, ".b");
     }
 
-    if ((r = open(prog, O_RDONLY)) < 0) {
-        user_panic("spawn ::open line 102 RDONLY wrong !\n");
+    if ((r = open(progname, O_RDONLY)) < 0) {
+        // user_panic("spawn ::open line 102 RDONLY wrong !\n");
+        progname[strlen(progname) - 2] = 0;
+        writef("command [%s] is not found.\n", progname);
         return r;
     }
     // Your code begins here
@@ -171,7 +173,7 @@ int spawn(char *prog, char **argv) {
     }
 
     struct Trapframe *tf;
-    writef("\n::::::::::spawn size : %x  sp : %x::::::::\n", size, esp);
+    // writef("\n::::::::::spawn size : %x  sp : %x::::::::\n", size * elf->e_phnum, esp);
     tf = &(envs[ENVX(child_envid)].env_tf);
     tf->pc = UTEXT;
     tf->regs[29] = esp;
