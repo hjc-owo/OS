@@ -68,6 +68,7 @@ int syscall_read_dev(u_int va, u_int dev, u_int offset);
 // string.c
 int strlen(const char *s);
 char *strcpy(char *dst, const char *src);
+char *strcat(char *dst, const char *src);
 const char *strchr(const char *s, char c);
 void *memcpy(void *destaddr, void const *srcaddr, u_int len);
 int strcmp(const char *p, const char *q);
