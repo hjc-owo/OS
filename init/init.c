@@ -16,7 +16,8 @@ void mips_init() {
 
     // ENV_CREATE(user_devtst);
     // ENV_CREATE(user_fstest);
-    // ENV_CREATE(fs_serv);
+    ENV_CREATE(user_test);
+    ENV_CREATE(fs_serv);
 
     trap_init();
     kclock_init();

@@ -42,4 +42,9 @@ clean:
 		done; \
 	rm -rf *.o *~ $(vmlinux_elf) gxemul/*.img
 
+run:
+	make clean
+	make
+	/OSLAB/gxemul -E testmips -C R3000 -M 64 -d gxemul/fs.img gxemul/vmlinux
+
 include include.mk
