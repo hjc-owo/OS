@@ -65,7 +65,7 @@ int open(const char *path, int mode) {
     }
     if (mode & O_CREAT) {
         if (file_open(path, &f) < 0) {
-            file_create(path, &f)
+            file_create(path, &f);
         }
     }
 
