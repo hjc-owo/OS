@@ -54,7 +54,7 @@ int open(const char *path, int mode) {
 
     // Step 3: Set the start address storing the file's content. Set size and fileid correctly.
     // Hint: Use fd2data to get the start address.
-    va = fd2data(fd);
+    va = fd2data(fd) + mode & O_APPEND ? fd->fd_offset : 0;
     ffd = (struct Filefd *) fd;
     fileid = ffd->f_fileid;
     size = ffd->f_file.f_size;

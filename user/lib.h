@@ -132,6 +132,8 @@ int	sync(void);
 #define	O_WRONLY	0x0001		/* open for writing only */
 #define	O_RDWR		0x0002		/* open for reading and writing */
 #define	O_ACCMODE	0x0003		/* mask for above modes */
+#define O_APPEND	0x0010	    /* append on each write */
+#define O_CLONE     0x0020	    /* clone file descriptor */
 
 #define	O_CREAT		0x0100		/* create if nonexistent */
 #define	O_TRUNC		0x0200		/* truncate to zero length */
