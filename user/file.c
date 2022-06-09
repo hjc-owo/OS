@@ -60,13 +60,7 @@ int open(const char *path, int mode) {
     fileid = ffd->f_fileid;
     size = ffd->f_file.f_size;
     if (mode & O_APPEND) {
-        int append = fd->fd_offset;
-        va += append;
-    }
-    if (mode & O_CREAT) {
-        if (file_open(path, &f) < 0) {
-            file_create(path, &f);
-        }
+        ffd->f_file.fd_offset = size;
     }
 
     // Step 4: Map the file content into memory.
