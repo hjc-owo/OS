@@ -106,48 +106,34 @@ int spawn(char *prog, char **argv) {
     int r;
     int fd;
     u_int child_envid;
-    int size, text_start;
+    int size, text_start, count;
     u_int i, *blk;
     u_int esp;
     Elf32_Ehdr *elf;
     Elf32_Phdr *ph;
+    Elf32_Ehdr *ehdr;
+    Elf32_Phdr *phdr;
+    int res;
     // Note 0: some variable may be not used,you can cancel them as you like
     // Step 1: Open the file specified by `prog` (prog is the path of the program)
-
-    char progname[32];
-    int name_len = strlen(prog);
-    strcpy(progname, prog);
-    if (name_len <= 2 || prog[name_len - 1] != 'b' || prog[name_len - 2] != '.') {
-        strcat(progname, ".b");
-    }
-
-    if ((r = open(progname, O_RDONLY)) < 0) {
-        // user_panic("spawn ::open line 102 RDONLY wrong !\n");
-        progname[strlen(progname) - 2] = 0;
-        writef("command [%s] is not found.\n", progname);
+    if ((r = open(prog, O_RDONLY)) < 0) {
+        user_panic("spawn ::open line 102 RDONLY wrong !\n");
         return r;
     }
     // Your code begins here
-    fd = r;
-    if ((r = readn(fd, elfbuf, sizeof(Elf32_Ehdr))) < 0)
-        return r;
-
-    elf = (Elf32_Ehdr *) elfbuf;
-
     // Before Step 2 , You had better check the "target" spawned is a execute bin
-    if (!usr_is_elf_format(elf) || elf->e_type != 2)
-        return -E_INVAL;
+    fd = r;
+    if ((r = readn(fd, elfbuf, sizeof(Elf32_Ehdr))) < 0) user_panic("read ehdr failed");
+    ehdr = elfbuf;
 
+    res = ((struct Filefd *) num2fd(fd))->f_file.f_size;
+
+    if (res < 4 || !usr_is_elf_format(ehdr) || ehdr->e_type != 2)user_panic("not elf or exec");
+    size = ehdr->e_phentsize;
+    text_start = ehdr->e_phoff;
+    count = ehdr->e_phnum;
     // Step 2: Allocate an env (Hint: using syscall_env_alloc())
-    r = syscall_env_alloc();
-    if (r < 0)
-        return r;
-    if (r == 0) {
-        env = envs + ENVX(syscall_getenvid());
-        return 0;
-    }
-    child_envid = r;
-
+    if ((child_envid = syscall_env_alloc()) < 0)user_panic("syscall_env_alloc failed");
     // Step 3: Using init_stack(...) to initialize the stack of the allocated env
     init_stack(child_envid, argv, &esp);
     // Step 3: Map file's content to new env's text segment
@@ -160,25 +146,16 @@ int spawn(char *prog, char **argv) {
     // Note2: You can achieve this func in any way ，remember to ensure the correctness
     //        Maybe you can review lab3
     // Your code ends here
-    // writef("before copy\n");
-    // size = ((struct Filefd *)num2fd(fd))->f_file.f_size;
-    text_start = elf->e_phoff;
-    size = elf->e_phentsize;
-    for (i = 0; i < elf->e_phnum; ++i) {
-        if ((r = seek(fd, text_start)) < 0)
-            return r;
-        if ((r = readn(fd, elfbuf, size)) < 0)
-            return r;
-        ph = (Elf32_Phdr *) elfbuf;
-        if (ph->p_type == PT_LOAD) {
-            // writef("copy %d\n", i);
-            r = usr_load_elf(fd, ph, child_envid);
-            if (r < 0)
-                return r;
+
+    for (i = 0; i < count; i++) {
+        if ((r = seek(fd, text_start)) < 0)user_panic("seek failed");
+        if ((r = readn(fd, elfbuf, size)) < 0)user_panic("readn failed");
+        phdr = elfbuf;
+        if (phdr->p_type == PT_LOAD) {
+            if ((r = usr_load_elf(fd, phdr, child_envid)) < 0)user_panic("load failed");
         }
         text_start += size;
     }
-    // writef("after copy\n");
 
     struct Trapframe *tf;
     writef("\n::::::::::spawn size : %x  sp : %x::::::::\n", size * elf->e_phnum, esp);

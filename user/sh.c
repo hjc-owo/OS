@@ -76,16 +76,12 @@ int gettoken(char *s, char **p1) {
 
 void runcmd(char *s) {
     char *argv[MAXARGS], *t;
-    char buffer[MAXARGS][65];
-    int buf_len = 0;
-    int hang = 0;
     int argc, c, i, r, p[2], fd, rightpipe;
     int fdnum;
-    int pid;
-    struct Stat state;
     rightpipe = 0;
     gettoken(s, 0);
     again:
+    argc = 0;
     argc = 0;
     for (;;) {
         c = gettoken(0, &t);
@@ -106,38 +102,28 @@ void runcmd(char *s) {
                 }
                 // Your code here -- open t for reading,
                 // dup it onto fd 0, and then close the fd you got.
-                r = stat(t, &state);
-                if (r < 0) {
-                    writef("cannot open file\n");
-                    exit();
+                if ((r = open(t, O_RDONLY)) < 0) {
+                    user_panic("< open failed");
                 }
-                if (state.st_isdir != FTYPE_REG) {
-                    writef("specified path should be file\n");
-                    exit();
-                }
-                fdnum = open(t, O_RDONLY);
-                dup(fdnum, 0);
-                close(fdnum);
-
-                user_panic("< redirection not implemented");
+                fd = r;
+                dup(fd, 0);
+                close(fd);
+                //user_panic("< redirection not implemented");
                 break;
             case '>':
                 if (gettoken(0, &t) != 'w') {
-                    writef("syntax error: > not followed by word\n");
+                    writef("syntax error: < not followed by word\n");
                     exit();
                 }
                 // Your code here -- open t for writing,
                 // dup it onto fd 1, and then close the fd you got.
-                r = stat(t, &state);
-                if (r >= 0 && state.st_isdir != FTYPE_REG) {
-                    writef("specified path should be file\n");
-                    exit();
+                if ((r = open(t, O_WRONLY)) < 0) {
+                    user_panic("> open failed");
                 }
-                fdnum = open(t, O_WRONLY | O_CREAT);
-                dup(fdnum, 1);
-                close(fdnum);
-
-                user_panic("> redirection not implemented");
+                fd = r;
+                dup(fd, 1);
+                close(fd);
+                //user_panic("> redirection not implemented");
                 break;
             case '|':
                 // Your code here.
@@ -156,8 +142,7 @@ void runcmd(char *s) {
                 //		goto runit, to execute this piece of the pipeline
                 //			and then wait for the right side to finish
                 pipe(p);
-                rightpipe = fork();
-                if (rightpipe == 0) {
+                if ((rightpipe = fork()) == 0) {
                     dup(p[0], 0);
                     close(p[0]);
                     close(p[1]);
@@ -168,8 +153,6 @@ void runcmd(char *s) {
                     close(p[0]);
                     goto runit;
                 }
-
-                user_panic("| not implemented");
                 break;
             default:
                 break;
