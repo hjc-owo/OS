@@ -1,5 +1,6 @@
 #include "lib.h"
 #include <fs.h>
+#include <stdlib.h>
 
 #define debug 0
 
@@ -273,3 +274,34 @@ int remove(const char *path) {
 int sync(void) {
     return fsipc_sync();
 }
+
+int list_dir(const char *path, char *ans) {
+    int r;
+    u_int i, j, nblock;
+    void *blk;
+    struct File *f;
+    ans[0] = '\0';
+
+    // Step 1: Calculate nblock: how many blocks this dir have.
+    nblock = ROUND(dir->f_size, BY2BLK) / BY2BLK;
+
+    for (i = 0; i < nblock; i++) {
+        // Step 2: Read the i'th block of the dir.
+        // Hint: Use file_get_block.
+        if ((r = file_get_block(dir, i, &blk)) < 0) {
+            return r;
+        }
+        // Step 3: Find target file by file name in all files on this block.
+        // If we find the target file, set the result to *file and set f_dir field.
+        for (j = 0; j < FILE2BLK; j++) {
+            f = ((struct File *) blk) + j;
+            strcat(ans, f->f_name);
+            strcat(ans, " ");
+        }
+    }
+    if (ans[0] == '\0')
+        return -1;
+    ans[strlen(ans) - 1] = '\0';
+    return 0;
+}
+
