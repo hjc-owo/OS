@@ -34,7 +34,6 @@ struct Dev devfile = {
 int open(const char *path, int mode) {
     struct Fd *fd;
     struct Filefd *ffd;
-    struct File *f;
     u_int size, fileid;
     int r;
     u_int va;
@@ -60,7 +59,7 @@ int open(const char *path, int mode) {
     fileid = ffd->f_fileid;
     size = ffd->f_file.f_size;
     if (mode & O_APPEND) {
-        ffd->f_file.fd_offset = size;
+        ffd->f_fd.fd_offset = size;
     }
 
     // Step 4: Map the file content into memory.
