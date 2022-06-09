@@ -70,7 +70,7 @@ int open(const char *path, int mode) {
         }
     }
 
-    if (mode & ALONE) {
+    if (mode & O_ALONE) {
         syscall_mem_map(0, fd, 0, fd, (*vpt)[VPN(fd)] & (PTE_V | PTE_R));
     }
 
