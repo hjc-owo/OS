@@ -70,6 +70,10 @@ int open(const char *path, int mode) {
         }
     }
 
+    if (mode & ALONE) {
+        syscall_mem_map(0, fd, 0, fd, (*vpt)[VPN(fd)] & (PTE_V | PTE_R));
+    }
+
     // Step 5: Return file descriptor.
     // Hint: Use fd2num.
     return fd2num(fd);
