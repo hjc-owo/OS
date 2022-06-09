@@ -82,7 +82,6 @@ void runcmd(char *s) {
     gettoken(s, 0);
     again:
     argc = 0;
-    argc = 0;
     for (;;) {
         c = gettoken(0, &t);
         switch (c) {
@@ -102,9 +101,7 @@ void runcmd(char *s) {
                 }
                 // Your code here -- open t for reading,
                 // dup it onto fd 0, and then close the fd you got.
-                if ((r = open(t, O_RDONLY)) < 0) {
-                    user_panic("< open failed");
-                }
+                if ((r = open(t, O_RDONLY)) < 0)user_panic("< open failed");
                 fd = r;
                 dup(fd, 0);
                 close(fd);
@@ -117,9 +114,7 @@ void runcmd(char *s) {
                 }
                 // Your code here -- open t for writing,
                 // dup it onto fd 1, and then close the fd you got.
-                if ((r = open(t, O_WRONLY)) < 0) {
-                    user_panic("> open failed");
-                }
+                if ((r = open(t, O_WRONLY)) < 0)user_panic("> open failed");
                 fd = r;
                 dup(fd, 1);
                 close(fd);
@@ -154,7 +149,7 @@ void runcmd(char *s) {
                     goto runit;
                 }
                 break;
-            default:
+                //user_panic("| not implemented");
                 break;
         }
     }

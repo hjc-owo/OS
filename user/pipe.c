@@ -167,8 +167,6 @@ static int pipewrite(struct Fd *fd, const void *vbuf, u_int n, u_int offset) {
         p->p_buf[p->p_wpos % BY2PIPE] = wbuf[i];
         p->p_wpos++;
     }
-    //	return -E_INVAL;
-    //	user_panic("pipewrite not implemented");
     return n;
 }
 

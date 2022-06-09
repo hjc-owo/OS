@@ -158,7 +158,7 @@ int spawn(char *prog, char **argv) {
     }
 
     struct Trapframe *tf;
-    writef("\n::::::::::spawn size : %x  sp : %x::::::::\n", size * elf->e_phnum, esp);
+    writef("\n::::::::::spawn size : %x  sp : %x::::::::\n", size, esp);
     tf = &(envs[ENVX(child_envid)].env_tf);
     tf->pc = UTEXT;
     tf->regs[29] = esp;
@@ -186,7 +186,6 @@ int spawn(char *prog, char **argv) {
         }
     }
 
-    // writef("QAQAQAQAQAQAQAQAQ\n");
     if ((r = syscall_set_env_status(child_envid, ENV_RUNNABLE)) < 0) {
         writef("set child runnable is wrong\n");
         return r;
