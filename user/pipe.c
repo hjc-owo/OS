@@ -12,22 +12,21 @@ static int pipestat(struct Fd *, struct Stat *);
 
 static int pipewrite(struct Fd *fd, const void *buf, u_int n, u_int offset);
 
-struct Dev devpipe =
-        {
-                .dev_id=    'p',
-                .dev_name=    "pipe",
-                .dev_read=    piperead,
-                .dev_write=    pipewrite,
-                .dev_close=    pipeclose,
-                .dev_stat=    pipestat,
-        };
+struct Dev devpipe = {
+        .dev_id = 'p',
+        .dev_name = "pipe",
+        .dev_read = piperead,
+        .dev_write = pipewrite,
+        .dev_close = pipeclose,
+        .dev_stat = pipestat,
+};
 
-#define BY2PIPE 32        // small to provoke races
+#define BY2PIPE 32 // small to provoke races
 
 struct Pipe {
-    u_int p_rpos;        // read position
-    u_int p_wpos;        // write position
-    u_char p_buf[BY2PIPE];    // data buffer
+    u_int p_rpos;           // read position
+    u_int p_wpos;           // write position
+    u_char p_buf[BY2PIPE]; // data buffer
 };
 
 int pipe(int pfd[2]) {
@@ -35,12 +34,10 @@ int pipe(int pfd[2]) {
     struct Fd *fd0, *fd1;
 
     // allocate the file descriptor table entries
-    if ((r = fd_alloc(&fd0)) < 0
-        || (r = syscall_mem_alloc(0, (u_int) fd0, PTE_V | PTE_R | PTE_LIBRARY)) < 0)
+    if ((r = fd_alloc(&fd0)) < 0 || (r = syscall_mem_alloc(0, (u_int) fd0, PTE_V | PTE_R | PTE_LIBRARY)) < 0)
         goto err;
 
-    if ((r = fd_alloc(&fd1)) < 0
-        || (r = syscall_mem_alloc(0, (u_int) fd1, PTE_V | PTE_R | PTE_LIBRARY)) < 0)
+    if ((r = fd_alloc(&fd1)) < 0 || (r = syscall_mem_alloc(0, (u_int) fd1, PTE_V | PTE_R | PTE_LIBRARY)) < 0)
         goto err1;
 
     // allocate the pipe structure as first data page in both
@@ -57,7 +54,7 @@ int pipe(int pfd[2]) {
     fd1->fd_dev_id = devpipe.dev_id;
     fd1->fd_omode = O_WRONLY;
 
-    writef("[%08x] pipecreate \n", env->env_id, (*vpt)[VPN(va)]);
+    // writef("[%08x] pipecreate \n", env->env_id, (* vpt)[VPN(va)]);
 
     pfd[0] = fd2num(fd0);
     pfd[1] = fd2num(fd1);
@@ -94,8 +91,8 @@ static int _pipeisclosed(struct Fd *fd, struct Pipe *p) {
         pfd = pageref(fd);
         pfp = pageref(p);
     } while (runs != env->env_runs);
-    return pfp == pfd;
-//	user_panic("_pipeisclosed not implemented");
+
+    return pfd == pfp;
 }
 
 int pipeisclosed(int fdnum) {
@@ -122,18 +119,12 @@ static int piperead(struct Fd *fd, void *vbuf, u_int n, u_int offset) {
     struct Pipe *p;
     char *rbuf;
 
-    p = (struct Pipe *) fd2data(fd);
-    while (p->p_rpos == p->p_wpos) {
-        if (_pipeisclosed(fd, p)) return 0;
-        syscall_yield();
-    }
+    p = fd2data(fd);
     rbuf = (char *) vbuf;
-    for (i = 0; i < n; i++) {
+    for (i = 0; i < n; ++i) {
         while (p->p_rpos == p->p_wpos) {
-            if (_pipeisclosed(fd, p) || i > 0) {
-                // syscall_yield();
+            if (_pipeisclosed(fd, p) || i > 0)
                 return i;
-            }
             syscall_yield();
         }
         rbuf[i] = p->p_buf[p->p_rpos % BY2PIPE];
@@ -158,10 +149,11 @@ static int pipewrite(struct Fd *fd, const void *vbuf, u_int n, u_int offset) {
     char *wbuf;
 
     p = fd2data(fd);
-    wbuf = vbuf;
-    for (i = 0; i < n; i++) {
+    wbuf = (char *) vbuf;
+    for (i = 0; i < n; ++i) {
         while (p->p_wpos - p->p_rpos == BY2PIPE) {
-            if (_pipeisclosed(fd, p)) return 0;
+            if (_pipeisclosed(fd, p))
+                return 0;
             syscall_yield();
         }
         p->p_buf[p->p_wpos % BY2PIPE] = wbuf[i];
@@ -175,8 +167,7 @@ static int pipestat(struct Fd *fd, struct Stat *stat) {
 }
 
 static int pipeclose(struct Fd *fd) {
-    struct Fd *tmp = fd;
     syscall_mem_unmap(0, fd);
-    syscall_mem_unmap(0, fd2data(tmp));
+    syscall_mem_unmap(0, fd2data(fd));
     return 0;
 }

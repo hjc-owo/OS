@@ -4,8 +4,8 @@
 #include <kerelf.h>
 
 #define debug 0
-#define TMPPAGE        (BY2PG)
-#define TMPPAGETOP    (TMPPAGE+BY2PG)
+#define TMPPAGE (BY2PG)
+#define TMPPAGETOP (TMPPAGE + BY2PG)
 
 int init_stack(u_int child, char **argv, u_int *init_esp) {
     int argc, i, r, tot;
@@ -67,7 +67,7 @@ int init_stack(u_int child, char **argv, u_int *init_esp) {
     //	- set *init_esp to the initial stack pointer for the child
     //
     *init_esp = USTACKTOP - TMPPAGETOP + (u_int) pargv_ptr;
-//	*init_esp = USTACKTOP;	// Change this!
+    //	*init_esp = USTACKTOP;	// Change this!
 
     if ((r = syscall_mem_map(0, TMPPAGE, child, USTACKTOP - BY2PG, PTE_V | PTE_R)) < 0)
         goto error;
@@ -96,46 +96,93 @@ int usr_is_elf_format(u_char *binary) {
 int usr_load_elf(int fd, Elf32_Phdr *ph, int child_envid) {
     //Hint: maybe this function is useful
     //      If you want to use this func, you should fill it ,it's not hard
+    // writef("QAQAQAQAQAQAQAQAQ\n");
+    u_long va = ph->p_vaddr;
+    u_int32_t sgsize = ph->p_memsz;
+    u_int32_t bin_size = ph->p_filesz;
+    u_char *bin;
+    u_long i;
+    int r;
+    u_long offset = va - ROUNDDOWN(va, BY2PG);
+    r = read_map(fd, ph->p_offset, &bin);
+    if (r < 0)
+        return r;
+    if (offset != 0) {
+        if ((r = syscall_mem_alloc(child_envid, va, PTE_V | PTE_R)) < 0)
+            return r;
+        if ((r = syscall_mem_map(child_envid, va, 0, USTACKTOP, PTE_V | PTE_R)) < 0)
+            return r;
+        user_bcopy(bin, USTACKTOP + offset, MIN(BY2PG - offset, bin_size));
+        if ((r = syscall_mem_unmap(0, USTACKTOP)) < 0)
+            return r;
+    }
+    for (i = offset ? MIN(BY2PG - offset, bin_size) : 0; i < bin_size; i += BY2PG) {
+        if ((r = syscall_mem_alloc(child_envid, va + i, PTE_V | PTE_R)) < 0)
+            return r;
+        if ((r = syscall_mem_map(child_envid, va + i, 0, USTACKTOP, PTE_V | PTE_R)) < 0)
+            return r;
+        user_bcopy(bin + i, USTACKTOP, MIN(BY2PG, bin_size - i));
+        if ((r = syscall_mem_unmap(0, USTACKTOP)) < 0)
+            return r;
+    }
+    while (i < sgsize) {
+        if ((r = syscall_mem_alloc(child_envid, va + i, PTE_V | PTE_R)) < 0)
+            return r;
+        i += BY2PG;
+    }
     return 0;
 }
-
-#define ET_EXEC 2
 
 int spawn(char *prog, char **argv) {
     u_char elfbuf[512];
     int r;
     int fd;
     u_int child_envid;
-    int size, text_start, count;
+    int size, text_start;
     u_int i, *blk;
     u_int esp;
     Elf32_Ehdr *elf;
     Elf32_Phdr *ph;
-    Elf32_Ehdr *ehdr;
-    Elf32_Phdr *phdr;
-    int res;
     // Note 0: some variable may be not used,you can cancel them as you like
     // Step 1: Open the file specified by `prog` (prog is the path of the program)
-    if ((r = open(prog, O_RDONLY)) < 0) {
-        user_panic("spawn ::open line 102 RDONLY wrong !\n");
+
+    char progname[32];
+    int name_len = strlen(prog);
+    strcpy(progname, prog);
+    if (name_len <= 2 || prog[name_len - 1] != 'b' || prog[name_len - 2] != '.') {
+        strcat(progname, ".b");
+    }
+
+    if ((r = open(progname, O_RDONLY)) < 0) {
+        // user_panic("spawn ::open line 102 RDONLY wrong !\n");
+        progname[strlen(progname) - 2] = 0;
+        writef("command [%s] is not found.\n", progname);
         return r;
     }
     // Your code begins here
-    // Before Step 2 , You had better check the "target" spawned is a execute bin
     fd = r;
-    if ((r = readn(fd, elfbuf, sizeof(Elf32_Ehdr))) < 0) user_panic("read ehdr failed");
-    ehdr = elfbuf;
+    if ((r = readn(fd, elfbuf, sizeof(Elf32_Ehdr))) < 0)
+        return r;
 
-    res = ((struct Filefd *) num2fd(fd))->f_file.f_size;
+    elf = (Elf32_Ehdr *) elfbuf;
 
-    if (res < 4 || !usr_is_elf_format(ehdr) || ehdr->e_type != 2)user_panic("not elf or exec");
-    size = ehdr->e_phentsize;
-    text_start = ehdr->e_phoff;
-    count = ehdr->e_phnum;
+    // Before Step 2 , You had better check the "target" spawned is a execute bin
+    if (!usr_is_elf_format(elf) || elf->e_type != 2)
+        return -E_INVAL;
+
     // Step 2: Allocate an env (Hint: using syscall_env_alloc())
-    if ((child_envid = syscall_env_alloc()) < 0)user_panic("syscall_env_alloc failed");
+    r = syscall_env_alloc();
+    if (r < 0)
+        return r;
+    if (r == 0) {
+        env = envs + ENVX(syscall_getenvid());
+        return 0;
+    }
+    child_envid = r;
+
     // Step 3: Using init_stack(...) to initialize the stack of the allocated env
     init_stack(child_envid, argv, &esp);
+
     // Step 3: Map file's content to new env's text segment
     //        Hint 1: what is the offset of the text segment in file? try to use objdump to find out.
     //        Hint 2: using read_map(...)
@@ -146,19 +193,28 @@ int spawn(char *prog, char **argv) {
     // Note2: You can achieve this func in any way ，remember to ensure the correctness
     //        Maybe you can review lab3
     // Your code ends here
-
-    for (i = 0; i < count; i++) {
-        if ((r = seek(fd, text_start)) < 0)user_panic("seek failed");
-        if ((r = readn(fd, elfbuf, size)) < 0)user_panic("readn failed");
-        phdr = elfbuf;
-        if (phdr->p_type == PT_LOAD) {
-            if ((r = usr_load_elf(fd, phdr, child_envid)) < 0)user_panic("load failed");
+    // writef("before copy\n");
+    // size = ((struct Filefd *)num2fd(fd))->f_file.f_size;
+    text_start = elf->e_phoff;
+    size = elf->e_phentsize;
+    for (i = 0; i < elf->e_phnum; ++i) {
+        if ((r = seek(fd, text_start)) < 0)
+            return r;
+        if ((r = readn(fd, elfbuf, size)) < 0)
+            return r;
+        ph = (Elf32_Phdr *) elfbuf;
+        if (ph->p_type == PT_LOAD) {
+            // writef("copy %d\n", i);
+            r = usr_load_elf(fd, ph, child_envid);
+            if (r < 0)
+                return r;
         }
         text_start += size;
     }
+    // writef("after copy\n");
 
     struct Trapframe *tf;
-    writef("\n::::::::::spawn size : %x  sp : %x::::::::\n", size, esp);
+    // writef("\n::::::::::spawn size : %x  sp : %x::::::::\n", size * elf->e_phnum, esp);
     tf = &(envs[ENVX(child_envid)].env_tf);
     tf->pc = UTEXT;
     tf->regs[29] = esp;
@@ -186,6 +242,7 @@ int spawn(char *prog, char **argv) {
         }
     }
 
+    // writef("QAQAQAQAQAQAQAQAQ\n");
     if ((r = syscall_set_env_status(child_envid, ENV_RUNNABLE)) < 0) {
         writef("set child runnable is wrong\n");
         return r;
@@ -196,5 +253,3 @@ int spawn(char *prog, char **argv) {
 int spawnl(char *prog, char *args, ...) {
     return spawn(prog, &args);
 }
-
-
