@@ -1,0 +1,225 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory `/Users/huakaiyijiyeluoyide/19241027'
+/Applications/Xcode.app/Contents/Developer/usr/bin/make --directory=boot
+make[1]: Entering directory `/Users/huakaiyijiyeluoyide/19241027/boot'
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -c start.S 
+make[1]: Leaving directory `/Users/huakaiyijiyeluoyide/19241027/boot'
+/Applications/Xcode.app/Contents/Developer/usr/bin/make --directory=drivers
+ 
+make[1]: Entering directory `/Users/huakaiyijiyeluoyide/19241027/drivers'
+/Applications/Xcode.app/Contents/Developer/usr/bin/make --directory=gxconsole
+ 
+make[2]: Entering directory `/Users/huakaiyijiyeluoyide/19241027/drivers/gxconsole'
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000   -c -o console.o console.c
+make[2]: Leaving directory `/Users/huakaiyijiyeluoyide/19241027/drivers/gxconsole'
+ 
+make[1]: Leaving directory `/Users/huakaiyijiyeluoyide/19241027/drivers'
+ 
+/Applications/Xcode.app/Contents/Developer/usr/bin/make --directory=init
+ 
+make[1]: Entering directory `/Users/huakaiyijiyeluoyide/19241027/init'
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include -c init.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include -c main.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include -c code.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include -c check_icode.c
+make[1]: Leaving directory `/Users/huakaiyijiyeluoyide/19241027/init'
+/Applications/Xcode.app/Contents/Developer/usr/bin/make --directory=lib
+ 
+make[1]: Entering directory `/Users/huakaiyijiyeluoyide/19241027/lib'
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I./ -I../ -I../include/ -c kernel_elfloader.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I./ -I../ -I../include/ -c env.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I./ -I../ -I../include/ -c print.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I./ -I../ -I../include/ -c printf.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I./ -I../ -I../include/ -c sched.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I./ -I../ -I../include/ -c env_asm.S
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I./ -I../ -I../include/ -c kclock.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I./ -I../ -I../include/ -c traps.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I./ -I../ -I../include/ -c genex.S
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I./ -I../ -I../include/ -c kclock_asm.S
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I./ -I../ -I../include/ -c syscall.S
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I./ -I../ -I../include/ -c syscall_all.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I./ -I../ -I../include/ -c getc.S
+make[1]: Leaving directory `/Users/huakaiyijiyeluoyide/19241027/lib'
+/Applications/Xcode.app/Contents/Developer/usr/bin/make --directory=mm
+ 
+make[1]: Entering directory `/Users/huakaiyijiyeluoyide/19241027/mm'
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I./ -I../ -I../include/ -c pmap.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I./ -I../ -I../include/ -c tlb_asm.S
+make[1]: Leaving directory `/Users/huakaiyijiyeluoyide/19241027/mm'
+ 
+/Applications/Xcode.app/Contents/Developer/usr/bin/make --directory=user
+ 
+make[1]: Entering directory `/Users/huakaiyijiyeluoyide/19241027/user'
+echo as entry.S
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -c -o entry.o entry.S
+echo as syscall_wrap.S
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -c -o syscall_wrap.o syscall_wrap.S
+echo user1 cc printf.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -c -o printf.o printf.c
+echo user1 cc print.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -c -o print.o print.c
+echo user1 cc libos.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -c -o libos.o libos.c
+echo user1 cc fork.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -c -o fork.o fork.c
+echo user1 cc pgfault.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -c -o pgfault.o pgfault.c
+echo user1 cc syscall_lib.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -c -o syscall_lib.o syscall_lib.c
+echo user1 cc ipc.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -c -o ipc.o ipc.c
+echo user1 cc string.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -c -o string.o string.c
+echo user1 cc fd.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -c -o fd.o fd.c
+echo user1 cc pageref.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -c -o pageref.o pageref.c
+echo user1 cc file.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -c -o file.o file.c
+echo user1 cc pipe.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -c -o pipe.o pipe.c
+echo user1 cc fsipc.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -c -o fsipc.o fsipc.c
+echo user1 cc console.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -c -o console.o console.c
+ 
+echo user1 cc fprintf.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -c -o fprintf.o fprintf.c
+echo user1 cc devtst.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -c -o devtst.o devtst.c
+echo ld devtst.b
+/OSLAB/compiler/usr/bin/mips_4KC-ld -o devtst.b  -G 0 -static -n -nostdlib -T ./user.lds entry.o syscall_wrap.o devtst.o printf.o print.o libos.o fork.o pgfault.o syscall_lib.o ipc.o string.o fd.o pageref.o file.o pipe.o fsipc.o console.o fprintf.o
+echo create devtst.b.c
+echo bintoc devtst devtst.b > devtst.b.c~
+chmod +x ./bintoc
+./bintoc devtst devtst.b > devtst.b.c~ && mv -f devtst.b.c~ devtst.b.c
+echo cc1 devtst.b.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -c -o devtst.x devtst.b.c
+echo user1 cc tltest.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -c -o tltest.o tltest.c
+echo ld tltest.b
+/OSLAB/compiler/usr/bin/mips_4KC-ld -o tltest.b  -G 0 -static -n -nostdlib -T ./user.lds entry.o syscall_wrap.o tltest.o printf.o print.o libos.o fork.o pgfault.o syscall_lib.o ipc.o string.o fd.o pageref.o file.o pipe.o fsipc.o console.o fprintf.o
+echo create tltest.b.c
+echo bintoc tltest tltest.b > tltest.b.c~
+chmod +x ./bintoc
+./bintoc tltest tltest.b > tltest.b.c~ && mv -f tltest.b.c~ tltest.b.c
+echo cc1 tltest.b.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -c -o tltest.x tltest.b.c
+echo user1 cc fktest.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -c -o fktest.o fktest.c
+echo ld fktest.b
+/OSLAB/compiler/usr/bin/mips_4KC-ld -o fktest.b  -G 0 -static -n -nostdlib -T ./user.lds entry.o syscall_wrap.o fktest.o printf.o print.o libos.o fork.o pgfault.o syscall_lib.o ipc.o string.o fd.o pageref.o file.o pipe.o fsipc.o console.o fprintf.o
+echo create fktest.b.c
+echo bintoc fktest fktest.b > fktest.b.c~
+chmod +x ./bintoc
+./bintoc fktest fktest.b > fktest.b.c~ && mv -f fktest.b.c~ fktest.b.c
+echo cc1 fktest.b.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -c -o fktest.x fktest.b.c
+echo user1 cc pingpong.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -c -o pingpong.o pingpong.c
+echo ld pingpong.b
+/OSLAB/compiler/usr/bin/mips_4KC-ld -o pingpong.b  -G 0 -static -n -nostdlib -T ./user.lds entry.o syscall_wrap.o pingpong.o printf.o print.o libos.o fork.o pgfault.o syscall_lib.o ipc.o string.o fd.o pageref.o file.o pipe.o fsipc.o console.o fprintf.o
+ 
+echo create pingpong.b.c
+echo bintoc pingpong pingpong.b > pingpong.b.c~
+chmod +x ./bintoc
+./bintoc pingpong pingpong.b > pingpong.b.c~ && mv -f pingpong.b.c~ pingpong.b.c
+echo cc1 pingpong.b.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -c -o pingpong.x pingpong.b.c
+echo user1 cc idle.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -c -o idle.o idle.c
+echo ld idle.b
+/OSLAB/compiler/usr/bin/mips_4KC-ld -o idle.b  -G 0 -static -n -nostdlib -T ./user.lds entry.o syscall_wrap.o idle.o printf.o print.o libos.o fork.o pgfault.o syscall_lib.o ipc.o string.o fd.o pageref.o file.o pipe.o fsipc.o console.o fprintf.o
+echo create idle.b.c
+echo bintoc idle idle.b > idle.b.c~
+chmod +x ./bintoc
+./bintoc idle idle.b > idle.b.c~ && mv -f idle.b.c~ idle.b.c
+echo cc1 idle.b.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -c -o idle.x idle.b.c
+echo user1 cc fstest.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -c -o fstest.o fstest.c
+echo ld fstest.b
+/OSLAB/compiler/usr/bin/mips_4KC-ld -o fstest.b  -G 0 -static -n -nostdlib -T ./user.lds entry.o syscall_wrap.o fstest.o printf.o print.o libos.o fork.o pgfault.o syscall_lib.o ipc.o string.o fd.o pageref.o file.o pipe.o fsipc.o console.o fprintf.o
+echo create fstest.b.c
+echo bintoc fstest fstest.b > fstest.b.c~
+chmod +x ./bintoc
+./bintoc fstest fstest.b > fstest.b.c~ && mv -f fstest.b.c~ fstest.b.c
+echo cc1 fstest.b.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -c -o fstest.x fstest.b.c
+echo user1 cc test.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -c -o test.o test.c
+echo ld test.b
+/OSLAB/compiler/usr/bin/mips_4KC-ld -o test.b  -G 0 -static -n -nostdlib -T ./user.lds entry.o syscall_wrap.o test.o printf.o print.o libos.o fork.o pgfault.o syscall_lib.o ipc.o string.o fd.o pageref.o file.o pipe.o fsipc.o console.o fprintf.o
+echo create test.b.c
+echo bintoc test test.b > test.b.c~
+chmod +x ./bintoc
+./bintoc test test.b > test.b.c~ && mv -f test.b.c~ test.b.c
+echo cc1 test.b.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -c -o test.x test.b.c
+rm tltest.o devtst.o idle.o pingpong.b.c test.o idle.b fktest.b.c tltest.b.c devtst.b.c idle.b.c pingpong.o test.b.c fstest.b.c fstest.o fktest.o
+make[1]: Leaving directory `/Users/huakaiyijiyeluoyide/19241027/user'
+ 
+/Applications/Xcode.app/Contents/Developer/usr/bin/make --directory=fs
+ 
+make[1]: Entering directory `/Users/huakaiyijiyeluoyide/19241027/fs'
+echo as ../user/entry.S
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -I../user/ -c -o ../user/entry.o ../user/entry.S
+echo as ../user/syscall_wrap.S
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -I../user/ -c -o ../user/syscall_wrap.o ../user/syscall_wrap.S
+echo user1 cc serv.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -I../user/ -c -o serv.o serv.c
+echo user1 cc ../user/printf.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -I../user/ -c -o ../user/printf.o ../user/printf.c
+echo user1 cc ../user/print.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -I../user/ -c -o ../user/print.o ../user/print.c
+echo user1 cc ../user/libos.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -I../user/ -c -o ../user/libos.o ../user/libos.c
+echo user1 cc ../user/fork.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -I../user/ -c -o ../user/fork.o ../user/fork.c
+echo user1 cc ../user/pgfault.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -I../user/ -c -o ../user/pgfault.o ../user/pgfault.c
+echo user1 cc ../user/syscall_lib.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -I../user/ -c -o ../user/syscall_lib.o ../user/syscall_lib.c
+echo user1 cc ../user/ipc.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -I../user/ -c -o ../user/ipc.o ../user/ipc.c
+echo user1 cc ../user/string.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -I../user/ -c -o ../user/string.o ../user/string.c
+echo user1 cc ../user/fd.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -I../user/ -c -o ../user/fd.o ../user/fd.c
+echo user1 cc ../user/pageref.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -I../user/ -c -o ../user/pageref.o ../user/pageref.c
+echo user1 cc ../user/file.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -I../user/ -c -o ../user/file.o ../user/file.c
+echo user1 cc ../user/fsipc.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -I../user/ -c -o ../user/fsipc.o ../user/fsipc.c
+echo user1 cc ../user/pipe.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -I../user/ -c -o ../user/pipe.o ../user/pipe.c
+echo user1 cc ../user/console.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -I../user/ -c -o ../user/console.o ../user/console.c
+echo user1 cc ../user/fprintf.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -I../user/ -c -o ../user/fprintf.o ../user/fprintf.c
+echo user1 cc fs.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -I../user/ -c -o fs.o fs.c
+echo user1 cc ide.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -I../user/ -c -o ide.o ide.c
+echo user1 cc test.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -I../include/ -I../user/ -c -o test.o test.c
+echo ld serv.b
+/OSLAB/compiler/usr/bin/mips_4KC-ld -o serv.b  -G 0 -static -n -nostdlib -T ../user/user.lds ../user/entry.o ../user/syscall_wrap.o serv.o ../user/printf.o ../user/print.o ../user/libos.o ../user/fork.o ../user/pgfault.o ../user/syscall_lib.o ../user/ipc.o ../user/string.o ../user/fd.o ../user/pageref.o ../user/file.o ../user/fsipc.o ../user/pipe.o ../user/console.o ../user/fprintf.o fs.o ide.o test.o
+echo create serv.b.c
+echo bintoc serv serv.b > serv.b.c~
+chmod +x ./bintoc
+./bintoc serv serv.b > serv.b.c~ && mv -f serv.b.c~ serv.b.c
+ 
+echo cc1 serv.b.c
+/OSLAB/compiler/usr/bin/mips_4KC-gcc -I../include/ -I../user/ -O -G 0 -mno-abicalls -fno-builtin -Wa,-xgot -Wall -fPIC -march=r3000 -c -o serv.x serv.b.c
+dd if=/dev/zero of=../gxemul/fs.img bs=4096 count=1024 2>/dev/null
+gcc fsformat.c -o ./fsformat -m32
+chmod +x ./fsformat
+./fsformat ../gxemul/fs.img motd newmotd
+rm ../user/fd.o ../user/syscall_wrap.o ../user/console.o ../user/entry.o ../user/pipe.o serv.o test.o ../user/pageref.o ../user/file.o ../user/print.o ../user/fsipc.o serv.b.c ../user/libos.o ../user/syscall_lib.o ../user/string.o ../user/fork.o ide.o ../user/pgfault.o fs.o ../user/fprintf.o ../user/printf.o ../user/ipc.o
+make[1]: Leaving directory `/Users/huakaiyijiyeluoyide/19241027/fs'
+ 
+/OSLAB/compiler/usr/bin/mips_4KC-ld -o gxemul/vmlinux -N -T tools/scse0_3.lds boot/start.o init/*.o drivers/gxconsole/console.o lib/*.o user/*.x fs/*.x mm/*.o
+make: Leaving directory `/Users/huakaiyijiyeluoyide/19241027'
+ 
