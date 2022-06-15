@@ -15,6 +15,8 @@
    - lab0-exam-result 表示 lab0课上基础部分得分
    - lab0-Extra 表示 lab0课上附加测试
    - lab0-Extra-result 表示 lab0课上附加测试得分
+   - lab1-strong 表示 lab1课下部分强测代码（只有lab1 - lab5部分进行了强测）
+   - lab1-strong-result 表示 lab1课下部分强测得分
    - Others 表示 所有lab指导书选择填空答案 以及 所有lab实验报告
    - Homework 表示 理论课作业
    
