@@ -1,0 +1,96 @@
+// UTF-8, UTF-8, UTF-8
+/****************************************************************/
+/******************** lab5-1-exam 编译运行指令 *********************/
+/****************************************************************/
+
+make clean && make && /OSLAB/gxemul -E testmips -C R3000 -M 64 -d 0:gxemul/fs.img -d 1:gxemul/fs1.img -d 2:gxemul/fs2.img gxemul/vmlinux
+
+
+
+/***************************************************************/
+/******************** lab5-1-exam 测试程序 *********************/
+/***************************************************************/
+
+/* fs/exam.c */
+#include "fs.h"
+#include "lib.h"
+#include <mmu.h>
+
+/* 创建数据 */
+void init_data(int data[], int size) {
+    int i;
+    for (i = 0; i < size; i++) {
+        data[i] = i + size;
+    }
+}
+
+/* 打印数据 */
+void print_data(int data[], const char* prefix, int size) {
+    writef("%s", prefix);
+    int i;
+    for (i = 0; i < size; i++) {
+        if (i != 0 && i % 128 == 0) writef("\n");
+        writef("%d ", data[i]);
+    }
+    writef("\n");
+}
+
+void umain(void) {
+    /* 检查 time read */
+    int time = time_read();
+    writef("current time is: %d\n", time);
+    /* 检查 raid0 write & read */
+    int data[2][128], read[2][128], i;
+    init_data(data[0], 256);
+    print_data(data[0], "Standard data is: \n", 256);
+    raid0_write(25, data[0], 2);	/* 写入扇区 25 26*/
+    ide_read(2, 12, read[0], 1);
+    ide_read(1, 13, read[1], 1);
+    for (i = 0; i < 128; i++) {
+        if (data[0][i] != read[0][i] || data[1][i] != read[1][i]) {
+            print_data(read[0], "Data you wrote in disk is: \n", 256);
+            user_panic("Data written by raid0_write is incorrect");
+        }
+    }
+    user_bzero(read[0], 1024);
+    raid0_read(25, read[0], 2);
+    for (i = 0; i < 128; i++) {
+        if (data[0][i] != read[0][i] || data[1][i] != read[1][i]) {
+            print_data(read[0], "Data read by raid0_read is: \n", 256);
+            user_panic("Data read by raid0_read is incorrect");
+        }
+    }
+    writef("Your raid0 write & read are basically correct\n");
+}
+
+
+
+/***************************************************************/
+/***************** lab5-1-exam 参考输出 *************************/
+/***************************************************************/
+
+current time is: 165xxxxxxx		# 每次调用能看到时间逐渐增大
+
+Standard data is:
+
+256 257 258 259 ... 省略 ... 380 381 382 383
+
+384 385 386 387 ... 省略 ... 508 509 510 511
+
+diskno: 2
+
+diskno: 1
+
+The data you wrote in disk is:
+
+256 257 258 259 ... 省略 ... 380 381 382 383
+
+384 385 386 387 ... 省略 ... 508 509 510 511
+
+The data read by raid0_read is:
+
+256 257 258 259 ... 省略 ... 380 381 382 383
+
+384 385 386 387 ... 省略 ... 508 509 510 511
+
+Your raid0 write & read are basically correct
