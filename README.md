@@ -41,6 +41,7 @@
    - 2021春 - [rfhits](https://github.com/rfhits/Operating-System-BUAA-2021) *这是一个资料大礼包，谁看谁知道*
    - 2021春 - [Dr-Bluemond](https://github.com/Dr-Bluemond/BUAA_OS_2021) *也是一个神仙*
    - 2022春 - [Cloud-Iris](https://github.com/Cloud-Iris/Iris-Library) *呜呜呜是闫佬*
+   - 2022春 - [Fieldry](https://fieldry.github.io/) *呜呜呜是子翔*
    
 5. 没看到文件？
 
