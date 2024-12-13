@@ -16,7 +16,7 @@
    - lab1-strong 表示 lab1课下部分强测代码（只有lab1 - lab5部分进行了强测）
    - lab1-strong-result 表示 lab1课下部分强测得分
    - Others 表示 所有lab指导书选择填空答案 以及 所有lab实验报告
-   - Homework 表示 理论课作业
+   - Homework 表示 理论课作业 以及 课上小测的答案
    
 2. 写的东西不保证正确性。
 
@@ -32,7 +32,3 @@
    - 2021春 - [Dr-Bluemond](https://github.com/Dr-Bluemond/BUAA_OS_2021) *也是一个神仙*
    - 2022春 - [Cloud-Iris](https://github.com/Cloud-Iris/Iris-Library) *呜呜呜是闫佬*
    - 2022春 - [Fieldry](https://fieldry.github.io/) *呜呜呜是子翔*
-   
-4. 课堂小测和平时作业可以参考[这里](https://blog.csdn.net/jeremyzhao1998/category_9781325.html)。
-
-   但是由于是往年的，仅供参考。
